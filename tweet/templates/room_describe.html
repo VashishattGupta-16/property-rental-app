@@ -1,0 +1,154 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<style>
+    .image-scroller {
+        display: flex;
+        overflow-x: auto;
+        scroll-snap-type: x mandatory;
+        scrollbar-width: none;
+        gap: 1.5rem;
+        padding-bottom: 1rem;
+    }
+    .image-scroller::-webkit-scrollbar { display: none; }
+    .scroller-item {
+        flex: 0 0 85%;
+        scroll-snap-align: center;
+        aspect-ratio: 16/10;
+        border-radius: 2.5rem;
+        overflow: hidden;
+    }
+    @media (min-width: 1024px) { .scroller-item { flex: 0 0 60%; } }
+
+    /* New Specs Grid Styling */
+    .specs-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1rem;
+    }
+    .spec-item {
+        @apply flex items-center gap-4 p-4 rounded-2xl border border-[var(--surface-border)] bg-[var(--bg-card)];
+    }
+    .spec-icon {
+        @apply w-10 h-10 rounded-xl bg-[var(--accent)]/10 text-[var(--accent)] flex items-center justify-center text-sm;
+    }
+</style>
+
+<div class="mx-auto max-w-[1400px] px-6 py-12">
+    
+    <div class="flex flex-col lg:flex-row justify-between items-start gap-8 mb-12">
+        <div class="space-y-4">
+            <span class="inline-block bg-[var(--accent)] text-white text-[9px] font-black px-4 py-1 rounded-full uppercase tracking-widest">
+                {{ rental.get_property_type_display }}
+            </span>
+            <h1 class="text-4xl lg:text-6xl font-black tracking-tighter text-[var(--text-main)] leading-tight">
+                {{ rental.title }}
+            </h1>
+            <p class="text-lg font-bold text-[var(--text-muted)] flex items-center gap-2">
+                <i class="fa-solid fa-location-dot text-[var(--accent)]"></i> {{ rental.location }}
+            </p>
+        </div>
+        <div class="glass-card p-8 min-w-[280px] shadow-2xl text-right">
+            <p class="text-[10px] font-black uppercase tracking-widest opacity-40 mb-1">Monthly Rent</p>
+            <h2 class="text-4xl font-black text-[var(--text-main)]">{{ rental.formatted_price }}</h2>
+            <p class="text-[10px] font-bold opacity-30">/ Month</p>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+        
+        <div class="lg:col-span-8 space-y-8">
+            <div class="scroller-container">
+                <div class="image-scroller">
+                    <div class="scroller-item border border-[var(--surface-border)]">
+                        {% if rental.image %}<img src="{{ rental.image.url }}" class="w-full h-full object-cover">{% endif %}
+                    </div>
+                    {% for item in rental.gallery.all %}
+                    <div class="scroller-item border border-[var(--surface-border)]">
+                        <img src="{{ item.image.url }}" class="w-full h-full object-cover">
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <div class="glass-card p-10">
+                <h3 class="text-[10px] font-black uppercase tracking-[0.4em] text-[var(--accent)] mb-6">Architectural Overview</h3>
+                <div class="text-xl text-[var(--text-main)] leading-relaxed opacity-80">
+                    {{ rental.description|linebreaks }}
+                </div>
+            </div>
+        </div>
+
+        <div class="lg:col-span-4 space-y-6">
+            
+            <div class="glass-card p-6">
+                <div class="specs-grid">
+                    <div class="spec-item">
+                        <div class="spec-icon"><i class="fa-solid fa-building"></i></div>
+                        <div>
+                            <p class="text-[8px] uppercase font-black opacity-40">Property Type</p>
+                            <p class="text-xs font-bold">{{ rental.get_property_type_display }}</p>
+                        </div>
+                    </div>
+                    <div class="spec-item">
+                        <div class="spec-icon"><i class="fa-solid fa-couch"></i></div>
+                        <div>
+                            <p class="text-[8px] uppercase font-black opacity-40">Furnishing</p>
+                            <p class="text-xs font-bold">{{ rental.get_furnishing_display }}</p>
+                        </div>
+                    </div>
+                    <div class="spec-item">
+                        <div class="spec-icon"><i class="fa-solid fa-bed"></i></div>
+                        <div>
+                            <p class="text-[8px] uppercase font-black opacity-40">Bedrooms</p>
+                            <p class="text-xs font-bold">{{ rental.bedrooms }} Bedroom</p>
+                        </div>
+                    </div>
+                    <div class="spec-item">
+                        <div class="spec-icon"><i class="fa-solid fa-bath"></i></div>
+                        <div>
+                            <p class="text-[8px] uppercase font-black opacity-40">Bathrooms</p>
+                            <p class="text-xs font-bold">{{ rental.bathrooms }} Bathroom</p>
+                        </div>
+                    </div>
+                    <div class="spec-item">
+                        <div class="spec-icon"><i class="fa-solid fa-layer-group"></i></div>
+                        <div>
+                            <p class="text-[8px] uppercase font-black opacity-40">Floor</p>
+                            <p class="text-xs font-bold">{{ rental.floor|default:"Ground" }}</p>
+                        </div>
+                    </div>
+                    <div class="spec-item">
+                        <div class="spec-icon"><i class="fa-solid fa-ruler-combined"></i></div>
+                        <div>
+                            <p class="text-[8px] uppercase font-black opacity-40">Total Area</p>
+                            <p class="text-xs font-bold">{{ rental.sqft|default:"--" }} Sq.Ft</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="glass-card p-8 flex items-center gap-5">
+                <div class="w-14 h-14 rounded-xl bg-[var(--text-main)] text-[var(--bg)] flex items-center justify-center font-black text-xl">
+                    {{ rental.user.username|first|upper }}
+                </div>
+                <div>
+                    <p class="text-[9px] font-black uppercase opacity-40">Listed by</p>
+                    <p class="text-xl font-black">{{ rental.user.username }}</p>
+                </div>
+            </div>
+
+            <div class="glass-card p-8 space-y-6">
+                <div>
+                    <h4 class="text-[10px] font-black text-[var(--accent)] uppercase mb-2">Full Address</h4>
+                    <p class="text-sm font-bold opacity-70">{{ rental.address|default:rental.location }}</p>
+                </div>
+                <a href="{% url 'rental_contact' rental.id %}" class="btn-pro w-full py-5 flex items-center justify-center">
+                    Initiate Contact <i class="fa-solid fa-arrow-right ml-2 text-[10px]"></i>
+                </a>
+            </div>
+        </div>
+
+    </div>
+</div>
+{% endblock %}

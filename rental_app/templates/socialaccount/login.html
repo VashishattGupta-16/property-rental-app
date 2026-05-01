@@ -1,0 +1,57 @@
+{% extends "layout.html" %}
+{% load i18n %}
+
+{% block title %}{% trans "Sign In" %} | RentalPro{% endblock %}
+
+{% block content %}
+<div class="min-h-screen flex items-center justify-center py-20 px-6 bg-[var(--bg)]">
+    <div class="w-full max-w-[720px] bg-[var(--bg-card)] rounded-[2.5rem] overflow-hidden border border-[var(--surface-border)] shadow-2xl">
+        <div class="p-10 md:p-14">
+
+            {% if messages %}
+            <div class="mb-8 space-y-3">
+                {% for message in messages %}
+                <div class="px-5 py-4 rounded-2xl border border-[var(--surface-border)] bg-[var(--bg)] text-[0.7rem] font-black uppercase tracking-[0.25em]">
+                    {{ message }}
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+
+            <div class="flex items-center gap-4 mb-8">
+                <div class="w-12 h-12 rounded-2xl bg-[var(--accent)] flex items-center justify-center shadow-lg">
+                    <i class="fa-brands fa-google text-white text-xl"></i>
+                </div>
+                <div>
+                    <div class="text-[0.65rem] font-black uppercase tracking-[0.35em] text-[var(--accent)]">
+                        {% trans "Continue With" %}
+                    </div>
+                    <h1 class="text-3xl font-black tracking-tighter text-[var(--text-main)] leading-tight">
+                        {% blocktrans with provider_name=provider.name %}Sign In via {{ provider_name }}{% endblocktrans %}
+                    </h1>
+                </div>
+            </div>
+
+            <p class="text-[var(--text-muted)] font-medium leading-relaxed">
+                {% blocktrans with provider_name=provider.name %}You are about to sign in using a third-party account from {{ provider_name }}.{% endblocktrans %}
+            </p>
+
+            <form method="post" class="mt-10 space-y-4">
+                {% csrf_token %}
+                {% if redirect_field_value %}
+                <input type="hidden" name="{{ redirect_field_name }}" value="{{ redirect_field_value }}">
+                {% endif %}
+
+                <button type="submit" class="w-full btn-pro py-5 text-[0.75rem] border-none shadow-xl">
+                    {% trans "Continue" %}
+                </button>
+
+                <a href="{% url 'account_login' %}" class="block w-full text-center py-2 text-[0.65rem] font-black uppercase tracking-[0.3em] text-[var(--text-muted)] hover:text-[var(--accent)] transition-colors">
+                    {% trans "Back to Sign In" %}
+                </a>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+

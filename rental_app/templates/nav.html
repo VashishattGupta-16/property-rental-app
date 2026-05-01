@@ -1,0 +1,78 @@
+<nav class="sticky top-4 z-[100] mx-8 px-8 py-4 rounded-full border border-[var(--surface-border)] bg-[var(--surface)] backdrop-blur-md flex items-center justify-between shadow-lg transition-all duration-500 gap-4">
+
+    <!-- LOGO -->
+    <div class="flex-shrink-0">
+        <a href="{% url 'rental_list' %}" class="flex items-center no-underline group">
+            <span class="text-2xl font-black tracking-tighter text-[var(--text-main)]">
+                Rental<span class="text-sky-500 group-hover:opacity-80">Pro</span>
+            </span>
+        </a>
+    </div>
+
+    <!-- RIGHT ACTIONS -->
+    <div class="flex items-center gap-3 font-bold">
+
+        {% if user.is_authenticated %}
+
+            <!-- USER DROPDOWN -->
+            <div class="relative group pb-4 -mb-4">
+
+                <button class="flex items-center gap-3 pl-2 focus:outline-none cursor-pointer">
+                    <div class="hidden xl:flex flex-col items-end leading-tight">
+                        <span class="text-xs font-black text-[var(--text-main)]">
+                            {{ user.username|default:"User" }}
+                        </span>
+                        <span class="text-[9px] text-[var(--text-muted)] font-medium truncate max-w-[80px]">
+                            {{ user.email }}
+                        </span>
+                    </div>
+
+                    <div class="w-9 h-9 rounded-full bg-[var(--text-main)] flex items-center justify-center text-[var(--bg)] border-2 border-[var(--surface-border)] overflow-hidden">
+                        <span class="text-xs font-black">
+                            {{ user.email|slice:":1"|upper }}
+                        </span>
+                    </div>
+                </button>
+
+                <!-- DROPDOWN MENU -->
+                <div class="absolute right-0 top-full mt-2 w-56 bg-[var(--surface)] border border-[var(--surface-border)] backdrop-blur-xl rounded-[2rem] shadow-2xl py-4 hidden group-hover:block">
+
+                    <a href="#" class="flex items-center px-6 py-3 text-xs font-black uppercase tracking-widest hover:bg-sky-500 hover:text-white transition-all mx-2 rounded-2xl no-underline">
+                        <i class="fa-solid fa-house-user mr-3 opacity-50"></i> My Listings
+                    </a>
+
+                    <a href="#" class="flex items-center px-6 py-3 text-xs font-black uppercase tracking-widest hover:bg-sky-500 hover:text-white transition-all mx-2 rounded-2xl no-underline">
+                        <i class="fa-solid fa-heart mr-3 opacity-50"></i> Favorites
+                    </a>
+
+                    <div class="my-3 border-t border-[var(--surface-border)] mx-6"></div>
+
+                    <!-- LOGOUT (FIXED) -->
+                    <form action="{% url 'account_logout' %}" method="post" class="px-2 m-0">
+                        {% csrf_token %}
+                        <button type="submit" class="w-full flex items-center px-6 py-3 text-xs font-black uppercase tracking-[0.2em] text-rose-500 hover:bg-rose-500 hover:text-white transition-all rounded-2xl">
+                            <i class="fa-solid fa-power-off mr-3"></i> Logout
+                        </button>
+                    </form>
+
+                </div>
+            </div>
+
+        {% else %}
+
+            <!-- GUEST ACTIONS -->
+            <div class="flex items-center gap-2">
+
+                <a href="{% url 'account_login' %}" class="px-3 py-2 text-xs text-[var(--text-main)] hover:opacity-70 transition-all font-black uppercase tracking-widest no-underline">
+                    Login
+                </a>
+
+                <a href="{% url 'account_signup' %}" class="px-6 py-2.5 text-[10px] bg-sky-500 text-white rounded-full font-black uppercase tracking-[0.2em] shadow-lg shadow-sky-400/20 hover:bg-sky-600 active:scale-95 transition-all no-underline">
+                    Sign Up
+                </a>
+
+            </div>
+
+        {% endif %}
+    </div>
+</nav>

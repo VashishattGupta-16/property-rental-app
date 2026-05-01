@@ -1,0 +1,77 @@
+{% extends 'layout.html' %}
+{% load socialaccount %}
+{% load static %}
+
+{% block content %}
+<div class="min-h-screen flex items-center justify-center py-20 px-6 bg-[var(--bg)]">
+    <div class="w-full max-w-[1000px] grid lg:grid-cols-2 bg-[var(--bg-card)] rounded-[3rem] overflow-hidden border border-[var(--surface-border)] shadow-2xl">
+        
+        <div class="hidden lg:flex flex-col justify-between p-16 bg-[#1A2E1F]">
+            <div>
+                <div class="w-12 h-12 rounded-2xl bg-[var(--accent)] flex items-center justify-center mb-12 shadow-lg">
+                    <i class="fa-solid fa-leaf text-white text-xl"></i>
+                </div>
+                <h2 class="text-4xl text-white text-[#F5F5F5] font-[900] tracking-tighter leading-tight">
+                    Join the <br> <span class="text-[var(--accent)]">Elite Circle.</span>
+                </h2>
+                <p class="mt-6 text-[#8E918F] font-medium leading-relaxed max-w-[280px]">
+                    Access exclusive listings tailored for your vision.
+                </p>
+            </div>
+            <div class="flex items-center gap-4">
+                <div class="flex -space-x-3">
+                    <div class="w-10 h-10 rounded-full border-2 border-[#1A2E1F] bg-gray-600"></div>
+                    <div class="w-10 h-10 rounded-full border-2 border-[#1A2E1F] bg-gray-500"></div>
+                </div>
+                <span class="text-[0.65rem] font-black uppercase tracking-widest text-[#F5F5F5]/40">+2.4k Members</span>
+            </div>
+        </div>
+
+        <div class="p-8 lg:p-16 flex flex-col justify-center">
+            <header class="mb-10">
+                <nav class="flex items-center gap-2 text-[0.6rem] font-black uppercase tracking-[0.4em] text-[var(--accent)] mb-4">
+                    <span>Identity</span>
+                    <i class="fa-solid fa-chevron-right text-[0.5rem] opacity-30"></i>
+                    <span class="opacity-30">Verify</span>
+                </nav>
+                <h1 class="text-3xl font-black tracking-tighter text-[var(--text-main)]">Create Account</h1>
+            </header>
+
+            <form method="post" novalidate class="space-y-6">
+                {% csrf_token %}
+                <div class="space-y-5">
+                    {% for field in form %}
+                    <div class="space-y-2">
+                        <label class="flex justify-between items-center px-1">
+                            <span class="text-[0.65rem] font-black uppercase tracking-[0.2em] opacity-40 text-[var(--text-main)]">{{ field.label }}</span>
+                            {% if field.errors %}<span class="text-[0.6rem] font-bold text-rose-500 uppercase tracking-widest">Error</span>{% endif %}
+                        </label>
+                        {{ field }}
+                        {% if field.help_text %}<p class="text-[0.6rem] text-[var(--text-muted)] opacity-50">{{ field.help_text|striptags }}</p>{% endif %}
+                    </div>
+                    {% endfor %}
+                </div>
+
+                <div class="pt-6 space-y-4">
+                    <button type="submit" class="w-full btn-pro py-5 text-[0.75rem] border-none shadow-xl">ESTABLISH ACCOUNT</button>
+                    
+                    <div class="relative flex py-2 items-center">
+                        <div class="flex-grow border-t border-[var(--surface-border)]"></div>
+                        <span class="flex-shrink mx-4 text-[0.6rem] font-black text-[var(--text-muted)] uppercase tracking-widest">Or</span>
+                        <div class="flex-grow border-t border-[var(--surface-border)]"></div>
+                    </div>
+
+                    <a href="{% provider_login_url 'google' %}" class="flex items-center justify-center gap-3 w-full bg-[var(--bg)] border border-[var(--surface-border)] py-4 rounded-2xl text-[0.7rem] font-black hover:bg-[var(--surface-border)] transition-all">
+                        <img src="https://www.gstatic.com/images/branding/product/1x/gsa_512dp.png" class="w-4 h-4" alt="G">
+                        Register with Google
+                    </a>
+                    
+                    <a href="{% url 'account_login' %}" class="block w-full text-center py-2 text-[0.65rem] font-black uppercase tracking-[0.3em] text-[var(--text-muted)] hover:text-[var(--accent)] transition-colors">
+                        Already Registered? <span class="text-[var(--text-main)] ml-1">Sign In</span>
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

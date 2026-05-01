@@ -1,0 +1,36 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    
+    <meta name="description" content="RentalPro - Find your perfect PG, Flat, or House with ease.">
+    <meta name="theme-color" content="#41644A">
+
+    <link rel="stylesheet" href="{% static 'vendor/bootstrap/css/bootstrap.min.css' %}">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="{% static 'dist/output.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" crossorigin="anonymous" />
+    
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <title>{% block title %}RentalPro | Premium Property Listings{% endblock %}</title>
+</head>
+
+<body class="flex flex-col min-h-screen antialiased selection:bg-sky-500 selection:text-white">
+
+    {% include 'nav.html' %}
+
+    <main class="flex-grow">
+        {% block content %}
+        {% endblock %}
+    </main>
+
+    <footer class="mt-auto py-8 border-t border-[var(--surface-border)] text-center text-sm text-[var(--text-muted)]">
+        <p>&copy; 2026 RentalPro Services. All rights reserved.</p>
+    </footer>
+</body>
+
+</html>

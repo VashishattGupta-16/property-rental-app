@@ -1,0 +1,117 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<div class="relative min-h-screen overflow-hidden">
+    
+    <div class="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(circle_at_50%_50%,rgba(14,165,233,0.1),transparent_70%)]"></div>
+    <div class="blob absolute -top-20 -left-20 w-96 h-96 bg-sky-500/10 blur-[100px] rounded-full"></div>
+    <div class="blob absolute bottom-0 right-0 w-[40rem] h-[40rem] bg-indigo-500/5 blur-[120px] rounded-full"></div>
+
+    <section class="max-w-[1440px] mx-auto px-12 py-24 min-h-screen flex items-center">
+        <div class="no-stack-row w-full items-center">
+            
+            <div class="w-1/2 space-y-10 pr-12">
+                <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full glass-card border-sky-500/30">
+                    <span class="flex h-2 w-2 rounded-full bg-sky-500 animate-pulse"></span>
+                    <span class="text-[0.8rem] font-bold uppercase tracking-widest text-sky-500">Live in Mohali & Chandigarh</span>
+                </div>
+
+                <h1 class="hero-title text-[5rem] leading-[1.1] font-bold tracking-tight">
+                    Premium PGs <br> & <span class="text-sky-500">Luxury</span> Flats.
+                </h1>
+
+                <p class="hero-copy text-[1.2rem] text-[var(--text-muted)] max-w-[30rem] leading-relaxed">
+                    Skip the broker fees. Discover hand-picked living spaces designed for professionals and students who value comfort.
+                </p>
+
+                <div class="hero-buttons flex items-center gap-6">
+                    <a id="browseBtn" href="{% url 'rental_list' %}" class="btn-pro text-[1.1rem] px-10 py-5 shadow-2xl shadow-sky-500/20">
+                        Browse Listings <i class="fas fa-chevron-right ml-2 text-sm"></i>
+                    </a>
+                    <a href="{% url 'rental_create' %}" class="font-bold text-[1rem] hover:text-sky-500 transition-colors flex items-center gap-2">
+                        List Your Space <i class="fas fa-plus-circle"></i>
+                    </a>
+                </div>
+
+                <div class="hero-trust pt-8 border-t border-[var(--surface-border)] flex gap-12">
+                    <div>
+                        <div class="text-[1.5rem] font-bold">500+</div>
+                        <div class="text-[0.8rem] text-[var(--text-muted)]">Verified Properties</div>
+                    </div>
+                    <div>
+                        <div class="text-[1.5rem] font-bold">12k+</div>
+                        <div class="text-[0.8rem] text-[var(--text-muted)]">Happy Residents</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="w-1/2 relative">
+                <div class="hero-image-wrap glass-card !p-3 rotate-3 shadow-2xl">
+                    <div class="property-img-container h-[40rem] rounded-[1.2rem]">
+                        <img src="https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?auto=format&fit=crop&q=80" 
+                             class="property-img" alt="Luxury Room">
+                    </div>
+                    <div class="info-card absolute -bottom-6 -left-10 glass-card !bg-white/90 p-6 flex items-center gap-4 shadow-xl">
+                        <div class="w-12 h-12 rounded-full bg-green-500 flex items-center justify-center text-white">
+                            <i class="fa-solid fa-check"></i>
+                        </div>
+                        <div>
+                            <p class="text-[0.7rem] uppercase font-black text-[var(--text-muted)]">Verified Host</p>
+                            <p class="font-bold">Managed by RentalPro</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const tl = gsap.timeline({ defaults: { ease: "power4.out" } });
+
+    // 1. Initial Entry
+    tl.from('.hero-title', { y: 100, opacity: 0, duration: 1.2 })
+      .from('.hero-copy', { y: 30, opacity: 0, duration: 1 }, "-=0.8")
+      .from('.hero-buttons', { y: 20, opacity: 0, duration: 1 }, "-=0.8")
+      .from('.hero-image-wrap', { 
+          scale: 0.8, 
+          rotate: 0, 
+          opacity: 0, 
+          duration: 1.5 
+      }, "-=1.2")
+      .from('.hero-trust div', { 
+          y: 20, 
+          opacity: 0, 
+          stagger: 0.2, 
+          duration: 0.8 
+      }, "-=1");
+
+    // 2. Continuous Floating Blobs
+    gsap.to('.blob', {
+        x: 'random(-20, 20)',
+        y: 'random(-20, 20)',
+        duration: 5,
+        repeat: -1,
+        yoyo: true,
+        ease: "sine.inOut"
+    });
+
+    // 3. Smooth Outbound Transition
+    const browseBtn = document.getElementById('browseBtn');
+    if (browseBtn) {
+        browseBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            const url = this.href;
+            gsap.to('main', { 
+                opacity: 0, 
+                scale: 0.98, 
+                y: -20, 
+                duration: 0.5, 
+                onComplete: () => window.location.href = url 
+            });
+        });
+    }
+});
+</script>
+{% endblock %}

@@ -1,0 +1,99 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<div class="min-h-screen py-20 px-6">
+    <div class="mx-auto w-full max-w-[1300px]">
+        
+        <header class="mb-16 flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
+            <div class="space-y-4">
+                <nav class="flex items-center gap-2 text-[0.8rem] font-black uppercase tracking-[0.3em] opacity-40">
+                    <a href="{% url 'rental_list' %}" class="hover:text-sky-500 no-underline text-[var(--text-main)] transition-colors">
+                        <i class="fa-solid fa-arrow-left-long mr-2"></i> Inventory
+                    </a>
+                    <i class="fa-solid fa-chevron-right text-[0.6rem]"></i>
+                    <span>Management</span>
+                </nav>
+                <h1 class="text-[4.5rem] font-black tracking-tighter leading-[0.9]">
+                    Property <span class="text-sky-500">Editor</span>
+                </h1>
+            </div>
+            
+            <div class="text-right hidden lg:block">
+                <p class="text-[0.9rem] font-black uppercase tracking-widest">Status: <span class="text-emerald-500">System Live</span></p>
+                <p class="text-[0.7rem] font-bold text-[var(--text-muted)] opacity-50">Drafting as: {{ user.username }}</p>
+            </div>
+        </header>
+
+        <form method="post" enctype="multipart/form-data" novalidate class="flex flex-col lg:flex-row gap-12">
+            {% csrf_token %}
+            
+            <div class="w-full lg:w-2/3 glass-card p-12 shadow-2xl relative overflow-hidden">
+                <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-sky-500 to-emerald-500"></div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-x-10 gap-y-10">
+                    {% for field in form.visible_fields %}
+                        {% if field.name != 'image' %}
+                            <div class="{% if field.name == 'description' or field.name == 'address' %}col-span-full{% endif %}">
+                                <label class="text-[0.7rem] font-black uppercase tracking-widest opacity-40 mb-3 block">
+                                    {{ field.label }}
+                                </label>
+                                {{ field }}
+                            </div>
+                        {% endif %}
+                    {% endfor %}
+
+                    <div class="col-span-full pt-10 border-t border-[var(--surface-border)]">
+                        <label class="text-xs font-black text-sky-500 uppercase tracking-widest mb-6 block">Cover Thumbnail</label>
+                        <div class="relative h-40 rounded-[2rem] bg-[var(--input-bg)] border-2 border-dashed border-[var(--surface-border)] flex flex-col items-center justify-center group hover:border-sky-500 transition-all">
+                            <i class="fa-solid fa-image text-3xl mb-2 opacity-20 group-hover:opacity-100 transition-opacity"></i>
+                            <span class="text-[10px] font-black uppercase opacity-30">Upload Cover Photo</span>
+                            <div class="absolute inset-0 opacity-0 cursor-pointer">
+                                {{ form.image }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="w-full lg:w-1/3 space-y-8">
+                <div class="glass-card p-8 border-dashed border-2">
+                    <h3 class="text-xs font-black uppercase tracking-[0.3em] text-sky-500 mb-6">Extra Photos</h3>
+                    {{ formset.management_form }}
+                    <div class="grid grid-cols-2 gap-4">
+                        {% for img_form in formset %}
+                        <div class="relative aspect-square rounded-[1.5rem] bg-[var(--input-bg)] border border-[var(--surface-border)] overflow-hidden group hover:border-sky-500 transition-all">
+                            {{ img_form.id }}
+                            <div class="absolute inset-0 flex items-center justify-center opacity-20"><i class="fa-solid fa-camera text-xl"></i></div>
+                            <div class="absolute inset-0 opacity-0 cursor-pointer z-10">{{ img_form.image }}</div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <div class="glass-card p-8 space-y-4">
+                    <button type="submit" class="w-full btn-pro py-6 shadow-2xl shadow-sky-500/20 active:scale-95 transition-transform">
+                        {% if form.instance.pk %}UPDATE LISTING{% else %}PUBLISH PROPERTY{% endif %}
+                    </button>
+                    
+                    <a href="{% url 'rental_list' %}" 
+                       class="block w-full text-center py-4 text-[0.65rem] font-black uppercase tracking-[0.4em] opacity-40 hover:opacity-100 transition-all no-underline text-[var(--text-main)] hover:text-rose-500">
+                        <i class="fa-solid fa-xmark mr-2"></i> Cancel Session
+                    </a>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<style>
+    input[type="file"] {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        opacity: 0;
+        cursor: pointer;
+    }
+</style>
+{% endblock %}

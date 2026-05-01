@@ -1,0 +1,110 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<div class="mx-auto max-w-[1400px] px-6 py-12">
+
+  <!-- Header -->
+  <div class="flex flex-col lg:flex-row lg:items-end justify-between gap-8 mb-16">
+    <div class="space-y-4">
+      <p class="text-[10px] font-black uppercase tracking-[0.4em] text-[var(--accent)]">
+        Marketplace Inventory
+      </p>
+      <h1 class="text-5xl font-black leading-tight">
+        Exclusive <span class="text-[var(--accent)]">Suites</span><br>
+        <span class="opacity-20">& Residences.</span>
+      </h1>
+    </div>
+
+    <a href="{% url 'rental_create' %}" class="btn-pro">
+      LIST PROPERTY <i class="fa-solid fa-plus ml-2 opacity-60"></i>
+    </a>
+  </div>
+
+  <!-- Search -->
+ <div class="mb-24 max-w-5xl mx-auto">
+    <form method="GET" action="{% url 'rental_list' %}" class="search-container-elite">
+
+        <div class="search-segment">
+            <label class="search-label">
+                <i class="fa-solid fa-location-dot mr-2 text-[var(--accent)]"></i>Location
+            </label>
+            <input type="text" name="location" placeholder="Search City or Area..." 
+                   value="{{ request.GET.location }}" autocomplete="off">
+        </div>
+
+        <div class="search-segment">
+            <label class="search-label">
+                <i class="fa-solid fa-house-chimney mr-2 text-[var(--accent)]"></i>Residence Type
+            </label>
+            <select name="type">
+                <option value="">Explore All</option>
+                <option value="HOUSE" {% if request.GET.type == 'HOUSE' %}selected{% endif %}>Private House</option>
+                <option value="APARTMENT" {% if request.GET.type == 'APARTMENT' %}selected{% endif %}>Luxury Apartment</option>
+                <option value="1BHK" {% if request.GET.type == '1BHK' %}selected{% endif %}>1 BHK Studio</option>
+                <option value="2BHK" {% if request.GET.type == '2BHK' %}selected{% endif %}>2 BHK Suite</option>
+                <option value="3BHK" {% if request.GET.type == '3BHK' %}selected{% endif %}>3 BHK Residence</option>
+                <option value="PG" {% if request.GET.type == 'PG' %}selected{% endif %}>PG / Co-Living</option>
+                <option value="VILLA" {% if request.GET.type == 'VILLA' %}selected{% endif %}>Exclusive Villa</option>
+            </select>
+        </div>
+
+        <button type="submit" 
+                class="w-16 h-16 rounded-full bg-[var(--accent)] text-white flex items-center justify-center 
+                       hover:scale-105 active:scale-95 transition-all shadow-xl shadow-[var(--accent)]/30 ml-2">
+            <i class="fa-solid fa-magnifying-glass text-xl"></i>
+        </button>
+
+    </form>
+</div>
+
+  <!-- Listings -->
+  {% if rentals %}
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+
+    {% for rental in rentals %}
+    <article class="card group">
+
+      <!-- Image -->
+      <div class="relative aspect-[16/10] overflow-hidden">
+        {% if rental.image %}
+        <img src="{{ rental.image.url }}" class="w-full h-full object-cover group-hover:scale-110 transition duration-700">
+        {% endif %}
+
+        {% if user == rental.user %}
+        <div class="absolute top-4 right-4 flex gap-2">
+          <a href="{% url 'rental_edit' rental.id %}" class="btn-glass">
+            <i class="fa-solid fa-pen text-xs"></i>
+          </a>
+          <a href="{% url 'rental_delete' rental.id %}" class="btn-glass">
+            <i class="fa-solid fa-trash text-xs"></i>
+          </a>
+        </div>
+        {% endif %}
+      </div>
+
+      <!-- Content -->
+      <div class="p-6">
+        <h3 class="font-black text-lg mb-1">{{ rental.title }}</h3>
+
+        <p class="text-xs text-[var(--text-muted)] mb-5 flex items-center gap-2">
+          <i class="fa-solid fa-location-dot opacity-60"></i>
+          {{ rental.location }}
+        </p>
+
+        <div class="flex justify-between items-center border-t border-[var(--surface-border)] pt-4">
+          <span class="text-xl font-black">{{ rental.formatted_price }}</span>
+
+          <a href="{% url 'room_describe' rental.id %}" class="btn-glass">
+            Details <i class="fa-solid fa-arrow-right text-xs"></i>
+          </a>
+        </div>
+      </div>
+
+    </article>
+    {% endfor %}
+
+  </div>
+  {% endif %}
+
+</div>
+{% endblock %}

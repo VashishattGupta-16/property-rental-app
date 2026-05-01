@@ -1,0 +1,120 @@
+@config "../../tailwind.config.js";
+@import "tailwindcss";
+
+@layer base {
+  :root {
+    color-scheme: light;
+
+    /* Backgrounds */
+    --bg: #ede9e6;
+    --bg-card: #ffffff;
+    --surface: rgba(255, 255, 255, 0.7);
+    --input-bg: rgba(34, 139, 34, 0.04);
+
+    /* Typography */
+    --text-main: #228b22; /* Your signature green */
+    --text-muted: rgba(34, 139, 34, 0.72);
+    --accent: #0ea5e9; /* Sky blue */
+
+    /* Borders & Glass */
+    --border: rgba(34, 139, 34, 0.18);
+    --surface-border: var(--border);
+  }
+
+  body {
+    @apply transition-colors duration-300 antialiased;
+    background-color: var(--bg);
+    color: var(--text-main);
+    font-family: "Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif;
+  }
+
+  /* Global Input Defaults */
+  input, select, textarea {
+    @apply w-full bg-[var(--input-bg)] border border-[var(--border)] rounded-xl px-4 py-3 
+           text-[var(--text-main)] font-semibold outline-none transition-all duration-200;
+  }
+
+  input::placeholder, textarea::placeholder {
+    @apply text-[var(--text-muted)];
+  }
+
+  input:focus, select:focus, textarea:focus {
+    @apply border-[var(--accent)] ring-2 ring-[var(--accent)]/10;
+    box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.15);
+  }
+}
+
+@layer components {
+  /* =========================
+     LUXURY COMPONENTS
+  ========================= */
+  .glass-card {
+    @apply bg-[var(--surface)] border border-[var(--surface-border)] backdrop-blur-xl 
+           rounded-[2.5rem] shadow-2xl transition-all duration-500;
+    -webkit-backdrop-filter: blur(18px);
+  }
+
+  .btn-pro {
+    @apply inline-flex items-center justify-center gap-2 px-8 py-4 rounded-full 
+           bg-[var(--accent)] text-white font-black uppercase tracking-widest 
+           hover:scale-[1.03] active:scale-95 transition-all shadow-xl shadow-[var(--accent)]/20;
+  }
+
+  .btn-glass {
+    @apply inline-flex items-center gap-3 px-5 py-2.5 rounded-full 
+           bg-[var(--surface)] border border-[var(--surface-border)] backdrop-blur-md 
+           font-bold text-[var(--text-main)] transition-all hover:bg-[var(--accent)] hover:text-white;
+  }
+
+  /* =========================
+     ELITE SEARCH BAR
+  ========================= */
+  .search-container-elite {
+    @apply flex flex-col lg:flex-row items-center gap-2 p-2 bg-[var(--bg-card)] 
+           border border-[var(--surface-border)] rounded-[2.5rem] shadow-2xl transition-all;
+  }
+
+  .search-segment {
+    @apply flex flex-col flex-grow w-full px-6 py-2 border-r border-[var(--surface-border)] 
+           last:border-none transition-colors duration-300 focus-within:bg-[var(--accent)]/5;
+  }
+
+  /* Resetting inputs inside the search bar specifically */
+  .search-segment input, 
+  .search-segment select {
+    @apply bg-transparent border-none p-0 text-sm font-black 
+           text-[var(--text-main)] outline-none ring-0 shadow-none mt-0;
+  }
+
+  .search-segment input:focus, 
+  .search-segment select:focus {
+    @apply ring-0;
+    box-shadow: none !important;
+  }
+
+  .search-label {
+    @apply text-[9px] font-black uppercase tracking-[0.2em] text-[var(--text-muted)] mb-1;
+  }
+
+  /* =========================
+     PROPERTY DETAIL GRID
+  ========================= */
+  .detail-grid {
+    @apply grid grid-cols-1 lg:grid-cols-12 gap-8 items-start;
+  }
+
+  /* Image Scroller */
+  .image-scroller {
+    @apply flex overflow-x-auto gap-6 pb-4 snap-x snap-mandatory;
+    scrollbar-width: none;
+  }
+  
+  .image-scroller::-webkit-scrollbar {
+    @apply hidden;
+  }
+
+  .scroller-item {
+    @apply flex-shrink-0 w-[85%] lg:w-[60%] aspect-[16/10] snap-center rounded-[3rem] 
+           overflow-hidden border border-[var(--surface-border)] shadow-xl;
+  }
+}

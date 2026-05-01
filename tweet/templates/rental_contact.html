@@ -1,0 +1,89 @@
+{% extends "layout.html" %}
+
+{% block title %}Contact Owner | RentalPro{% endblock %}
+
+{% block content %}
+<div class="mx-auto max-w-4xl px-6 py-20">
+    
+    <div class="text-center mb-16">
+        <nav class="flex justify-center items-center gap-2 text-[10px] font-black uppercase tracking-[0.4em] text-[var(--accent)] mb-4">
+            <span>Marketplace</span>
+            <i class="fa-solid fa-chevron-right text-[8px] opacity-30"></i>
+            <span class="opacity-30">Identity Registry</span>
+        </nav>
+        <h1 class="text-5xl lg:text-7xl font-black tracking-tighter text-[var(--text-main)] leading-none">
+            Owner <span class="text-[var(--accent)]">Protocol.</span>
+        </h1>
+    </div>
+
+    <div class="detail-layout">
+        <div class="lg:col-span-12">
+            <div class="glass-card p-10 lg:p-16">
+                
+                <div class="flex flex-col md:flex-row items-center gap-10 mb-12 border-b border-[var(--surface-border)] pb-12">
+                    <div class="w-32 h-32 rounded-[2.5rem] bg-[var(--text-main)] text-[var(--bg)] flex items-center justify-center text-5xl font-black shadow-2xl">
+                        {{ rental.user.username|first|upper }}
+                    </div>
+                    
+                    <div class="text-center md:text-left space-y-2">
+                        <p class="section-label">Authenticated Partner</p>
+                        <h2 class="text-4xl font-black text-[var(--text-main)]">{{ rental.user.username }}</h2>
+                        <div class="flex items-center gap-4 justify-center md:justify-start">
+                            <span class="text-[10px] font-bold text-emerald-500 flex items-center gap-1">
+                                <i class="fa-solid fa-circle-check"></i> VERIFIED OWNER
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-12 mb-12">
+                    <div class="space-y-8">
+                        <div class="space-y-1">
+                            <p class="section-label">Direct Contact Line</p>
+                            {% if rental.contact %}
+                                <p class="text-2xl font-black text-[var(--text-main)] tracking-tight">{{ rental.contact }}</p>
+                            {% else %}
+                                <p class="text-sm font-bold text-[var(--text-muted)] italic opacity-50">No client contact provided</p>
+                            {% endif %}
+                        </div>
+
+                        <div class="space-y-1">
+                            <p class="section-label">Electronic Mail</p>
+                            <p class="text-xl font-bold text-[var(--text-main)]">{{ rental.user.email|default:"Secure Gateway Only" }}</p>
+                        </div>
+                    </div>
+
+                    <div class="space-y-8">
+                        <div class="space-y-1">
+                            <p class="section-label">Verified Location</p>
+                            <p class="text-xl font-bold text-[var(--text-main)] leading-snug">
+                                {{ rental.address|default:rental.location }}
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="pt-10 border-t border-[var(--surface-border)]">
+                    <div class="flex flex-col md:flex-row gap-4">
+                        {% if rental.contact %}
+                        <a href="tel:{{ rental.contact }}" class="btn-pro flex-grow">
+                            <i class="fa-solid fa-phone-flip mr-2"></i> CALL NOW
+                        </a>
+                        {% endif %}
+                        <a href="mailto:{{ rental.user.email }}" class="btn-glass flex-grow justify-center">
+                            <i class="fa-solid fa-paper-plane mr-2"></i> MESSAGE OWNER
+                        </a>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <div class="mt-12 text-center">
+        <a href="{% url 'rental_list' %}" class="text-[10px] font-black uppercase tracking-[0.4em] text-[var(--text-muted)] hover:text-[var(--accent)] transition-colors">
+            <i class="fa-solid fa-arrow-left mr-2"></i> Return to Inventory
+        </a>
+    </div>
+</div>
+{% endblock %}
