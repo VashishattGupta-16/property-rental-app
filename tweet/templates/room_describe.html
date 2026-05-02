@@ -2,151 +2,210 @@
 
 {% block content %}
 <style>
-    .image-scroller {
-        display: flex;
-        overflow-x: auto;
-        scroll-snap-type: x mandatory;
-        scrollbar-width: none;
-        gap: 1.5rem;
-        padding-bottom: 1rem;
-    }
-    .image-scroller::-webkit-scrollbar { display: none; }
-    .scroller-item {
-        flex: 0 0 85%;
-        scroll-snap-align: center;
-        aspect-ratio: 16/10;
-        border-radius: 2.5rem;
-        overflow: hidden;
-    }
-    @media (min-width: 1024px) { .scroller-item { flex: 0 0 60%; } }
+.image-scroller {
+    display: flex;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    scrollbar-width: none;
+    gap: 1.5rem;
+    padding-bottom: 1rem;
+}
+.image-scroller::-webkit-scrollbar { display: none; }
 
-    /* New Specs Grid Styling */
-    .specs-grid {
-        display: grid;
-        grid-template-columns: repeat(2, 1fr);
-        gap: 1rem;
-    }
-    .spec-item {
-        @apply flex items-center gap-4 p-4 rounded-2xl border border-[var(--surface-border)] bg-[var(--bg-card)];
-    }
-    .spec-icon {
-        @apply w-10 h-10 rounded-xl bg-[var(--accent)]/10 text-[var(--accent)] flex items-center justify-center text-sm;
-    }
+.scroller-item {
+    flex: 0 0 85%;
+    scroll-snap-align: center;
+    aspect-ratio: 16/10;
+    border-radius: 2.5rem;
+    overflow: hidden;
+}
+
+@media (min-width: 1024px) {
+    .scroller-item { flex: 0 0 60%; }
+}
+
 </style>
 
 <div class="mx-auto max-w-[1400px] px-6 py-12">
-    
+
+    <!-- HEADER -->
     <div class="flex flex-col lg:flex-row justify-between items-start gap-8 mb-12">
+
         <div class="space-y-4">
-            <span class="inline-block bg-[var(--accent)] text-white text-[9px] font-black px-4 py-1 rounded-full uppercase tracking-widest">
+
+            <span class="inline-flex items-center gap-2 bg-[var(--accent)] text-white text-[9px] font-black px-4 py-1 rounded-full uppercase tracking-widest">
+                <i class="fa-solid fa-tag"></i>
                 {{ rental.get_property_type_display }}
             </span>
-            <h1 class="text-4xl lg:text-6xl font-black tracking-tighter text-[var(--text-main)] leading-tight">
-                {{ rental.title }}
+
+            <h1 class="text-4xl lg:text-6xl font-black leading-tight">
+                <i class="fa-solid fa-house-chimney mr-2 text-[var(--accent)]"></i>
+                {{ rental.title|default:"Untitled Property" }}
             </h1>
+
             <p class="text-lg font-bold text-[var(--text-muted)] flex items-center gap-2">
-                <i class="fa-solid fa-location-dot text-[var(--accent)]"></i> {{ rental.location }}
+                <i class="fa-solid fa-location-dot text-[var(--accent)]"></i>
+                {{ rental.location|default:"Unknown Location" }}
             </p>
+
         </div>
-        <div class="glass-card p-8 min-w-[280px] shadow-2xl text-right">
-            <p class="text-[10px] font-black uppercase tracking-widest opacity-40 mb-1">Monthly Rent</p>
-            <h2 class="text-4xl font-black text-[var(--text-main)]">{{ rental.formatted_price }}</h2>
+
+        <!-- ✅ FIXED PRICE CARD -->
+        <div class="glass-card p-8 min-w-[280px] text-right shadow-2xl">
+
+            <p class="text-[10px] font-black uppercase tracking-widest opacity-40 flex items-center justify-end gap-2">
+                <i class="fa-solid fa-indian-rupee-sign"></i> Monthly Rent
+            </p>
+
+            <h2 class="text-4xl font-black">
+                {% if rental.price %}
+                    ₹{{ rental.price }}
+                {% else %}
+                    ₹0
+                {% endif %}
+            </h2>
+
             <p class="text-[10px] font-bold opacity-30">/ Month</p>
+
         </div>
     </div>
 
     <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
-        
+
+        <!-- LEFT -->
         <div class="lg:col-span-8 space-y-8">
-            <div class="scroller-container">
-                <div class="image-scroller">
-                    <div class="scroller-item border border-[var(--surface-border)]">
-                        {% if rental.image %}<img src="{{ rental.image.url }}" class="w-full h-full object-cover">{% endif %}
-                    </div>
-                    {% for item in rental.gallery.all %}
-                    <div class="scroller-item border border-[var(--surface-border)]">
-                        <img src="{{ item.image.url }}" class="w-full h-full object-cover">
-                    </div>
-                    {% endfor %}
+
+            <!-- IMAGES -->
+            <div class="image-scroller">
+
+                <div class="scroller-item border">
+                    {% if rental.image %}
+                        <img src="{{ rental.image.url }}" class="w-full h-full object-cover">
+                    {% else %}
+                        <div class="w-full h-full bg-gray-200 flex items-center justify-center">
+                            No Image
+                        </div>
+                    {% endif %}
+                </div>
+
+                {% for item in rental.gallery.all %}
+                <div class="scroller-item border">
+                    <img src="{{ item.image.url }}" class="w-full h-full object-cover">
+                </div>
+                {% endfor %}
+
+            </div>
+
+            <!-- DESCRIPTION -->
+            <div class="glass-card p-10">
+                <h3 class="text-[10px] font-black uppercase tracking-[0.4em] text-[var(--accent)] mb-6">
+                    Overview
+                </h3>
+
+                <div class="text-lg opacity-80">
+                    {{ rental.description|linebreaks|default:"No description available." }}
                 </div>
             </div>
 
-            <div class="glass-card p-10">
-                <h3 class="text-[10px] font-black uppercase tracking-[0.4em] text-[var(--accent)] mb-6">Architectural Overview</h3>
-                <div class="text-xl text-[var(--text-main)] leading-relaxed opacity-80">
-                    {{ rental.description|linebreaks }}
-                </div>
-            </div>
         </div>
 
+        <!-- RIGHT -->
         <div class="lg:col-span-4 space-y-6">
-            
-            <div class="glass-card p-6">
-                <div class="specs-grid">
-                    <div class="spec-item">
-                        <div class="spec-icon"><i class="fa-solid fa-building"></i></div>
-                        <div>
-                            <p class="text-[8px] uppercase font-black opacity-40">Property Type</p>
-                            <p class="text-xs font-bold">{{ rental.get_property_type_display }}</p>
-                        </div>
+
+            <!-- SPECS -->
+            <div class="glass-card p-8">
+                <h3 class="text-[10px] font-black uppercase tracking-[0.4em] text-[var(--accent)] mb-6">
+                    Specifications
+                </h3>
+                <div class="grid grid-cols-2 gap-4">
+                    
+                    <div class="border border-[var(--surface-border)] rounded-xl p-4 text-center">
+                        <i class="fa-solid fa-house text-2xl mb-2 text-sky-500"></i>
+                        <p class="text-xs font-bold">{{ rental.get_property_type_display }}</p>
+                        <p class="text-[10px] opacity-50">Type</p>
                     </div>
-                    <div class="spec-item">
-                        <div class="spec-icon"><i class="fa-solid fa-couch"></i></div>
-                        <div>
-                            <p class="text-[8px] uppercase font-black opacity-40">Furnishing</p>
-                            <p class="text-xs font-bold">{{ rental.get_furnishing_display }}</p>
-                        </div>
+
+                    <div class="border border-[var(--surface-border)] rounded-xl p-4 text-center">
+                        <i class="fa-solid fa-couch text-2xl mb-2 text-sky-500"></i>
+                        <p class="text-xs font-bold">{{ rental.get_furnishing_display }}</p>
+                        <p class="text-[10px] opacity-50">Furnishing</p>
                     </div>
-                    <div class="spec-item">
-                        <div class="spec-icon"><i class="fa-solid fa-bed"></i></div>
-                        <div>
-                            <p class="text-[8px] uppercase font-black opacity-40">Bedrooms</p>
-                            <p class="text-xs font-bold">{{ rental.bedrooms }} Bedroom</p>
-                        </div>
+
+                    <div class="border border-[var(--surface-border)] rounded-xl p-4 text-center">
+                        <i class="fa-solid fa-bed text-2xl mb-2 text-sky-500"></i>
+                        <p class="text-xs font-bold">{{ rental.bedrooms|default:"--" }}</p>
+                        <p class="text-[10px] opacity-50">Bedrooms</p>
                     </div>
-                    <div class="spec-item">
-                        <div class="spec-icon"><i class="fa-solid fa-bath"></i></div>
-                        <div>
-                            <p class="text-[8px] uppercase font-black opacity-40">Bathrooms</p>
-                            <p class="text-xs font-bold">{{ rental.bathrooms }} Bathroom</p>
-                        </div>
+
+                    <div class="border border-[var(--surface-border)] rounded-xl p-4 text-center">
+                        <i class="fa-solid fa-bath text-2xl mb-2 text-sky-500"></i>
+                        <p class="text-xs font-bold">{{ rental.bathrooms|default:"--" }}</p>
+                        <p class="text-[10px] opacity-50">Bathrooms</p>
                     </div>
-                    <div class="spec-item">
-                        <div class="spec-icon"><i class="fa-solid fa-layer-group"></i></div>
-                        <div>
-                            <p class="text-[8px] uppercase font-black opacity-40">Floor</p>
-                            <p class="text-xs font-bold">{{ rental.floor|default:"Ground" }}</p>
-                        </div>
+
+                    <div class="border border-[var(--surface-border)] rounded-xl p-4 text-center">
+                        <i class="fa-solid fa-layer-group text-2xl mb-2 text-sky-500"></i>
+                        <p class="text-xs font-bold">{{ rental.floor|default:"--" }}</p>
+                        <p class="text-[10px] opacity-50">Floor</p>
                     </div>
-                    <div class="spec-item">
-                        <div class="spec-icon"><i class="fa-solid fa-ruler-combined"></i></div>
-                        <div>
-                            <p class="text-[8px] uppercase font-black opacity-40">Total Area</p>
-                            <p class="text-xs font-bold">{{ rental.sqft|default:"--" }} Sq.Ft</p>
-                        </div>
+
+                    <div class="border border-[var(--surface-border)] rounded-xl p-4 text-center">
+                        <i class="fa-solid fa-ruler-combined text-2xl mb-2 text-sky-500"></i>
+                        <p class="text-xs font-bold">{{ rental.sqft|default:"--" }}</p>
+                        <p class="text-[10px] opacity-50">Sq.Ft.</p>
                     </div>
+                    
                 </div>
             </div>
 
+            <!-- OWNER -->
             <div class="glass-card p-8 flex items-center gap-5">
-                <div class="w-14 h-14 rounded-xl bg-[var(--text-main)] text-[var(--bg)] flex items-center justify-center font-black text-xl">
-                    {{ rental.user.username|first|upper }}
+
+                <div class="w-14 h-14 rounded-xl bg-black text-white flex items-center justify-center font-black">
+                    <i class="fa-solid fa-user"></i>
                 </div>
+
                 <div>
-                    <p class="text-[9px] font-black uppercase opacity-40">Listed by</p>
-                    <p class="text-xl font-black">{{ rental.user.username }}</p>
+                    <p class="text-[9px] uppercase opacity-40">Listed by</p>
+
+                    <p class="text-xl font-black">
+                        {% if rental.user %}
+                            {{ rental.user.first_name|default:rental.user.email }}
+                        {% else %}
+                            Unknown Owner
+                        {% endif %}
+                    </p>
+
+                    <p class="text-xs opacity-60">
+                        {% if rental.user %}
+                            {{ rental.user.email }}
+                        {% endif %}
+                    </p>
                 </div>
+
             </div>
 
+            <!-- CONTACT -->
             <div class="glass-card p-8 space-y-6">
+
                 <div>
-                    <h4 class="text-[10px] font-black text-[var(--accent)] uppercase mb-2">Full Address</h4>
-                    <p class="text-sm font-bold opacity-70">{{ rental.address|default:rental.location }}</p>
+                    <h4 class="text-[10px] font-black text-[var(--accent)] uppercase mb-2">
+                        Full Address
+                    </h4>
+
+                    <p class="text-sm font-bold opacity-70">
+                        {{ rental.address|default:rental.location }}
+                    </p>
                 </div>
-                <a href="{% url 'rental_contact' rental.id %}" class="btn-pro w-full py-5 flex items-center justify-center">
-                    Initiate Contact <i class="fa-solid fa-arrow-right ml-2 text-[10px]"></i>
+
+                <a href="{% url 'rental_contact' rental.id %}"
+                   class="btn-pro w-full py-5 flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-phone"></i>
+                    Contact Owner
                 </a>
+
             </div>
+
         </div>
 
     </div>

@@ -1,0 +1,64 @@
+{% load socialaccount %}
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Complete Signup</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 flex items-center justify-center min-h-screen">
+
+<div class="bg-white shadow-xl rounded-2xl p-8 w-full max-w-md">
+
+    <!-- Logo / Title -->
+    <h2 class="text-2xl font-bold text-center text-gray-800 mb-2">
+        Complete Your Signup
+    </h2>
+    <p class="text-sm text-gray-500 text-center mb-6">
+        You're signing in with Google. Just confirm your details.
+    </p>
+
+    <!-- Form -->
+    <form method="post" class="space-y-4">
+        {% csrf_token %}
+
+        <!-- Email -->
+        <div>
+            <label class="block text-sm font-medium text-gray-700">Email</label>
+            {{ form.email }}
+        </div>
+
+        <!-- Username -->
+        <div>
+            <label class="block text-sm font-medium text-gray-700">Username</label>
+            {{ form.username }}
+        </div>
+
+        <!-- Errors -->
+        {% if form.errors %}
+            <div class="bg-red-100 text-red-700 text-sm p-3 rounded-lg">
+                {{ form.errors }}
+            </div>
+        {% endif %}
+
+        <!-- Submit -->
+        <button type="submit"
+            class="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition duration-200">
+            Continue
+        </button>
+    </form>
+
+    <!-- Divider -->
+    <div class="my-6 text-center text-gray-400 text-sm">or</div>
+
+    <!-- Back to Login -->
+    <a href="/accounts/login/"
+       class="block text-center text-blue-600 hover:underline text-sm">
+        Back to Login
+    </a>
+
+</div>
+
+</body>
+</html>

@@ -2,20 +2,9 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import login
 from django.db.models import Q
-from django.forms import inlineformset_factory  # For multiple images
-from .models import Rental, RentalImage         # Imported New Model
-from .forms import RentalForm, UserRegisteration
+from .models import Rental
+from .forms import RentalForm, UserRegisteration, GalleryFormSet as ImageFormSet
 
-# --- FORMSET CONFIGURATION ---
-# Allows 5 images total (extra=5) and enforces a maximum of 5
-ImageFormSet = inlineformset_factory(
-    Rental, 
-    RentalImage, 
-    fields=('image',), 
-    extra=5, 
-    max_num=5, 
-    can_delete=True
-)
 
 def index(request):
     return render(request, 'index.html', {'hide_navbar': True, 'hide_sidebar': True})
@@ -39,8 +28,9 @@ def rental_list(request):
 
     if price_query:
         try:
-            rentals = rentals.filter(price__lte=price_query)
-        except ValueError:
+            max_price = float(price_query)
+            rentals = rentals.filter(price__lte=max_price)
+        except (ValueError, TypeError):
             pass
 
     return render(request, 'rentalList.html', {
@@ -52,17 +42,14 @@ def rental_list(request):
 def rental_create(request):
     if request.method == 'POST':
         form = RentalForm(request.POST, request.FILES)
-        formset = ImageFormSet(request.POST, request.FILES)
+        formset = ImageFormSet(request.POST, request.FILES, prefix='gallery')
         
         if form.is_valid() and formset.is_valid():
             new_rental = form.save(commit=False)
             new_rental.user = request.user
             new_rental.save()
-            
-            images = formset.save(commit=False)
-            for img in images:
-                img.rental = new_rental
-                img.save()
+            formset.instance = new_rental
+            formset.save()
                 
             return redirect('rental_list')
     else:
@@ -80,10 +67,8 @@ def rental_edit(request, rental_id):
         formset = ImageFormSet(request.POST, request.FILES, instance=rental_obj, prefix='gallery')
         
         if form.is_valid() and formset.is_valid():
-            rental_obj = form.save(commit=False)
-            rental_obj.user = request.user 
-            rental_obj.save()
-            formset.save() # Saves new images and deletions
+            form.save()
+            formset.save()
             return redirect('rental_list')
     else: 
         form = RentalForm(instance=rental_obj)
@@ -93,26 +78,21 @@ def rental_edit(request, rental_id):
 
 
 def rental_contact(request, rental_id):
-    # 1. Fetch the actual rental object from the DB
-    rental = get_object_or_404(Rental, id=rental_id)
-    
-    # 2. Pass the 'rental' object to the template context
-    return render(request, 'rental_contact.html', {
-        'rental': rental
-    })
+    rental = get_object_or_404(Rental, pk=rental_id)
+    return render(request, 'rental_contact.html', {'rental': rental})
 
 @login_required
 def rental_delete(request, rental_id):
-    rental_obj = get_object_or_404(Rental, pk=rental_id, user=request.user)
+    rental = get_object_or_404(Rental, pk=rental_id, user=request.user)
     if request.method == 'POST':
-        rental_obj.delete()
+        rental.delete()
         return redirect('rental_list')
-    return render(request, 'rentalDelete.html', {'rental': rental_obj})
+    return render(request, 'rentalDelete.html', {'rental': rental})
 
 def room_describe(request, rental_id):
-    rental_obj = get_object_or_404(Rental, pk=rental_id)
-    # The scroller will use rental_obj.gallery.all in the template
-    return render(request, 'room_describe.html', {'rental': rental_obj})
+    rental = get_object_or_404(Rental, pk=rental_id)
+    # The scroller will use rental.gallery.all in the template
+    return render(request, 'room_describe.html', {'rental': rental})
 
 def logout_success(request):
     # This renders the beautiful glassmorphism page we built

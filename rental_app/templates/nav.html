@@ -1,78 +1,100 @@
-<nav class="sticky top-4 z-[100] mx-8 px-8 py-4 rounded-full border border-[var(--surface-border)] bg-[var(--surface)] backdrop-blur-md flex items-center justify-between shadow-lg transition-all duration-500 gap-4">
+<nav class="sticky top-4 z-[100] mx-4 md:mx-8 px-6 md:px-8 py-3 rounded-full border border-white/10 bg-slate-900/40 backdrop-blur-xl flex items-center justify-between shadow-2xl gap-4 transition-all duration-300">
 
-    <!-- LOGO -->
     <div class="flex-shrink-0">
         <a href="{% url 'rental_list' %}" class="flex items-center no-underline group">
-            <span class="text-2xl font-black tracking-tighter text-[var(--text-main)]">
-                Rental<span class="text-sky-500 group-hover:opacity-80">Pro</span>
+            <span class="text-xl md:text-2xl font-black tracking-tighter text-white">
+                Rental<span class="text-sky-500 group-hover:text-sky-400 transition-colors">Pro</span>
             </span>
         </a>
     </div>
 
-    <!-- RIGHT ACTIONS -->
-    <div class="flex items-center gap-3 font-bold">
+    <div class="hidden lg:flex items-center gap-8 text-[10px] font-black uppercase tracking-[0.2em] text-slate-300">
+        <a href="#" class="hover:text-sky-400 transition">Acquire</a>
+        <a href="{% url 'rental_list' %}" class="hover:text-sky-400 transition">Rent</a>
+        <a href="{% url 'rental_create' %}" class="hover:text-sky-400 transition">Sellers</a>
+
+        <div class="relative group">
+            <div class="cursor-pointer hover:text-sky-400 transition py-2 flex items-center gap-1">
+                Services
+                <i class="fa-solid fa-chevron-down text-[8px] opacity-40 group-hover:rotate-180 transition-transform duration-300"></i>
+            </div>
+            <div class="absolute left-0 top-full pt-4 hidden group-hover:block animate-fade-in">
+                <div class="bg-slate-900/90 backdrop-blur-2xl border border-white/10 rounded-2xl shadow-2xl py-3 w-64 overflow-hidden">
+                    <a href="#" class="block px-6 py-3 hover:bg-sky-500 hover:text-white transition tracking-widest">EMI Calculator</a>
+                    <a href="#" class="block px-6 py-3 hover:bg-sky-500 hover:text-white transition tracking-widest">Property Value</a>
+                    <a href="#" class="block px-6 py-3 hover:bg-sky-500 hover:text-white transition tracking-widest">Rent Receipts</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="flex items-center gap-4">
 
         {% if user.is_authenticated %}
-
-            <!-- USER DROPDOWN -->
-            <div class="relative group pb-4 -mb-4">
-
-                <button class="flex items-center gap-3 pl-2 focus:outline-none cursor-pointer">
-                    <div class="hidden xl:flex flex-col items-end leading-tight">
-                        <span class="text-xs font-black text-[var(--text-main)]">
-                            {{ user.username|default:"User" }}
+            <div class="relative group">
+                
+                <button class="flex items-center gap-3 p-1 rounded-full hover:bg-white/5 transition-all outline-none">
+                    <div class="hidden sm:flex flex-col items-end leading-tight mr-1">
+                        <span class="text-[11px] font-black text-white italic">
+                            {{ user.username|default:"Member" }}
                         </span>
-                        <span class="text-[9px] text-[var(--text-muted)] font-medium truncate max-w-[80px]">
-                            {{ user.email }}
+                        <span class="text-[8px] text-slate-500 font-medium uppercase tracking-tighter">
+                            Verified Account
                         </span>
                     </div>
 
-                    <div class="w-9 h-9 rounded-full bg-[var(--text-main)] flex items-center justify-center text-[var(--bg)] border-2 border-[var(--surface-border)] overflow-hidden">
+                    <div class="w-9 h-9 rounded-full bg-gradient-to-tr from-sky-500 to-blue-600 flex items-center justify-center text-white border border-white/20 shadow-lg group-hover:scale-105 transition-transform">
                         <span class="text-xs font-black">
-                            {{ user.email|slice:":1"|upper }}
+                            {{ user.username|slice:":1"|upper }}
                         </span>
                     </div>
                 </button>
 
-                <!-- DROPDOWN MENU -->
-                <div class="absolute right-0 top-full mt-2 w-56 bg-[var(--surface)] border border-[var(--surface-border)] backdrop-blur-xl rounded-[2rem] shadow-2xl py-4 hidden group-hover:block">
+                <div class="absolute right-0 top-full pt-4 hidden group-hover:block animate-fade-in">
+                    <div class="bg-slate-900/95 backdrop-blur-2xl border border-white/10 rounded-2xl shadow-2xl w-56 overflow-hidden">
+                        <div class="px-6 py-4 border-b border-white/5 bg-white/[0.02]">
+                            <p class="text-[9px] font-black text-slate-500 uppercase tracking-widest mb-1">Signed in as</p>
+                            <p class="text-xs font-bold text-white truncate">{{ user.email }}</p>
+                        </div>
+                        
+                        <a href="#" class="flex items-center gap-3 px-6 py-4 text-[10px] font-black uppercase tracking-widest text-slate-300 hover:bg-white/5 hover:text-white transition">
+                            <i class="fa-solid fa-user-gear text-sky-500 text-xs"></i> My Profile
+                        </a>
+                        
+                        <a href="#" class="flex items-center gap-3 px-6 py-4 text-[10px] font-black uppercase tracking-widest text-slate-300 hover:bg-white/5 hover:text-white transition">
+                            <i class="fa-solid fa-heart text-pink-500 text-xs"></i> Saved Homes
+                        </a>
 
-                    <a href="#" class="flex items-center px-6 py-3 text-xs font-black uppercase tracking-widest hover:bg-sky-500 hover:text-white transition-all mx-2 rounded-2xl no-underline">
-                        <i class="fa-solid fa-house-user mr-3 opacity-50"></i> My Listings
-                    </a>
-
-                    <a href="#" class="flex items-center px-6 py-3 text-xs font-black uppercase tracking-widest hover:bg-sky-500 hover:text-white transition-all mx-2 rounded-2xl no-underline">
-                        <i class="fa-solid fa-heart mr-3 opacity-50"></i> Favorites
-                    </a>
-
-                    <div class="my-3 border-t border-[var(--surface-border)] mx-6"></div>
-
-                    <!-- LOGOUT (FIXED) -->
-                    <form action="{% url 'account_logout' %}" method="post" class="px-2 m-0">
-                        {% csrf_token %}
-                        <button type="submit" class="w-full flex items-center px-6 py-3 text-xs font-black uppercase tracking-[0.2em] text-rose-500 hover:bg-rose-500 hover:text-white transition-all rounded-2xl">
-                            <i class="fa-solid fa-power-off mr-3"></i> Logout
-                        </button>
-                    </form>
-
+                        <form method="post" action="{% url 'account_logout' %}" class="border-t border-white/5">
+                            {% csrf_token %}
+                            <button type="submit" class="w-full flex items-center gap-3 px-6 py-4 text-[10px] font-black uppercase tracking-widest text-red-400 hover:bg-red-500/10 transition text-left">
+                                <i class="fa-solid fa-power-off text-xs"></i> Logout
+                            </button>
+                        </form>
+                    </div>
                 </div>
             </div>
 
         {% else %}
-
-            <!-- GUEST ACTIONS -->
             <div class="flex items-center gap-2">
-
-                <a href="{% url 'account_login' %}" class="px-3 py-2 text-xs text-[var(--text-main)] hover:opacity-70 transition-all font-black uppercase tracking-widest no-underline">
+                <a href="{% url 'account_login' %}" class="px-5 py-2 text-[10px] font-black text-white uppercase tracking-[0.2em] hover:text-sky-400 transition">
                     Login
                 </a>
-
-                <a href="{% url 'account_signup' %}" class="px-6 py-2.5 text-[10px] bg-sky-500 text-white rounded-full font-black uppercase tracking-[0.2em] shadow-lg shadow-sky-400/20 hover:bg-sky-600 active:scale-95 transition-all no-underline">
+                <a href="{% url 'account_signup' %}" class="px-6 py-2.5 text-[10px] bg-sky-500 hover:bg-sky-400 text-white rounded-full font-black uppercase tracking-[0.2em] shadow-lg shadow-sky-500/20 transition-all active:scale-95">
                     Sign Up
                 </a>
-
             </div>
-
         {% endif %}
+
     </div>
 </nav>
+
+<style>
+    @keyframes fade-in {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    .animate-fade-in {
+        animation: fade-in 0.2s ease-out forwards;
+    }
+</style>

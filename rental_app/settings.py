@@ -1,139 +1,159 @@
 """
-RentalPro v4.8 - Optimized Production Settings
+RentalPro - Production Settings (Fixed for Email-Based CustomUser)
 """
+
 import os
 from pathlib import Path
+from dotenv import load_dotenv
 
-# --- BASE DIRECTORY ---
+# ================= BASE =================
 BASE_DIR = Path(__file__).resolve().parent.parent
+load_dotenv()
 
-# --- SECURITY ---
-SECRET_KEY = 'django-insecure-q*%z%14^psinrkf=n+6x144zvttpk2)^7o#8_=n-t)rsg#iork'
-DEBUG = True
-ALLOWED_HOSTS = []
+# ================= SECURITY =================
+SECRET_KEY = os.getenv("SECRET_KEY", "django-insecure-dev-key")
+DEBUG = os.getenv("DJANGO_DEBUG", "True") == "True"
 
-# --- APPLICATION DEFINITION ---
+ALLOWED_HOSTS = os.getenv(
+    "DJANGO_ALLOWED_HOSTS",
+    "127.0.0.1,localhost"
+).split(",")
+
+CSRF_TRUSTED_ORIGINS = [
+    origin for origin in os.getenv(
+        "DJANGO_CSRF_TRUSTED_ORIGINS",
+        "http://127.0.0.1:8000,http://localhost:8000"
+    ).split(",") if origin
+]
+
+SESSION_COOKIE_SECURE = not DEBUG
+CSRF_COOKIE_SECURE = not DEBUG
+
+SECURE_BROWSER_XSS_FILTER = True
+SECURE_CONTENT_TYPE_NOSNIFF = True
+
+# ================= APPS =================
 INSTALLED_APPS = [
-    # Core Custom App
-    'tweet.apps.TweetConfig', 
-    
-    # Django Essentials
-    'django.contrib.admin',
-    'django.contrib.auth',
-    'django.contrib.contenttypes',
-    'django.contrib.sessions',
-    'django.contrib.messages',
-    'django.contrib.staticfiles',
-    'django.contrib.humanize',
-    'django.contrib.sites',  # Correctly placed in Apps
-    
-    # Allauth Ecosystem
-    'allauth',
-    'allauth.account',
-    'allauth.socialaccount',
-    'allauth.socialaccount.providers.google',
-    'allauth.socialaccount.providers.facebook',
+    # custom app
+    "tweet.apps.TweetConfig",
+
+    # django core
+    "django.contrib.admin",
+    "django.contrib.auth",
+    "django.contrib.contenttypes",
+    "django.contrib.sessions",
+    "django.contrib.messages",
+    "django.contrib.staticfiles",
+    "django.contrib.humanize",
+    "django.contrib.sites",
+
+    # allauth
+    "allauth",
+    "allauth.account",
+    "allauth.socialaccount",
+    "allauth.socialaccount.providers.google",
 ]
 
-# --- MIDDLEWARE ARCHITECTURE ---
+# ================= MIDDLEWARE =================
 MIDDLEWARE = [
-    'django.middleware.security.SecurityMiddleware',
-    'django.contrib.sessions.middleware.SessionMiddleware',
-    'django.middleware.common.CommonMiddleware',
-    'django.middleware.csrf.CsrfViewMiddleware',
-    'django.contrib.auth.middleware.AuthenticationMiddleware',
-    'django.contrib.messages.middleware.MessageMiddleware',
-    'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    # Logic for Auth state & Social Logins
-    'allauth.account.middleware.AccountMiddleware', 
+    "django.middleware.security.SecurityMiddleware",
+    "django.contrib.sessions.middleware.SessionMiddleware",
+    "django.middleware.common.CommonMiddleware",
+    "django.middleware.csrf.CsrfViewMiddleware",
+    "django.contrib.auth.middleware.AuthenticationMiddleware",
+    "django.contrib.messages.middleware.MessageMiddleware",
+    "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    "allauth.account.middleware.AccountMiddleware",
 ]
 
-# --- SITES FRAMEWORK ---
+# ================= CORE =================
+ROOT_URLCONF = "rental_app.urls"
+WSGI_APPLICATION = "rental_app.wsgi.application"
 SITE_ID = 1
 
-# --- AUTHENTICATION CONFIGURATION ---
-AUTH_USER_MODEL = 'tweet.CustomUser'
-
-AUTHENTICATION_BACKENDS = [
-    'django.contrib.auth.backends.ModelBackend',
-    'allauth.account.auth_backends.AuthenticationBackend',
-]
-
-# --- URLS & TEMPLATES ---
-ROOT_URLCONF = 'rental_app.urls'
-
+# ================= TEMPLATES =================
 TEMPLATES = [
     {
-        'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [
-            os.path.join(BASE_DIR, 'templates'),
-            os.path.join(BASE_DIR, 'rental_app', 'templates'),
+        "BACKEND": "django.template.backends.django.DjangoTemplates",
+        "DIRS": [
+            BASE_DIR / "templates",
+            BASE_DIR / "rental_app" / "templates",
         ],
-        'APP_DIRS': False,
-        'OPTIONS': {
-            'loaders': (
-                [
-                    'django.template.loaders.filesystem.Loader',
-                    'django.template.loaders.app_directories.Loader',
-                ]
-                if DEBUG
-                else [
-                    (
-                        'django.template.loaders.cached.Loader',
-                        [
-                            'django.template.loaders.filesystem.Loader',
-                            'django.template.loaders.app_directories.Loader',
-                        ],
-                    )
-                ]
-            ),
-            'context_processors': [
-                'django.template.context_processors.debug',
-                'django.template.context_processors.request', # Vital for Allauth
-                'django.contrib.auth.context_processors.auth',
-                'django.contrib.messages.context_processors.messages',
+        "APP_DIRS": True,
+        "OPTIONS": {
+            "context_processors": [
+                "django.template.context_processors.debug",
+                "django.template.context_processors.request",
+                "django.contrib.auth.context_processors.auth",
+                "django.contrib.messages.context_processors.messages",
             ],
         },
     },
 ]
 
-WSGI_APPLICATION = 'rental_app.wsgi.application'
-
-# --- DATABASE ---
+# ================= DATABASE =================
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'rental_db',
-        'USER': 'postgres',
-        'PASSWORD': 'admin123', 
-        'HOST': '127.0.0.1',
-        'PORT': '5432',
+    "default": {
+        "ENGINE": "django.db.backends.postgresql",
+        "NAME": "rental_db",
+        "USER": "postgres",
+        "PASSWORD": "admin123",
+        "HOST": "127.0.0.1",
+        "PORT": "5432",
     }
 }
 
-# --- STATIC & MEDIA (Commercial Pathing) ---
-STATIC_URL = '/static/'
-STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
+# ================= AUTH =================
+AUTH_USER_MODEL = "tweet.CustomUser"
 
-MEDIA_URL = '/media/'
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+AUTHENTICATION_BACKENDS = [
+    "django.contrib.auth.backends.ModelBackend",
+    "allauth.account.auth_backends.AuthenticationBackend",
+]
 
-# --- NAVIGATION & REDIRECTS ---
-LOGIN_URL = '/accounts/login/'
-LOGIN_REDIRECT_URL = '/rentals/'
-LOGOUT_REDIRECT_URL = 'rental_list'
-
-# --- ALLAUTH SPECIFIC SETTINGAS ---
-ACCOUNT_AUTHENTICATION_METHOD = 'email'
+# ================= ALLAUTH (FIXED) =================
+ACCOUNT_AUTHENTICATION_METHOD = "email"
 ACCOUNT_EMAIL_REQUIRED = True
-ACCOUNT_USERNAME_REQUIRED = True
-ACCOUNT_EMAIL_VERIFICATION = 'none' # Set to 'mandatory' for production
+ACCOUNT_USERNAME_REQUIRED = False
+ACCOUNT_EMAIL_VERIFICATION = "none"
 
-# --- INTERNATIONALIZATION ---
-LANGUAGE_CODE = 'en-us'
-TIME_ZONE = 'Asia/Kolkata' # Set to your local time in Punjab
+# 🚨 THIS IS THE IMPORTANT FIX (removes username dependency)
+ACCOUNT_USER_MODEL_USERNAME_FIELD = None
+ACCOUNT_USER_MODEL_EMAIL_FIELD = "email"
+
+ACCOUNT_LOGOUT_ON_GET = False
+
+# ================= LOGIN FLOW =================
+LOGIN_URL = "/accounts/login/"
+LOGIN_REDIRECT_URL = "/rentals/"
+LOGOUT_REDIRECT_URL = "/"
+
+# ================= SOCIAL LOGIN =================
+SOCIALACCOUNT_AUTO_SIGNUP = True
+SOCIALACCOUNT_LOGIN_ON_GET = True
+
+SOCIALACCOUNT_PROVIDERS = {
+    "google": {
+        "APP": {
+            "client_id": os.getenv("GOOGLE_CLIENT_ID"),
+            "secret": os.getenv("GOOGLE_CLIENT_SECRET"),
+        },
+        "SCOPE": ["profile", "email"],
+        "AUTH_PARAMS": {"access_type": "online"},
+    }
+}
+
+# ================= STATIC / MEDIA =================
+STATIC_URL = "/static/"
+STATICFILES_DIRS = [BASE_DIR / "static"]
+
+MEDIA_URL = "/media/"
+MEDIA_ROOT = BASE_DIR / "media"
+
+# ================= INTERNATIONAL =================
+LANGUAGE_CODE = "en-us"
+TIME_ZONE = "Asia/Kolkata"
 USE_I18N = True
 USE_TZ = True
 
-# --- DEFAULT FIELD ---
-DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
