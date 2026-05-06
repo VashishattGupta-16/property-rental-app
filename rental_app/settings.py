@@ -208,13 +208,13 @@ STORAGES = {
         "BACKEND": "cloudinary_storage.storage.MediaCloudinaryStorage",
     },
     "staticfiles": {
-        # Standard static storage engine ensures race-free deployment builds on Render
-        "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage",
+        # 🌟 WhiteNoise storage is required to correctly cache, compress, and serve your static banner
+        "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
     },
 }
 
 # Fallback references for backwards compatibility with older package configs
-STATICFILES_STORAGE = "django.contrib.staticfiles.storage.StaticFilesStorage"
+STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 DEFAULT_FILE_STORAGE = "cloudinary_storage.storage.MediaCloudinaryStorage"
 
 # ==============================================================================
