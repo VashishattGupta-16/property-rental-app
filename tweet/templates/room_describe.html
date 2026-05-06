@@ -2,28 +2,32 @@
 
 {% block content %}
 <style>
-.image-scroller {
-    display: flex;
-    overflow-x: auto;
-    scroll-snap-type: x mandatory;
-    scrollbar-width: none;
-    gap: 1.5rem;
-    padding-bottom: 1rem;
-}
-.image-scroller::-webkit-scrollbar { display: none; }
+    .image-scroller {
+        display: flex;
+        overflow-x: auto;
+        scroll-snap-type: x mandatory;
+        scrollbar-width: none;
+        gap: 1.5rem;
+        padding-bottom: 1rem;
+    }
 
-.scroller-item {
-    flex: 0 0 85%;
-    scroll-snap-align: center;
-    aspect-ratio: 16/10;
-    border-radius: 2.5rem;
-    overflow: hidden;
-}
+    .image-scroller::-webkit-scrollbar {
+        display: none;
+    }
 
-@media (min-width: 1024px) {
-    .scroller-item { flex: 0 0 60%; }
-}
+    .scroller-item {
+        flex: 0 0 85%;
+        scroll-snap-align: center;
+        aspect-ratio: 16/10;
+        border-radius: 2.5rem;
+        overflow: hidden;
+    }
 
+    @media (min-width: 1024px) {
+        .scroller-item {
+            flex: 0 0 60%;
+        }
+    }
 </style>
 
 <div class="mx-auto max-w-[1400px] px-6 py-12">
@@ -33,7 +37,8 @@
 
         <div class="space-y-4">
 
-            <span class="inline-flex items-center gap-2 bg-[var(--accent)] text-white text-[9px] font-black px-4 py-1 rounded-full uppercase tracking-widest">
+            <span
+                class="inline-flex items-center gap-2 bg-[var(--accent)] text-white text-[9px] font-black px-4 py-1 rounded-full uppercase tracking-widest">
                 <i class="fa-solid fa-tag"></i>
                 {{ rental.get_property_type_display }}
             </span>
@@ -59,9 +64,9 @@
 
             <h2 class="text-4xl font-black">
                 {% if rental.price %}
-                    ₹{{ rental.price }}
+                ₹{{ rental.price }}
                 {% else %}
-                    ₹0
+                ₹0
                 {% endif %}
             </h2>
 
@@ -80,17 +85,25 @@
 
                 <div class="scroller-item border">
                     {% if rental.image %}
-                        <img src="{{ rental.image.url }}" class="w-full h-full object-cover">
+                    <img src="{{ rental.image.url }}" class="w-full h-full object-cover">
                     {% else %}
-                        <div class="w-full h-full bg-gray-200 flex items-center justify-center">
-                            No Image
-                        </div>
+                    <div class="w-full h-full bg-gray-200 flex items-center justify-center">
+                        No Image
+                    </div>
                     {% endif %}
                 </div>
 
                 {% for item in rental.gallery.all %}
                 <div class="scroller-item border">
-                    <img src="{{ item.image.url }}" class="w-full h-full object-cover">
+                    {% if item.image %}
+                    <img src="{{ item.image.url }}" alt="Gallery image for {{ rental.title|default:'Property' }}"
+                        class="w-full h-full object-cover">
+                    {% else %}
+                    <div
+                        class="w-full h-full bg-slate-800 flex items-center justify-center text-slate-400 text-sm uppercase tracking-[0.2em]">
+                        No gallery image
+                    </div>
+                    {% endif %}
                 </div>
                 {% endfor %}
 
@@ -118,7 +131,7 @@
                     Specifications
                 </h3>
                 <div class="grid grid-cols-2 gap-4">
-                    
+
                     <div class="border border-[var(--surface-border)] rounded-xl p-4 text-center">
                         <i class="fa-solid fa-house text-2xl mb-2 text-sky-500"></i>
                         <p class="text-xs font-bold">{{ rental.get_property_type_display }}</p>
@@ -154,7 +167,7 @@
                         <p class="text-xs font-bold">{{ rental.sqft|default:"--" }}</p>
                         <p class="text-[10px] opacity-50">Sq.Ft.</p>
                     </div>
-                    
+
                 </div>
             </div>
 
@@ -170,15 +183,15 @@
 
                     <p class="text-xl font-black">
                         {% if rental.user %}
-                            {{ rental.user.first_name|default:rental.user.email }}
+                        {{ rental.user.first_name|default:rental.user.email }}
                         {% else %}
-                            Unknown Owner
+                        Unknown Owner
                         {% endif %}
                     </p>
 
                     <p class="text-xs opacity-60">
                         {% if rental.user %}
-                            {{ rental.user.email }}
+                        {{ rental.user.email }}
                         {% endif %}
                     </p>
                 </div>
@@ -199,7 +212,7 @@
                 </div>
 
                 <a href="{% url 'rental_contact' rental.id %}"
-                   class="btn-pro w-full py-5 flex items-center justify-center gap-2">
+                    class="btn-pro w-full py-5 flex items-center justify-center gap-2">
                     <i class="fa-solid fa-phone"></i>
                     Contact Owner
                 </a>
