@@ -201,6 +201,14 @@ STATICFILES_DIRS = [BASE_DIR / "static"]
 MEDIA_URL = "/media/"
 MEDIA_ROOT = BASE_DIR / "media"
 
+
+# 🌟 CUSTOM STORAGE ENGINE: Tell WhiteNoise to ignore missing map/font files during compilation
+from whitenoise.storage import CompressedManifestStaticFilesStorage
+
+class ResilientWhiteNoiseStorage(CompressedManifestStaticFilesStorage):
+    manifest_strict = False  # <--- This is the magic line that ignores missing files
+
+
 # Defines how static and media files are stored on disk / cloud
 STORAGES = {
     "default": {
@@ -208,13 +216,13 @@ STORAGES = {
         "BACKEND": "cloudinary_storage.storage.MediaCloudinaryStorage",
     },
     "staticfiles": {
-        # 🌟 WhiteNoise storage is required to correctly cache, compress, and serve your static banner
-        "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
+        # Use our custom resilient storage instead of default strict WhiteNoise
+        "BACKEND": "rental_app.settings.ResilientWhiteNoiseStorage",
     },
 }
 
-# Fallback references for backwards compatibility with older package configs
-STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
+# Fallback references for older packages/compatibility
+STATICFILES_STORAGE = "rental_app.settings.ResilientWhiteNoiseStorage"
 DEFAULT_FILE_STORAGE = "cloudinary_storage.storage.MediaCloudinaryStorage"
 
 # ==============================================================================
