@@ -1,6 +1,6 @@
 from . import views
 from django.urls import path 
-
+from .views import ping_view
 
 urlpatterns = [
     # path('admin/', admin.site.urls),
@@ -13,4 +13,5 @@ urlpatterns = [
     path('rentals/<int:rental_id>/', views.room_describe, name='room_describe'),
     path('register/', views.register, name='register'),
     path('logged-out/', views.logout_success, name='logout_success'),
+    path('ping/', ping_view, name='ping'),
 ]

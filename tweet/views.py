@@ -145,3 +145,5 @@ def register(request):
 def logout_success(request):
     return render(request, 'registration/logged_out.html')
 
+def ping_view(request):
+    return HttpResponse("pong", content_type="text/plain")
