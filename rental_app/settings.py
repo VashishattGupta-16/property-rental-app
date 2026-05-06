@@ -98,10 +98,10 @@ TEMPLATES = [
 
 # ================= DATABASE =================
 DATABASES = {
-    "default": dj_database_url.config(
-        default="postgres://postgres:admin123@127.0.0.1:5432/rental_db",
-        conn_max_age=600
-        conn_health_checks=True,
+    "default": dj_database_url.parse(
+        os.environ.get("DATABASE_URL"),
+        conn_max_age=600,
+        ssl_require=True
     )
 }
 
@@ -135,8 +135,8 @@ LOGOUT_REDIRECT_URL = "/"
 # ================= CLOUDINARY CONFIG =================
 CLOUDINARY_STORAGE = {
     'CLOUD_NAME': os.getenv('CLOUDINARY_CLOUD_NAME'),
-    'API_KEY': os.getenv('485917542375157'),
-    'API_SECRET': os.getenv('P-K-aSceEThGSE8NZdyglo5djKI'),
+    'API_KEY': os.getenv('CLOUDINARY_API_KEY'),
+    'API_SECRET': os.getenv('CLOUDINARY_API_SECRET'),
 }
 
 DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
