@@ -1,0 +1,38 @@
+services:
+  - type: db
+    name: rentalpro-db
+    plan: free
+    databaseName: rental_db
+    user: postgres
+
+  - type: web
+    name: rentalpro-web
+    plan: free
+    runtime: python
+    buildCommand: "./build.sh"
+    startCommand: "gunicorn rental_app.wsgi:application --config gunicorn.conf.py"
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.12.10
+      - key: DJANGO_SETTINGS_MODULE
+        value: rental_app.settings
+      - key: DJANGO_DEBUG
+        value: "False"
+      - key: DATABASE_URL
+        fromDatabase:
+          name: rentalpro-db
+          property: connectionString
+      - key: CLOUDINARY_CLOUD_NAME
+        sync: false
+      - key: CLOUDINARY_API_KEY
+        sync: false
+      - key: CLOUDINARY_API_SECRET
+        sync: false
+      - key: GOOGLE_CLIENT_ID
+        sync: false
+      - key: GOOGLE_CLIENT_SECRET
+        sync: false
+      - key: SECRET_KEY
+        generateValue: true
+      - key: DJANGO_ALLOWED_HOSTS
+        value: "localhost,127.0.0.1,.onrender.com"

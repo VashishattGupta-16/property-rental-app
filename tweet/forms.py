@@ -32,8 +32,10 @@ class RentalForm(forms.ModelForm):
             "floor",
             "facing",
             "image",
-            "contact"
-        ]
+            "contact",
+            "bedrooms",
+            "bathrooms",
+]
 
         widgets = {
             "description": forms.Textarea(attrs={"rows": 4}),

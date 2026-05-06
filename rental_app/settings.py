@@ -1,10 +1,11 @@
 """
-RentalPro - Production Settings (Fixed for Email-Based CustomUser)
+RentalPro - Production Settings (Fixed for Email-Based CustomUser & Cloudinary)
 """
 
 import os
 from pathlib import Path
 from dotenv import load_dotenv
+import dj_database_url
 
 # ================= BASE =================
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -34,6 +35,10 @@ SECURE_CONTENT_TYPE_NOSNIFF = True
 
 # ================= APPS =================
 INSTALLED_APPS = [
+    # cloudinary storage
+    "cloudinary_storage",
+    "cloudinary",
+
     # custom app
     "tweet.apps.TweetConfig",
 
@@ -93,15 +98,13 @@ TEMPLATES = [
 
 # ================= DATABASE =================
 DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.postgresql",
-        "NAME": "rental_db",
-        "USER": "postgres",
-        "PASSWORD": "admin123",
-        "HOST": "127.0.0.1",
-        "PORT": "5432",
-    }
+    "default": dj_database_url.config(
+        default="postgres://postgres:admin123@127.0.0.1:5432/rental_db",
+        conn_max_age=600
+        conn_health_checks=True,
+    )
 }
+
 
 # ================= AUTH =================
 AUTH_USER_MODEL = "tweet.CustomUser"
@@ -118,6 +121,7 @@ ACCOUNT_USERNAME_REQUIRED = False
 ACCOUNT_EMAIL_VERIFICATION = "none"
 
 # 🚨 THIS IS THE IMPORTANT FIX (removes username dependency)
+USER_MODEL_USERNAME_FIELD = "email"
 ACCOUNT_USER_MODEL_USERNAME_FIELD = None
 ACCOUNT_USER_MODEL_EMAIL_FIELD = "email"
 
@@ -127,6 +131,15 @@ ACCOUNT_LOGOUT_ON_GET = False
 LOGIN_URL = "/accounts/login/"
 LOGIN_REDIRECT_URL = "/rentals/"
 LOGOUT_REDIRECT_URL = "/"
+
+# ================= CLOUDINARY CONFIG =================
+CLOUDINARY_STORAGE = {
+    'CLOUD_NAME': os.getenv('CLOUDINARY_CLOUD_NAME'),
+    'API_KEY': os.getenv('485917542375157'),
+    'API_SECRET': os.getenv('P-K-aSceEThGSE8NZdyglo5djKI'),
+}
+
+DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
 
 # ================= SOCIAL LOGIN =================
 SOCIALACCOUNT_AUTO_SIGNUP = True
