@@ -3,8 +3,7 @@ databases:
   - name: rentalpro-db
     plan: free
     databaseName: rental_db
-    user: postgres
-
+    user: rental_admin  # 🌟 Changed from "postgres" to a valid custom username
 # 2. Services (Web apps, workers, etc.) are declared here
 services:
   - type: web
