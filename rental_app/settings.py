@@ -127,6 +127,10 @@ if os.getenv("DATABASE_URL"):
             ssl_require=True
         )
     }
+    # Enforce standard SSL mode to prevent Gunicorn workers from hanging on Render
+    DATABASES["default"]["OPTIONS"] = {
+        "sslmode": "require"
+    }
 else:
     # LOCAL DEVELOPMENT (Reads local PostgreSQL server; SSL disabled to prevent errors)
     DATABASES = {
