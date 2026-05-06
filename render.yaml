@@ -1,10 +1,12 @@
-services:
-  - type: db
-    name: rentalpro-db
+# 1. Databases are declared in their own top-level list
+databases:
+  - name: rentalpro-db
     plan: free
     databaseName: rental_db
     user: postgres
 
+# 2. Services (Web apps, workers, etc.) are declared here
+services:
   - type: web
     name: rentalpro-web
     plan: free
@@ -18,20 +20,28 @@ services:
         value: rental_app.settings
       - key: DJANGO_DEBUG
         value: "False"
+      
+      # This links securely to the database block declared above
       - key: DATABASE_URL
         fromDatabase:
           name: rentalpro-db
           property: connectionString
+
+      # Cloudinary Credentials (values input via Render Dashboard)
       - key: CLOUDINARY_CLOUD_NAME
         sync: false
       - key: CLOUDINARY_API_KEY
         sync: false
       - key: CLOUDINARY_API_SECRET
         sync: false
+
+      # Google Social Auth Credentials
       - key: GOOGLE_CLIENT_ID
         sync: false
       - key: GOOGLE_CLIENT_SECRET
         sync: false
+
+      # Security Keys
       - key: SECRET_KEY
         generateValue: true
       - key: DJANGO_ALLOWED_HOSTS
