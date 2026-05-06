@@ -1,19 +1,13 @@
-"""
-RentalPro - Production Settings (Fixed for Email-Based CustomUser & Cloudinary)
-"""
-
 import os
 from pathlib import Path
 from dotenv import load_dotenv
 import dj_database_url
 
-# ================= BASE =================
 BASE_DIR = Path(__file__).resolve().parent.parent
 load_dotenv()
 
-# ================= SECURITY =================
 SECRET_KEY = os.getenv("SECRET_KEY", "django-insecure-dev-key")
-DEBUG = os.getenv("DJANGO_DEBUG", "True") == "True"
+DEBUG = os.getenv("DJANGO_DEBUG", "False") == "True"
 
 ALLOWED_HOSTS = os.getenv(
     "DJANGO_ALLOWED_HOSTS",
@@ -23,26 +17,21 @@ ALLOWED_HOSTS = os.getenv(
 CSRF_TRUSTED_ORIGINS = [
     origin for origin in os.getenv(
         "DJANGO_CSRF_TRUSTED_ORIGINS",
-        "http://127.0.0.1:8000,http://localhost:8000"
+        ""
     ).split(",") if origin
 ]
 
 SESSION_COOKIE_SECURE = not DEBUG
 CSRF_COOKIE_SECURE = not DEBUG
-
 SECURE_BROWSER_XSS_FILTER = True
 SECURE_CONTENT_TYPE_NOSNIFF = True
 
-# ================= APPS =================
 INSTALLED_APPS = [
-    # cloudinary storage
     "cloudinary_storage",
     "cloudinary",
 
-    # custom app
     "tweet.apps.TweetConfig",
 
-    # django core
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
@@ -52,14 +41,12 @@ INSTALLED_APPS = [
     "django.contrib.humanize",
     "django.contrib.sites",
 
-    # allauth
     "allauth",
     "allauth.account",
     "allauth.socialaccount",
     "allauth.socialaccount.providers.google",
 ]
 
-# ================= MIDDLEWARE =================
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
@@ -71,12 +58,10 @@ MIDDLEWARE = [
     "allauth.account.middleware.AccountMiddleware",
 ]
 
-# ================= CORE =================
 ROOT_URLCONF = "rental_app.urls"
 WSGI_APPLICATION = "rental_app.wsgi.application"
 SITE_ID = 1
 
-# ================= TEMPLATES =================
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
@@ -96,17 +81,14 @@ TEMPLATES = [
     },
 ]
 
-# ================= DATABASE =================
 DATABASES = {
-    "default": dj_database_url.parse(
-        os.environ.get("DATABASE_URL"),
+    "default": dj_database_url.config(
+        default=None,
         conn_max_age=600,
         ssl_require=True
     )
 }
 
-
-# ================= AUTH =================
 AUTH_USER_MODEL = "tweet.CustomUser"
 
 AUTHENTICATION_BACKENDS = [
@@ -114,34 +96,29 @@ AUTHENTICATION_BACKENDS = [
     "allauth.account.auth_backends.AuthenticationBackend",
 ]
 
-# ================= ALLAUTH (FIXED) =================
 ACCOUNT_AUTHENTICATION_METHOD = "email"
 ACCOUNT_EMAIL_REQUIRED = True
 ACCOUNT_USERNAME_REQUIRED = False
 ACCOUNT_EMAIL_VERIFICATION = "none"
 
-# 🚨 THIS IS THE IMPORTANT FIX (removes username dependency)
 USER_MODEL_USERNAME_FIELD = "email"
 ACCOUNT_USER_MODEL_USERNAME_FIELD = None
 ACCOUNT_USER_MODEL_EMAIL_FIELD = "email"
 
 ACCOUNT_LOGOUT_ON_GET = False
 
-# ================= LOGIN FLOW =================
 LOGIN_URL = "/accounts/login/"
 LOGIN_REDIRECT_URL = "/rentals/"
 LOGOUT_REDIRECT_URL = "/"
 
-# ================= CLOUDINARY CONFIG =================
 CLOUDINARY_STORAGE = {
-    'CLOUD_NAME': os.getenv('CLOUDINARY_CLOUD_NAME'),
-    'API_KEY': os.getenv('CLOUDINARY_API_KEY'),
-    'API_SECRET': os.getenv('CLOUDINARY_API_SECRET'),
+    "CLOUD_NAME": os.getenv("CLOUDINARY_CLOUD_NAME", ""),
+    "API_KEY": os.getenv("CLOUDINARY_API_KEY", ""),
+    "API_SECRET": os.getenv("CLOUDINARY_API_SECRET", ""),
 }
 
-DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
+DEFAULT_FILE_STORAGE = "cloudinary_storage.storage.MediaCloudinaryStorage"
 
-# ================= SOCIAL LOGIN =================
 SOCIALACCOUNT_AUTO_SIGNUP = True
 SOCIALACCOUNT_LOGIN_ON_GET = True
 
@@ -156,14 +133,12 @@ SOCIALACCOUNT_PROVIDERS = {
     }
 }
 
-# ================= STATIC / MEDIA =================
 STATIC_URL = "/static/"
 STATICFILES_DIRS = [BASE_DIR / "static"]
 
 MEDIA_URL = "/media/"
 MEDIA_ROOT = BASE_DIR / "media"
 
-# ================= INTERNATIONAL =================
 LANGUAGE_CODE = "en-us"
 TIME_ZONE = "Asia/Kolkata"
 USE_I18N = True
