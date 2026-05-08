@@ -1,67 +1,112 @@
 import os
 from pathlib import Path
-from dotenv import load_dotenv
-import dj_database_url
 
-# -------------------------------------------------
-# 1. BASE SETUP
-# -------------------------------------------------
+import dj_database_url
+from dotenv import load_dotenv
+
+# =========================================================
+# BASE
+# =========================================================
+
 BASE_DIR = Path(__file__).resolve().parent.parent
 load_dotenv()
 
-# -------------------------------------------------
-# 2. SECURITY (FIXES 400, PREPARES FOR 500 DEBUGGING)
-# -------------------------------------------------
-SECRET_KEY = os.getenv("SECRET_KEY", "django-insecure-dev-key")
-# Set this to False in Render Environment Variables for production
-DEBUG = os.getenv("DJANGO_DEBUG", "False") == "True"
 
-ALLOWED_HOSTS = ["rentalpro-web.onrender.com", "localhost", "127.0.0.1"]
-CSRF_TRUSTED_ORIGINS = ["https://rentalpro-web.onrender.com"]
+def env_bool(name: str, default: bool = False) -> bool:
+    raw = os.getenv(name)
+    if raw is None:
+        return default
+    return raw.strip().lower() in {"1", "true", "yes", "on"}
+
+
+# =========================================================
+# SECURITY
+# =========================================================
+
+SECRET_KEY = os.getenv("SECRET_KEY", "django-insecure-dev-key")
+DEBUG = env_bool("DJANGO_DEBUG", default=True)
+
+allowed_hosts = os.getenv("DJANGO_ALLOWED_HOSTS")
+if allowed_hosts:
+    ALLOWED_HOSTS = [h.strip() for h in allowed_hosts.split(",") if h.strip()]
+else:
+    ALLOWED_HOSTS = [
+        "127.0.0.1",
+        "localhost",
+        "rentalpro-web.onrender.com",
+        ".onrender.com",
+    ]
+
+CSRF_TRUSTED_ORIGINS = [
+    o.strip()
+    for o in os.getenv(
+        "DJANGO_CSRF_TRUSTED_ORIGINS",
+        "https://rentalpro-web.onrender.com",
+    ).split(",")
+    if o.strip()
+]
 
 SESSION_COOKIE_SECURE = not DEBUG
 CSRF_COOKIE_SECURE = not DEBUG
 
-# -------------------------------------------------
-# 3. APPS & 4. MIDDLEWARE
-# -------------------------------------------------
+# =========================================================
+# APPS
+# =========================================================
+
 INSTALLED_APPS = [
-    "cloudinary_storage",
-    "cloudinary",
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
     "django.contrib.sessions",
     "django.contrib.messages",
+    # NOTE: django-cloudinary-storage overrides the `collectstatic` command if it
+    # appears before `django.contrib.staticfiles`. Since we use Cloudinary for
+    # MEDIA only, keep `staticfiles` first.
     "django.contrib.staticfiles",
     "django.contrib.humanize",
     "django.contrib.sites",
+
+    "cloudinary_storage",
+    "cloudinary",
+
     "tweet.apps.TweetConfig",
+
     "allauth",
     "allauth.account",
     "allauth.socialaccount",
     "allauth.socialaccount.providers.google",
 ]
 
+# =========================================================
+# MIDDLEWARE
+# =========================================================
+
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
-    "whitenoise.middleware.WhiteNoiseMiddleware", # Vital for UI
+    "whitenoise.middleware.WhiteNoiseMiddleware",
+
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+
     "allauth.account.middleware.AccountMiddleware",
 ]
+
+# =========================================================
+# URLS
+# =========================================================
 
 ROOT_URLCONF = "rental_app.urls"
 WSGI_APPLICATION = "rental_app.wsgi.application"
 SITE_ID = 1
 
-# -------------------------------------------------
-# 5. TEMPLATES & 6. DATABASE
-# -------------------------------------------------
+# =========================================================
+# TEMPLATES
+# =========================================================
+
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
@@ -78,21 +123,50 @@ TEMPLATES = [
     },
 ]
 
-DATABASES = {
-    "default": dj_database_url.config(
-        default=os.getenv("DATABASE_URL"),
-        conn_max_age=600,
-        ssl_require=True
-    )
-}
+# =========================================================
+# DATABASE
+# =========================================================
 
-# -------------------------------------------------
-# 7. AUTH & 8. CLOUDINARY
-# -------------------------------------------------
+DATABASE_URL = os.getenv("DATABASE_URL")
+if DATABASE_URL:
+    DATABASES = {
+        "default": dj_database_url.config(
+            default=DATABASE_URL,
+            conn_max_age=600,
+            ssl_require=not DEBUG,
+        )
+    }
+else:
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.sqlite3",
+            "NAME": BASE_DIR / "db.sqlite3",
+        }
+    }
+
+# =========================================================
+# AUTH
+# =========================================================
+
 AUTH_USER_MODEL = "tweet.CustomUser"
+
+AUTHENTICATION_BACKENDS = [
+    "django.contrib.auth.backends.ModelBackend",
+    "allauth.account.auth_backends.AuthenticationBackend",
+]
+
 ACCOUNT_AUTHENTICATION_METHOD = "email"
 ACCOUNT_EMAIL_REQUIRED = True
+ACCOUNT_USERNAME_REQUIRED = False
 ACCOUNT_EMAIL_VERIFICATION = "none"
+
+LOGIN_URL = "/accounts/login/"
+LOGIN_REDIRECT_URL = "/rentals/"
+LOGOUT_REDIRECT_URL = "/"
+
+# =========================================================
+# CLOUDINARY (MEDIA ONLY)
+# =========================================================
 
 CLOUDINARY_STORAGE = {
     "CLOUD_NAME": os.getenv("CLOUDINARY_CLOUD_NAME"),
@@ -100,29 +174,45 @@ CLOUDINARY_STORAGE = {
     "API_SECRET": os.getenv("CLOUDINARY_API_SECRET"),
 }
 
-# -------------------------------------------------
-# 9. STATIC & MEDIA (FIXES THE "RUBBISH" UI)
-# -------------------------------------------------
+# =========================================================
+# STATIC (WHITENOISE ONLY)
+# =========================================================
+
 STATIC_URL = "/static/"
 STATIC_ROOT = BASE_DIR / "staticfiles"
 STATICFILES_DIRS = [BASE_DIR / "static"]
 
-# Force WhiteNoise to use standard storage to prevent MissingFileErrors
+# WhiteNoise recommends CompressedManifestStaticFilesStorage for production
+# caching + compression.
 STORAGES = {
+    # User uploads (MEDIA) -> Cloudinary
     "default": {
         "BACKEND": "cloudinary_storage.storage.MediaCloudinaryStorage",
     },
+    # Collected static files (STATIC) -> WhiteNoise (local filesystem)
     "staticfiles": {
-        "BACKEND": "whitenoise.storage.StaticFilesStorage",
+        "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
     },
 }
 
-# Legacy strings for Cloudinary support
-STATICFILES_STORAGE = "whitenoise.storage.StaticFilesStorage"
-DEFAULT_FILE_STORAGE = "cloudinary_storage.storage.MediaCloudinaryStorage"
+# =========================================================
+# MEDIA (PREFIX ONLY; FILES STORED IN CLOUDINARY)
+# =========================================================
+
+MEDIA_URL = "/media/"
+MEDIA_ROOT = BASE_DIR / "media"
+
+# =========================================================
+# INTERNATIONALIZATION
+# =========================================================
 
 LANGUAGE_CODE = "en-us"
 TIME_ZONE = "Asia/Kolkata"
 USE_I18N = True
 USE_TZ = True
+
+# =========================================================
+# DEFAULT AUTO FIELD
+# =========================================================
+
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
