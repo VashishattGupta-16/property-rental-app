@@ -6,14 +6,12 @@ import dj_database_url
 # -------------------------------------------------
 # 1. BASE SETUP
 # -------------------------------------------------
-
 BASE_DIR = Path(__file__).resolve().parent.parent
 load_dotenv()
 
 # -------------------------------------------------
 # 2. SECURITY
 # -------------------------------------------------
-
 SECRET_KEY = os.getenv("SECRET_KEY", "django-insecure-dev-key")
 DEBUG = os.getenv("DJANGO_DEBUG", "False") == "True"
 
@@ -31,16 +29,11 @@ CSRF_TRUSTED_ORIGINS = [
 SESSION_COOKIE_SECURE = not DEBUG
 CSRF_COOKIE_SECURE = not DEBUG
 
-SECURE_BROWSER_XSS_FILTER = True
-SECURE_CONTENT_TYPE_NOSNIFF = True
-
 # -------------------------------------------------
 # 3. APPS
 # -------------------------------------------------
-
 INSTALLED_APPS = [
-    # Cloudinary MUST be declared before staticfiles
-    "cloudinary_storage",
+    "cloudinary_storage",  # MUST stay at the top
     "cloudinary",
 
     "tweet.apps.TweetConfig",
@@ -63,10 +56,9 @@ INSTALLED_APPS = [
 # -------------------------------------------------
 # 4. MIDDLEWARE
 # -------------------------------------------------
-
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
-    "whitenoise.middleware.WhiteNoiseMiddleware", # Serves local static files
+    "whitenoise.middleware.WhiteNoiseMiddleware",  # Correct position
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
@@ -78,13 +70,11 @@ MIDDLEWARE = [
 
 ROOT_URLCONF = "rental_app.urls"
 WSGI_APPLICATION = "rental_app.wsgi.application"
-
 SITE_ID = 1
 
 # -------------------------------------------------
 # 5. TEMPLATES
 # -------------------------------------------------
-
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
@@ -107,13 +97,12 @@ TEMPLATES = [
 # -------------------------------------------------
 # 6. DATABASE
 # -------------------------------------------------
-
 if os.getenv("DATABASE_URL"):
     DATABASES = {
         "default": dj_database_url.parse(
             os.getenv("DATABASE_URL"),
             conn_max_age=600,
-            ssl_require=True
+            ssl_require=True,
         )
     }
 else:
@@ -129,9 +118,8 @@ else:
     }
 
 # -------------------------------------------------
-# 7. AUTHENTICATION
+# 7. AUTH
 # -------------------------------------------------
-
 AUTH_USER_MODEL = "tweet.CustomUser"
 
 AUTHENTICATION_BACKENDS = [
@@ -149,9 +137,8 @@ LOGIN_REDIRECT_URL = "/rentals/"
 LOGOUT_REDIRECT_URL = "/"
 
 # -------------------------------------------------
-# 8. CLOUDINARY CONFIG
+# 8. CLOUDINARY
 # -------------------------------------------------
-
 CLOUDINARY_STORAGE = {
     "CLOUD_NAME": os.getenv("CLOUDINARY_CLOUD_NAME", ""),
     "API_KEY": os.getenv("CLOUDINARY_API_KEY", ""),
@@ -159,11 +146,8 @@ CLOUDINARY_STORAGE = {
 }
 
 # -------------------------------------------------
-# 9. STATIC & MEDIA FILES (THE STABLE FIX)
+# 9. STATIC & MEDIA FILES (STABLE VERSION)
 # -------------------------------------------------
-# STATIC & MEDIA FILES - FINAL WORKING VERSION
-# -------------------------------------------------
-
 STATIC_URL = "/static/"
 STATIC_ROOT = BASE_DIR / "staticfiles"
 
@@ -171,33 +155,26 @@ STATICFILES_DIRS = [
     BASE_DIR / "static",
 ]
 
-STATICFILES_FINDERS = [
-    "django.contrib.staticfiles.finders.FileSystemFinder",
-    "django.contrib.staticfiles.finders.AppDirectoriesFinder",
-]
-
+# Using StaticFilesStorage (NOT Manifest) stops the MissingFileError crash
 STORAGES = {
     "default": {
         "BACKEND": "cloudinary_storage.storage.MediaCloudinaryStorage",
     },
     "staticfiles": {
-        # Using StaticFilesStorage avoids the "Missing File" crash on Render
         "BACKEND": "whitenoise.storage.StaticFilesStorage",
     },
 }
 
-# 🌟 CRITICAL: This fixes the 'AttributeError' you were seeing
+# 🌟 CRITICAL: Re-adding these legacy strings resolves the Cloudinary AttributeError
 STATICFILES_STORAGE = "whitenoise.storage.StaticFilesStorage"
 DEFAULT_FILE_STORAGE = "cloudinary_storage.storage.MediaCloudinaryStorage"
 
-# Media Files (Cloudinary)
 MEDIA_URL = "/media/"
 MEDIA_ROOT = BASE_DIR / "media"
 
 # -------------------------------------------------
-# 10. GOOGLE LOGIN & GENERAL
+# 10. GOOGLE LOGIN & INTERNATIONALIZATION
 # -------------------------------------------------
-
 SOCIALACCOUNT_AUTO_SIGNUP = True
 SOCIALACCOUNT_LOGIN_ON_GET = True
 

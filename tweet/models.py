@@ -7,7 +7,9 @@ from django.core.validators import RegexValidator
 from django.utils.text import slugify
 from django.utils.crypto import get_random_string
 
+# Cloudinary Imports
 from cloudinary.models import CloudinaryField
+from cloudinary_storage.storage import MediaCloudinaryStorage
 
 # =========================
 # VALIDATORS
@@ -31,7 +33,6 @@ class CustomUserManager(BaseUserManager):
     def create_user(self, email, password=None, **extra_fields):
         if not email:
             raise ValueError("The Email field must be set")
-
         email = self.normalize_email(email)
         user = self.model(email=email, **extra_fields)
         user.set_password(password)
@@ -50,10 +51,8 @@ class CustomUserManager(BaseUserManager):
 class CustomUser(AbstractUser):
     username = None
     email = models.EmailField(unique=True)
-
     first_name = models.CharField(max_length=150, blank=True)
     last_name = models.CharField(max_length=150, blank=True)
-
     phone_number = models.CharField(
         max_length=15,
         unique=True,
@@ -77,7 +76,6 @@ class CustomUser(AbstractUser):
 # =========================
 
 class Rental(models.Model):
-
     class PropertyTypes(models.TextChoices):
         HOUSE = "HOUSE", "House"
         APARTMENT = "APARTMENT", "Apartment"
@@ -87,8 +85,7 @@ class Rental(models.Model):
         PG = "PG", "PG"
         VILLA = "VILLA", "Villa"
         SHOWROOM = "SHOWROOM", "Showroom"
-        INDUSTRIAL_PLOT = "INDUSTRIAL_PLOT", "Industrial_Plot"
-        
+        INDUSTRIAL_PLOT = "INDUSTRIAL_PLOT", "Industrial Plot"
 
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL,
@@ -99,21 +96,11 @@ class Rental(models.Model):
     title = models.CharField(max_length=150)
     slug = models.SlugField(unique=True, blank=True)
     description = models.TextField()
-
-    contact = models.CharField(
-        max_length=15,
-        validators=[phone_validator]
-    )
-
+    contact = models.CharField(max_length=15, validators=[phone_validator])
     price = models.DecimalField(max_digits=12, decimal_places=2)
     location = models.CharField(max_length=255)
     address = models.TextField(blank=True, null=True)
-
-    property_type = models.CharField(
-        max_length=50,
-        choices=PropertyTypes.choices
-    )
-
+    property_type = models.CharField(max_length=50, choices=PropertyTypes.choices)
     furnishing = models.CharField(max_length=100, blank=True)
     sqft = models.PositiveIntegerField()
     floor = models.CharField(max_length=50, blank=True)
@@ -121,15 +108,19 @@ class Rental(models.Model):
     is_available = models.BooleanField(default=True)
     bedrooms = models.PositiveIntegerField(default=1)
     bathrooms = models.PositiveIntegerField(default=1)
-    security_deposit = models.DecimalField(
-    max_digits=12,
-    decimal_places=2,
-    default=0
+    security_deposit = models.DecimalField(max_digits=12, decimal_places=2, default=0)
+    
+    # Standardized ImageField for Cloudinary Storage
+    image = models.ImageField(
+        upload_to='rentals/', 
+        storage=MediaCloudinaryStorage(), 
+        null=True, 
+        blank=True,
+        validators=[validate_image_size]
     )
-    image = CloudinaryField("image", folder="rental_images/")
 
     created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)  # ✅ FIX ADDED
+    updated_at = models.DateTimeField(auto_now=True) 
 
     def save(self, *args, **kwargs):
         if not self.slug:
@@ -140,7 +131,7 @@ class Rental(models.Model):
         return self.title
 
 # =========================
-# RENTAL IMAGE MODEL
+# RENTAL IMAGE MODEL (GALLERY)
 # =========================
 
 class RentalImage(models.Model):
@@ -149,8 +140,11 @@ class RentalImage(models.Model):
         on_delete=models.CASCADE,
         related_name="gallery"
     )
-
-    image = CloudinaryField("image", folder="rental_gallery/")
+    # Using ImageField here for consistency across the app
+    image = models.ImageField(
+        upload_to='rental_gallery/', 
+        storage=MediaCloudinaryStorage()
+    )
 
     def __str__(self):
         return f"Image for {self.rental.title}"
