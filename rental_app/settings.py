@@ -208,13 +208,12 @@ STORAGES = {
         "BACKEND": "cloudinary_storage.storage.MediaCloudinaryStorage",
     },
     "staticfiles": {
-        # 🌟 Clean, built-in non-strict storage that ignores missing source maps
-        "BACKEND": "whitenoise.storage.CompressedStaticFilesStorage",
+        "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
     },
 }
 
-# Fallback references for older packages/compatibility
-STATICFILES_STORAGE = "whitenoise.storage.CompressedStaticFilesStorage"
+# Use WhiteNoise manifest-backed compression for production static file builds
+STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 DEFAULT_FILE_STORAGE = "cloudinary_storage.storage.MediaCloudinaryStorage"
 
 # ==============================================================================
