@@ -271,6 +271,87 @@ fieldset.module,
   justify-content: center;
 }
 
+.premium-login-shell {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem 1.5rem;
+}
+
+.premium-login-card {
+  width: min(520px, 100%);
+  background: rgba(12, 15, 27, 0.92);
+  border: 1px solid rgba(255, 203, 86, 0.14);
+  border-radius: 2rem;
+  box-shadow: 0 28px 100px rgba(0, 0, 0, 0.35);
+  padding: 2.5rem;
+  backdrop-filter: blur(22px);
+}
+
+.premium-login-header {
+  margin-bottom: 1.75rem;
+}
+
+.premium-login-header h1 {
+  margin: 0 0 0.5rem;
+  font-size: clamp(2rem, 2.6vw, 2.8rem);
+  color: var(--text);
+}
+
+.premium-login-header p {
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.6;
+}
+
+.login-form-row {
+  margin-bottom: 1.2rem;
+}
+
+.login-form-row label {
+  display: block;
+  margin-bottom: 0.55rem;
+  color: var(--muted);
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
+.login-form-row input {
+  width: 100%;
+  border-radius: 1rem;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--text);
+  padding: 0.95rem 1rem;
+}
+
+.login-form-row input:focus {
+  border-color: rgba(216, 181, 86, 0.45);
+  box-shadow: 0 0 0 0.25rem rgba(216, 181, 86, 0.12);
+}
+
+.login input[type="submit"],
+.submit-row input[type="submit"] {
+  width: 100%;
+  border-radius: 999px;
+  background: linear-gradient(
+    135deg,
+    rgba(255, 203, 86, 0.98),
+    rgba(216, 181, 86, 0.94)
+  );
+  color: #111115;
+  border: none;
+  padding: 0.95rem 1.2rem;
+  cursor: pointer;
+  font-weight: 700;
+}
+
+.login input[type="submit"]:hover,
+.submit-row input[type="submit"]:hover {
+  transform: translateY(-1px);
+}
+
 #content-main .breadcrumbs,
 .breadcrumbs {
   color: rgba(255, 255, 255, 0.55);

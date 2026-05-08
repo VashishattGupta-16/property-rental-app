@@ -10,7 +10,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 load_dotenv()
 
 # -------------------------------------------------
-# 2. SECURITY & DOMAINS (FIXES THE 400 ERROR)
+# 2. SECURITY & DOMAINS (FIXES 400 ERROR)
 # -------------------------------------------------
 SECRET_KEY = os.getenv("SECRET_KEY", "django-insecure-dev-key")
 DEBUG = os.getenv("DJANGO_DEBUG", "False") == "True"
@@ -29,7 +29,7 @@ SESSION_COOKIE_SECURE = not DEBUG
 CSRF_COOKIE_SECURE = not DEBUG
 
 # -------------------------------------------------
-# 3. APPS (Configured for Premium UI & Cloudinary)
+# 3. APPS (Configured for Cloudinary & Premium UI)
 # -------------------------------------------------
 INSTALLED_APPS = [
     "cloudinary_storage",  # MUST stay at the top
@@ -53,11 +53,11 @@ INSTALLED_APPS = [
 ]
 
 # -------------------------------------------------
-# 4. MIDDLEWARE (WhiteNoise at Position 2)
+# 4. MIDDLEWARE (WhiteNoise Positioned Correctly)
 # -------------------------------------------------
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
-    "whitenoise.middleware.WhiteNoiseMiddleware",  # Correct position for CSS
+    "whitenoise.middleware.WhiteNoiseMiddleware",  # Correct position
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
@@ -102,7 +102,7 @@ DATABASES = {
 }
 
 # -------------------------------------------------
-# 7. AUTHENTICATION (vassu_backup@gmail.com)
+# 7. AUTHENTICATION (vassu_backup@gmail.com context)
 # -------------------------------------------------
 AUTH_USER_MODEL = "tweet.CustomUser"
 
@@ -135,12 +135,12 @@ CLOUDINARY_STORAGE = {
 STATIC_URL = "/static/"
 STATIC_ROOT = BASE_DIR / "staticfiles"
 
-# This ensures Django finds your custom CSS in your V: drive folder
+# Using os.path to be more robust across local V: drive and Render Linux
 STATICFILES_DIRS = [
-    BASE_DIR / "static",
+    os.path.join(BASE_DIR, "static"),
 ]
 
-# Fix for AttributeError: Adding back legacy strings for Cloudinary/WhiteNoise
+# Stable storage to prevent build crashes
 STATICFILES_STORAGE = "whitenoise.storage.StaticFilesStorage"
 DEFAULT_FILE_STORAGE = "cloudinary_storage.storage.MediaCloudinaryStorage"
 
@@ -154,7 +154,7 @@ STORAGES = {
 }
 
 MEDIA_URL = "/media/"
-MEDIA_ROOT = BASE_DIR / "media"
+MEDIA_ROOT = os.path.join(BASE_DIR, "media")
 
 # -------------------------------------------------
 # 10. GOOGLE SOCIAL & LOCALIZATION
