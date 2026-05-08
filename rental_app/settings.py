@@ -171,6 +171,11 @@ STATICFILES_DIRS = [
     BASE_DIR / "static",
 ]
 
+STATICFILES_FINDERS = [
+    "django.contrib.staticfiles.finders.FileSystemFinder",
+    "django.contrib.staticfiles.finders.AppDirectoriesFinder",
+]
+
 STORAGES = {
     "default": {
         "BACKEND": "cloudinary_storage.storage.MediaCloudinaryStorage",
@@ -188,12 +193,6 @@ DEFAULT_FILE_STORAGE = "cloudinary_storage.storage.MediaCloudinaryStorage"
 # Media Files (Cloudinary)
 MEDIA_URL = "/media/"
 MEDIA_ROOT = BASE_DIR / "media"
-
-CLOUDINARY_STORAGE = {
-    "CLOUD_NAME": os.getenv("CLOUDINARY_CLOUD_NAME", ""),
-    "API_KEY": os.getenv("CLOUDINARY_API_KEY", ""),
-    "API_SECRET": os.getenv("CLOUDINARY_API_SECRET", ""),
-}
 
 # -------------------------------------------------
 # 10. GOOGLE LOGIN & GENERAL
