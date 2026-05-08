@@ -15,14 +15,12 @@ load_dotenv()
 SECRET_KEY = os.getenv("SECRET_KEY", "django-insecure-dev-key")
 DEBUG = os.getenv("DJANGO_DEBUG", "False") == "True"
 
-# Fix: Use a clean list for hosts to avoid parsing errors
 ALLOWED_HOSTS = [
     "rentalpro-web.onrender.com",
     "localhost",
     "127.0.0.1",
 ]
 
-# Required for Django 4.0+ to allow secure form submissions on Render
 CSRF_TRUSTED_ORIGINS = [
     "https://rentalpro-web.onrender.com"
 ]
@@ -34,7 +32,7 @@ CSRF_COOKIE_SECURE = not DEBUG
 # 3. APPS (Configured for Premium UI & Auth)
 # -------------------------------------------------
 INSTALLED_APPS = [
-    "cloudinary_storage",  # Top priority for media
+    "cloudinary_storage",  # Top priority
     "cloudinary",
     
     "django.contrib.admin",
@@ -46,10 +44,8 @@ INSTALLED_APPS = [
     "django.contrib.humanize",
     "django.contrib.sites",
 
-    # Custom project apps
     "tweet.apps.TweetConfig",
 
-    # Authentication Suite
     "allauth",
     "allauth.account",
     "allauth.socialaccount",
@@ -57,11 +53,11 @@ INSTALLED_APPS = [
 ]
 
 # -------------------------------------------------
-# 4. MIDDLEWARE (WhiteNoise at Position 2)
+# 4. MIDDLEWARE
 # -------------------------------------------------
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
-    "whitenoise.middleware.WhiteNoiseMiddleware",  # Essential for premium CSS
+    "whitenoise.middleware.WhiteNoiseMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
@@ -95,7 +91,7 @@ TEMPLATES = [
 ]
 
 # -------------------------------------------------
-# 6. DATABASE (Render-Optimized)
+# 6. DATABASE
 # -------------------------------------------------
 DATABASES = {
     "default": dj_database_url.config(
@@ -106,7 +102,7 @@ DATABASES = {
 }
 
 # -------------------------------------------------
-# 7. AUTHENTICATION & USER MODEL
+# 7. AUTHENTICATION
 # -------------------------------------------------
 AUTH_USER_MODEL = "tweet.CustomUser"
 
@@ -125,7 +121,7 @@ LOGIN_REDIRECT_URL = "/rentals/"
 LOGOUT_REDIRECT_URL = "/"
 
 # -------------------------------------------------
-# 8. CLOUDINARY (Media Management for Let's Rentz)
+# 8. CLOUDINARY
 # -------------------------------------------------
 CLOUDINARY_STORAGE = {
     "CLOUD_NAME": os.getenv("CLOUDINARY_CLOUD_NAME"),
@@ -134,13 +130,15 @@ CLOUDINARY_STORAGE = {
 }
 
 # -------------------------------------------------
-# 9. STATIC & MEDIA (Performance & Caching)
+# 9. STATIC & MEDIA (STABLE & PREMIUM)
 # -------------------------------------------------
 STATIC_URL = "/static/"
 STATIC_ROOT = BASE_DIR / "staticfiles"
-
-# Ensure local 'static' folder is checked for minimalist UI assets
 STATICFILES_DIRS = [BASE_DIR / "static"]
+
+# Fix for the AttributeError: Adding back legacy strings for Cloudinary
+STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
+DEFAULT_FILE_STORAGE = "cloudinary_storage.storage.MediaCloudinaryStorage"
 
 STORAGES = {
     "default": {
