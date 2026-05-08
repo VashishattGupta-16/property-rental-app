@@ -1,0 +1,16 @@
+{% extends "admin/base_site.html" %}
+{% load static %}
+
+{% block extrahead %}
+<link rel="stylesheet" href="{% static 'css/base_admin.css' %}">
+{% endblock %}
+
+{% block title %}Let's Rentz Admin{% endblock %}
+
+{% block branding %}
+<a href="{% url 'admin:index' %}">Let's Rentz</a>
+{% endblock %}
+
+{% block nav_global %}
+<div class="admin-branding-pill">Premium Management</div>
+{% endblock %}

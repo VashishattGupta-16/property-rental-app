@@ -1,0 +1,18 @@
+{% extends "admin/login.html" %}
+{% load static %}
+
+{% block extrastyle %}
+<link rel="stylesheet" href="{% static 'css/base_admin.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="login premium-login-shell">
+    <div class="premium-login-card">
+        <div class="premium-login-header">
+            <h1>Let's Rentz Admin</h1>
+            <p>Sign in to the premium rental dashboard.</p>
+        </div>
+        {{ block.super }}
+    </div>
+</div>
+{% endblock %}
