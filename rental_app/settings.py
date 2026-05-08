@@ -234,16 +234,16 @@ CLOUDINARY_STORAGE = {
 STATIC_URL = "/static/"
 
 # Folder where collectstatic gathers files
-STATIC_ROOT = BASE_DIR / "staticfiles"
+STATIC_ROOT = str(BASE_DIR / "staticfiles")
 
 # Additional static folder
 STATICFILES_DIRS = [
-    BASE_DIR / "static",
+    str(BASE_DIR / "static"),
 ]
 
 # User uploaded files
 MEDIA_URL = "/media/"
-MEDIA_ROOT = BASE_DIR / "media"
+MEDIA_ROOT = str(BASE_DIR / "media")
 
 # IMPORTANT:
 # Using CompressedStaticFilesStorage avoids
