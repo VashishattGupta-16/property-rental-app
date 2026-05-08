@@ -1,0 +1,291 @@
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Montserrat:wght@500;600;700&display=swap");
+
+:root {
+  color-scheme: dark;
+  --bg: #0f1118;
+  --panel: rgba(18, 22, 34, 0.88);
+  --panel-border: rgba(255, 203, 86, 0.16);
+  --panel-strong: rgba(255, 255, 255, 0.08);
+  --text: #f7f7f9;
+  --muted: #a8b0c3;
+  --accent: #d8b556;
+  --accent-soft: rgba(216, 181, 86, 0.16);
+  --brand: #f8e5a1;
+  --surface: rgba(10, 12, 20, 0.96);
+}
+
+html,
+body {
+  min-height: 100%;
+  background:
+    radial-gradient(
+      circle at top left,
+      rgba(216, 181, 86, 0.12),
+      transparent 24%
+    ),
+    radial-gradient(
+      circle at bottom right,
+      rgba(255, 255, 255, 0.04),
+      transparent 18%
+    ),
+    linear-gradient(180deg, #090b11 0%, #0d1120 45%, #101426 100%);
+  color: var(--text);
+  font-family:
+    "Inter",
+    "Montserrat",
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    sans-serif;
+}
+
+body {
+  margin: 0;
+}
+
+#header,
+#user-tools,
+#branding,
+.module caption,
+.breadcrumbs,
+.breadcrumbs a,
+#content-main h1,
+#content-main h2 {
+  font-family: "Montserrat", "Inter", sans-serif;
+}
+
+#header {
+  background: rgba(10, 12, 20, 0.86);
+  border-bottom: 1px solid rgba(255, 203, 86, 0.12);
+  box-shadow: 0 20px 45px rgba(0, 0, 0, 0.25);
+}
+
+#branding {
+  color: var(--text);
+  font-size: 1.35rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+#branding a {
+  color: var(--text);
+  text-decoration: none;
+}
+
+#branding a:hover {
+  color: var(--accent);
+}
+
+#user-tools a,
+#user-tools strong {
+  color: var(--muted);
+}
+
+#user-tools a:hover {
+  color: var(--accent);
+}
+
+#content-main,
+.module,
+.app-list,
+.dashboard-module,
+.module caption,
+.changeform,
+.object-tools,
+.inline-related,
+.module table,
+.grp-module,
+.model-admin .filters {
+  background: var(--panel);
+  border: 1px solid var(--panel-border);
+  border-radius: 1.5rem;
+  box-shadow: 0 18px 60px rgba(0, 0, 0, 0.22);
+  backdrop-filter: blur(20px);
+}
+
+.module caption {
+  color: var(--accent);
+  font-size: 0.88rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+}
+
+#content-main h1,
+.module h2 {
+  color: #ffffff;
+  letter-spacing: -0.02em;
+}
+
+#main,
+.grp-content,
+.module {
+  padding: 2rem;
+}
+
+#content-main h1 {
+  margin-bottom: 0.25rem;
+}
+
+#content-main h2 {
+  margin-top: 0;
+  color: var(--muted);
+}
+
+#changelist-form,
+.module table {
+  border-radius: 1.25rem;
+  overflow: hidden;
+}
+
+#changelist-form table,
+.module table {
+  border-collapse: separate;
+  border-spacing: 0;
+  width: 100%;
+}
+
+#result_list th,
+#result_list td {
+  padding: 1rem 1.2rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  color: #e8e8ec;
+}
+
+#result_list tbody tr:nth-child(even) {
+  background: rgba(255, 255, 255, 0.03);
+}
+
+#result_list tbody tr:hover {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+#result_list th {
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--accent);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 0.82rem;
+}
+
+#result_list td .action-checkbox {
+  width: 1.5rem;
+}
+
+.submit-row input,
+.submit-row a,
+.button,
+.button.default {
+  border-radius: 999px;
+  background: linear-gradient(
+    135deg,
+    rgba(255, 203, 86, 0.98),
+    rgba(208, 166, 76, 0.92)
+  );
+  border: none;
+  color: #111115;
+  font-weight: 700;
+  box-shadow: 0 18px 36px rgba(216, 181, 86, 0.18);
+}
+
+.submit-row input:hover,
+.submit-row a:hover,
+.button:hover,
+.button.default:hover {
+  transform: translateY(-1px);
+}
+
+input,
+select,
+textarea {
+  border-radius: 1rem;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--text);
+  padding: 0.88rem 1rem;
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+  outline: none;
+  border-color: rgba(216, 181, 86, 0.45);
+  box-shadow: 0 0 0 0.25rem rgba(216, 181, 86, 0.12);
+}
+
+fieldset.module,
+.fieldset,
+.module .form-row {
+  background: rgba(255, 255, 255, 0.03);
+  margin-bottom: 1.5rem;
+  border-radius: 1.2rem;
+}
+
+.field-box label,
+.help,
+.readonly,
+.form-row p,
+.help-inline {
+  color: var(--muted);
+}
+
+#footer {
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+#container {
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.login,
+.login-form {
+  background: rgba(18, 22, 34, 0.9);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 1.8rem;
+  box-shadow: 0 32px 80px rgba(0, 0, 0, 0.28);
+}
+
+.login h1,
+.login h2 {
+  color: var(--text);
+}
+
+.login label {
+  color: var(--muted);
+}
+
+.login input[type="submit"] {
+  background: linear-gradient(
+    135deg,
+    rgba(255, 203, 86, 0.98),
+    rgba(216, 181, 86, 0.94)
+  );
+  color: #111115;
+  border: none;
+}
+
+.login .submit-row {
+  display: flex;
+  justify-content: center;
+}
+
+#content-main .breadcrumbs,
+.breadcrumbs {
+  color: rgba(255, 255, 255, 0.55);
+}
+
+#user-tools {
+  color: var(--muted);
+}
+
+.module th,
+.module td {
+  vertical-align: middle;
+}
+
+.inline-group,
+.inline-related {
+  background: rgba(255, 255, 255, 0.02);
+}
