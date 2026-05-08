@@ -4,14 +4,14 @@ from dotenv import load_dotenv
 import dj_database_url
 
 # -------------------------------------------------
-# BASE SETUP
+# 1. BASE SETUP
 # -------------------------------------------------
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 load_dotenv()
 
 # -------------------------------------------------
-# SECURITY
+# 2. SECURITY
 # -------------------------------------------------
 
 SECRET_KEY = os.getenv("SECRET_KEY", "django-insecure-dev-key")
@@ -35,11 +35,11 @@ SECURE_BROWSER_XSS_FILTER = True
 SECURE_CONTENT_TYPE_NOSNIFF = True
 
 # -------------------------------------------------
-# APPS
+# 3. APPS
 # -------------------------------------------------
 
 INSTALLED_APPS = [
-    # Cloudinary must be BEFORE django.contrib.staticfiles
+    # Cloudinary MUST be declared before staticfiles
     "cloudinary_storage",
     "cloudinary",
 
@@ -61,12 +61,12 @@ INSTALLED_APPS = [
 ]
 
 # -------------------------------------------------
-# MIDDLEWARE
+# 4. MIDDLEWARE
 # -------------------------------------------------
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
-    "whitenoise.middleware.WhiteNoiseMiddleware", # For local static files
+    "whitenoise.middleware.WhiteNoiseMiddleware", # Serves local static files
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
@@ -82,7 +82,7 @@ WSGI_APPLICATION = "rental_app.wsgi.application"
 SITE_ID = 1
 
 # -------------------------------------------------
-# TEMPLATES
+# 5. TEMPLATES
 # -------------------------------------------------
 
 TEMPLATES = [
@@ -105,7 +105,7 @@ TEMPLATES = [
 ]
 
 # -------------------------------------------------
-# DATABASE
+# 6. DATABASE
 # -------------------------------------------------
 
 if os.getenv("DATABASE_URL"):
@@ -129,7 +129,7 @@ else:
     }
 
 # -------------------------------------------------
-# AUTH
+# 7. AUTHENTICATION
 # -------------------------------------------------
 
 AUTH_USER_MODEL = "tweet.CustomUser"
@@ -149,7 +149,7 @@ LOGIN_REDIRECT_URL = "/rentals/"
 LOGOUT_REDIRECT_URL = "/"
 
 # -------------------------------------------------
-# CLOUDINARY CONFIG
+# 8. CLOUDINARY CONFIG
 # -------------------------------------------------
 
 CLOUDINARY_STORAGE = {
@@ -159,33 +159,44 @@ CLOUDINARY_STORAGE = {
 }
 
 # -------------------------------------------------
-# STATIC & MEDIA FILES (THE FIX)
+# 9. STATIC & MEDIA FILES (THE STABLE FIX)
+# -------------------------------------------------
+# STATIC & MEDIA FILES - FINAL WORKING VERSION
 # -------------------------------------------------
 
 STATIC_URL = "/static/"
 STATIC_ROOT = BASE_DIR / "staticfiles"
-STATICFILES_DIRS = [BASE_DIR / "static"]
 
-MEDIA_URL = "/media/"
-MEDIA_ROOT = BASE_DIR / "media"
+STATICFILES_DIRS = [
+    BASE_DIR / "static",
+]
 
-# Modern Django 5 way
 STORAGES = {
     "default": {
         "BACKEND": "cloudinary_storage.storage.MediaCloudinaryStorage",
     },
     "staticfiles": {
-        "BACKEND": "whitenoise.storage.CompressedStaticFilesStorage",
+        # Using StaticFilesStorage avoids the "Missing File" crash on Render
+        "BACKEND": "whitenoise.storage.StaticFilesStorage",
     },
 }
 
-# 🌟 LEGACY FALLBACKS (CRITICAL: Fixes Cloudinary AttributeError)
-# These lines ensure Cloudinary's collectstatic command doesn't crash.
-STATICFILES_STORAGE = "whitenoise.storage.CompressedStaticFilesStorage"
+# 🌟 CRITICAL: This fixes the 'AttributeError' you were seeing
+STATICFILES_STORAGE = "whitenoise.storage.StaticFilesStorage"
 DEFAULT_FILE_STORAGE = "cloudinary_storage.storage.MediaCloudinaryStorage"
 
+# Media Files (Cloudinary)
+MEDIA_URL = "/media/"
+MEDIA_ROOT = BASE_DIR / "media"
+
+CLOUDINARY_STORAGE = {
+    "CLOUD_NAME": os.getenv("CLOUDINARY_CLOUD_NAME", ""),
+    "API_KEY": os.getenv("CLOUDINARY_API_KEY", ""),
+    "API_SECRET": os.getenv("CLOUDINARY_API_SECRET", ""),
+}
+
 # -------------------------------------------------
-# GOOGLE LOGIN
+# 10. GOOGLE LOGIN & GENERAL
 # -------------------------------------------------
 
 SOCIALACCOUNT_AUTO_SIGNUP = True
@@ -202,13 +213,8 @@ SOCIALACCOUNT_PROVIDERS = {
     }
 }
 
-# -------------------------------------------------
-# GENERAL SETTINGS
-# -------------------------------------------------
-
 LANGUAGE_CODE = "en-us"
 TIME_ZONE = "Asia/Kolkata"
 USE_I18N = True
 USE_TZ = True
-
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"

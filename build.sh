@@ -1,5 +1,17 @@
 #!/usr/bin/env bash
 set -o errexit
-pip install -r requirements.txt
+
+python - <<'PY'
+from pathlib import Path
+p = Path('requirements.txt')
+raw = p.read_bytes()
+try:
+    raw.decode('utf-8')
+except UnicodeDecodeError:
+    txt = raw.decode('utf-16')
+    p.write_text(txt, encoding='utf-8')
+PY
+
+python -m pip install -r requirements.txt
 python manage.py collectstatic --no-input --clear
 python manage.py migrate

@@ -3,14 +3,14 @@ databases:
   - name: rentalpro-db
     plan: free
     databaseName: rental_db
-    user: rental_admin  # 🌟 Changed from "postgres" to a valid custom username
+    user: rental_admin # 🌟 Changed from "postgres" to a valid custom username
 # 2. Services (Web apps, workers, etc.) are declared here
 services:
   - type: web
     name: rentalpro-web
     plan: free
     runtime: python
-    buildCommand: "./build.sh"
+    buildCommand: "bash build.sh"
     startCommand: "gunicorn rental_app.wsgi:application --config gunicorn.conf.py"
     envVars:
       - key: PYTHON_VERSION
@@ -19,7 +19,7 @@ services:
         value: rental_app.settings
       - key: DJANGO_DEBUG
         value: "False"
-      
+
       # This links securely to the database block declared above
       - key: DATABASE_URL
         fromDatabase:
