@@ -1,5 +1,6 @@
 {% extends "layout.html" %}
 {% load static %}
+{% load media_urls %}
 
 {% block content %}
 <section class="relative fluid-page fluid-section">
@@ -59,7 +60,7 @@
 
             <div class="rental-card-media">
                 {% if rental.image %}
-                <img src="{{ rental.image.url }}" alt="{{ rental.title|default:'Property Image' }}"
+                <img src="{{ rental.image|optimized_cloudinary_url:'f_auto,q_auto,c_fill,w_900,h_620' }}" alt="{{ rental.title|default:'Property Image' }}"
                     class="media-cover grayscale-[30%] group-hover:grayscale-0 transition-all duration-700 group-hover:scale-110">
                 {% else %}
                 <div

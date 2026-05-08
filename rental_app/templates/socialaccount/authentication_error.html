@@ -1,0 +1,40 @@
+{% extends "layout.html" %}
+{% load i18n %}
+
+{% block title %}{% trans "Google Sign-In Failed" %} | RentalPro{% endblock %}
+
+{% block content %}
+<section class="min-h-screen flex items-center justify-center px-6 py-20">
+    <div class="w-full max-w-xl rounded-[2rem] border border-white/10 bg-slate-950/80 p-8 md:p-12 shadow-2xl">
+        <div class="mb-8 flex h-14 w-14 items-center justify-center rounded-2xl bg-rose-500/15 text-rose-300">
+            <i class="fa-brands fa-google text-2xl"></i>
+        </div>
+
+        <p class="mb-3 text-[0.65rem] font-black uppercase tracking-[0.35em] text-rose-300">
+            {% trans "Google Sign-In" %}
+        </p>
+        <h1 class="text-3xl font-black leading-tight text-white md:text-4xl">
+            {% trans "We could not complete the login." %}
+        </h1>
+        <p class="mt-5 text-sm font-medium leading-7 text-slate-400">
+            {% trans "Please try again. If this keeps happening, the Google OAuth client ID and client secret on Render must match the same Web application in Google Cloud Console." %}
+        </p>
+
+        {% if auth_error %}
+        <div class="mt-6 rounded-2xl border border-white/10 bg-white/[0.03] p-4 text-xs text-slate-400">
+            <span class="font-bold uppercase tracking-widest text-slate-300">{% trans "Error" %}:</span>
+            {{ auth_error.code|default:"authentication_error" }}
+        </div>
+        {% endif %}
+
+        <div class="mt-8 flex flex-col gap-3 sm:flex-row">
+            <a href="{% url 'account_login' %}" class="btn-pro flex-1 py-4 text-center text-[0.7rem] font-black uppercase tracking-[0.2em]">
+                {% trans "Try Again" %}
+            </a>
+            <a href="{% url 'rental_list' %}" class="flex-1 rounded-2xl border border-white/10 px-5 py-4 text-center text-[0.7rem] font-black uppercase tracking-[0.2em] text-slate-300 transition hover:border-sky-400 hover:text-sky-300">
+                {% trans "Back to Rentals" %}
+            </a>
+        </div>
+    </div>
+</section>
+{% endblock %}

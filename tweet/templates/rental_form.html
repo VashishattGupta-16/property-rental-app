@@ -1,4 +1,5 @@
 {% extends "layout.html" %}
+{% load media_urls %}
 
 {% block content %}
 
@@ -23,7 +24,7 @@
 
                 <div class="space-y-1">
 
-                    <label class="text-white text-sm font-medium">
+                    <label class="text-black text-sm font-medium">
                         {{ field.label }}
                     </label>
 
@@ -49,7 +50,7 @@
             <h2 class="text-white font-semibold mb-2">Main Image</h2>
 
             {% if form.instance.pk and form.instance.image %}
-                <img src="{{ form.instance.image.url }}?f_auto,q_auto"
+                <img src="{{ form.instance.image|optimized_cloudinary_url:'f_auto,q_auto,c_fill,w_1000,h_560' }}"
                      class="form-preview-media media-cover rounded-xl mb-3">
             {% endif %}
 
@@ -74,7 +75,7 @@
                     <div class="bg-gray-900 p-4 rounded-xl space-y-3">
 
                         {% if img_form.instance.pk and img_form.instance.image %}
-                            <img src="{{ img_form.instance.image.url }}?f_auto,q_auto"
+                            <img src="{{ img_form.instance.image|optimized_cloudinary_url:'f_auto,q_auto,c_fill,w_800,h_450' }}"
                                  class="form-preview-media media-cover rounded-lg">
                         {% endif %}
 
