@@ -2,7 +2,7 @@
 
 {% block content %}
 
-<div class="max-w-6xl mx-auto py-20 px-6">
+<div class="max-w-6xl mx-auto fluid-page fluid-section">
 
     <!-- TITLE -->
     <h1 class="text-4xl font-bold text-white mb-10">
@@ -50,7 +50,7 @@
 
             {% if form.instance.pk and form.instance.image %}
                 <img src="{{ form.instance.image.url }}?f_auto,q_auto"
-                     class="rounded-xl w-full h-60 object-cover mb-3">
+                     class="form-preview-media media-cover rounded-xl mb-3">
             {% endif %}
 
             {{ form.image }}
@@ -67,7 +67,7 @@
 
             {{ formset.management_form }}
 
-            <div class="grid md:grid-cols-3 gap-4">
+            <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
 
                 {% for img_form in formset %}
 
@@ -75,7 +75,7 @@
 
                         {% if img_form.instance.pk and img_form.instance.image %}
                             <img src="{{ img_form.instance.image.url }}?f_auto,q_auto"
-                                 class="rounded-lg w-full h-40 object-cover">
+                                 class="form-preview-media media-cover rounded-lg">
                         {% endif %}
 
                         {{ img_form.id }}
@@ -103,7 +103,7 @@
         </div>
 
         <!-- ================= ACTION BUTTONS ================= -->
-        <div class="flex gap-4">
+        <div class="flex flex-col sm:flex-row gap-4">
 
             <button type="submit"
                     class="bg-blue-600 hover:bg-blue-700 transition text-white px-6 py-3 rounded-xl">

@@ -30,7 +30,7 @@
     }
 </style>
 
-<div class="mx-auto max-w-[1400px] px-6 py-12">
+<div class="mx-auto max-w-[1400px] fluid-page fluid-section">
 
     <!-- HEADER -->
     <div class="flex flex-col lg:flex-row justify-between items-start gap-8 mb-12">
@@ -43,7 +43,7 @@
                 {{ rental.get_property_type_display }}
             </span>
 
-            <h1 class="text-4xl lg:text-6xl font-black leading-tight">
+            <h1 class="text-4xl lg:text-6xl font-black leading-tight safe-wrap">
                 <i class="fa-solid fa-house-chimney mr-2 text-[var(--accent)]"></i>
                 {{ rental.title|default:"Untitled Property" }}
             </h1>
@@ -56,7 +56,7 @@
         </div>
 
         <!-- ✅ FIXED PRICE CARD -->
-        <div class="glass-card p-8 min-w-[280px] text-right shadow-2xl">
+        <div class="glass-card p-8 w-full sm:w-auto sm:min-w-[280px] text-right shadow-2xl">
 
             <p class="text-[10px] font-black uppercase tracking-widest opacity-40 flex items-center justify-end gap-2">
                 <i class="fa-solid fa-indian-rupee-sign"></i> Monthly Rent
@@ -85,7 +85,7 @@
 
                 <div class="scroller-item border">
                     {% if rental.image %}
-                    <img src="{{ rental.image.url }}" class="w-full h-full object-cover">
+                    <img src="{{ rental.image.url }}" class="media-cover" alt="{{ rental.title|default:'Property image' }}">
                     {% else %}
                     <div class="w-full h-full bg-gray-200 flex items-center justify-center">
                         No Image
@@ -97,7 +97,7 @@
                 <div class="scroller-item border">
                     {% if item.image %}
                     <img src="{{ item.image.url }}" alt="Gallery image for {{ rental.title|default:'Property' }}"
-                        class="w-full h-full object-cover">
+                        class="media-cover">
                     {% else %}
                     <div
                         class="w-full h-full bg-slate-800 flex items-center justify-center text-slate-400 text-sm uppercase tracking-[0.2em]">
@@ -178,10 +178,10 @@
                     <i class="fa-solid fa-user"></i>
                 </div>
 
-                <div>
+                <div class="min-w-0">
                     <p class="text-[9px] uppercase opacity-40">Listed by</p>
 
-                    <p class="text-xl font-black">
+                    <p class="text-xl font-black safe-wrap">
                         {% if rental.user %}
                         {{ rental.user.first_name|default:rental.user.email }}
                         {% else %}
@@ -189,7 +189,7 @@
                         {% endif %}
                     </p>
 
-                    <p class="text-xs opacity-60">
+                    <p class="text-xs opacity-60 safe-wrap">
                         {% if rental.user %}
                         {{ rental.user.email }}
                         {% endif %}

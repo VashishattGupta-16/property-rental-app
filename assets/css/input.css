@@ -1,2 +1,152 @@
 @config "../../tailwind.config.js";
 @import "tailwindcss";
+
+@layer base {
+  :root {
+    --bg: #020617;
+    --bg-card: rgba(15, 23, 42, 0.72);
+    --surface: rgba(255, 255, 255, 0.06);
+    --surface-border: rgba(255, 255, 255, 0.12);
+    --text-main: #f8fafc;
+    --text-muted: #94a3b8;
+    --accent: #0ea5e9;
+    --page-x: clamp(1rem, 4vw, 3rem);
+    --section-y: clamp(3rem, 8vw, 6rem);
+    --card-pad: clamp(1.25rem, 3vw, 2.5rem);
+    --card-radius: clamp(1rem, 2.5vw, 2rem);
+    --media-radius: clamp(1rem, 3vw, 2rem);
+    --hero-media-height: clamp(18rem, 58vw, 42rem);
+    --card-media-height: clamp(12rem, 32vw, 18rem);
+  }
+
+  html {
+    font-size: clamp(14px, 0.28vw + 13px, 17px);
+    text-size-adjust: 100%;
+  }
+
+  body {
+    overflow-x: clip;
+    background: var(--bg);
+  }
+
+  img,
+  picture,
+  video,
+  canvas,
+  svg {
+    max-inline-size: 100%;
+  }
+
+  img,
+  video {
+    block-size: auto;
+  }
+
+  input,
+  textarea,
+  select,
+  button {
+    max-width: 100%;
+    font: inherit;
+  }
+}
+
+@layer components {
+  .glass-card {
+    border-radius: var(--card-radius);
+  }
+
+  .hero-title {
+    font-size: clamp(2.75rem, 10vw, 6.5rem);
+    letter-spacing: 0;
+    text-wrap: balance;
+  }
+
+  .hero-copy {
+    font-size: clamp(1rem, 1.8vw, 1.25rem);
+  }
+
+  .fluid-display-title {
+    font-size: clamp(2.5rem, 9vw, 6rem);
+    line-height: 0.95;
+    letter-spacing: 0;
+    text-wrap: balance;
+  }
+
+  .marketplace-hero-media {
+    max-height: min(56vh, 30rem);
+    object-fit: cover;
+  }
+
+  .responsive-media-frame {
+    aspect-ratio: 4 / 5;
+    height: var(--hero-media-height);
+    max-height: 72vh;
+    overflow: hidden;
+    border-radius: var(--media-radius);
+  }
+
+  .rental-card-media {
+    aspect-ratio: 16 / 11;
+    min-height: 12rem;
+    max-height: var(--card-media-height);
+    overflow: hidden;
+  }
+
+  .form-preview-media {
+    aspect-ratio: 16 / 9;
+    width: 100%;
+    max-height: min(22rem, 55vh);
+    overflow: hidden;
+  }
+
+  .media-cover {
+    width: 100%;
+    height: 100%;
+    display: block;
+    object-fit: cover;
+  }
+
+  .media-fluid {
+    width: 100%;
+    height: auto;
+    display: block;
+  }
+}
+
+@layer utilities {
+  .fluid-page {
+    padding-inline: var(--page-x);
+  }
+
+  .fluid-section {
+    padding-block: var(--section-y);
+  }
+
+  .safe-wrap {
+    overflow-wrap: anywhere;
+    word-break: normal;
+  }
+}
+
+@media (max-width: 640px) {
+  :root {
+    --card-pad: 1.25rem;
+    --card-radius: 1.25rem;
+    --media-radius: 1.25rem;
+  }
+
+  .hero-buttons,
+  .hero-trust {
+    gap: 1rem;
+  }
+
+  .image-scroller {
+    gap: 1rem;
+  }
+
+  .scroller-item {
+    flex-basis: 92%;
+    border-radius: var(--media-radius);
+  }
+}
