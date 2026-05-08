@@ -16,7 +16,7 @@ SECRET_KEY = os.getenv("SECRET_KEY", "django-insecure-dev-key")
 DEBUG = os.getenv("DJANGO_DEBUG", "False") == "True"
 
 ALLOWED_HOSTS = os.getenv(
-    "DJANGO_ALLOWED_HOSTS",
+    "https://rentalpro-web.onrender.com",
     "127.0.0.1,localhost"
 ).split(",")
 
