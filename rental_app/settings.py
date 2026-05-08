@@ -156,13 +156,34 @@ AUTHENTICATION_BACKENDS = [
 ]
 
 ACCOUNT_AUTHENTICATION_METHOD = "email"
+ACCOUNT_LOGIN_METHODS = {"email"}
 ACCOUNT_EMAIL_REQUIRED = True
+ACCOUNT_UNIQUE_EMAIL = True
 ACCOUNT_USERNAME_REQUIRED = False
+ACCOUNT_USER_MODEL_USERNAME_FIELD = None
+ACCOUNT_USER_MODEL_EMAIL_FIELD = "email"
+ACCOUNT_SIGNUP_FIELDS = ["email*", "password1*", "password2*"]
 ACCOUNT_EMAIL_VERIFICATION = "none"
 
 LOGIN_URL = "/accounts/login/"
 LOGIN_REDIRECT_URL = "/rentals/"
 LOGOUT_REDIRECT_URL = "/"
+
+SOCIALACCOUNT_QUERY_EMAIL = True
+SOCIALACCOUNT_PROVIDERS = {
+    "google": {
+        "APPS": [
+            {
+                "client_id": os.getenv("GOOGLE_CLIENT_ID", ""),
+                "secret": os.getenv("GOOGLE_CLIENT_SECRET", ""),
+                "key": "",
+            }
+        ],
+        "SCOPE": ["profile", "email"],
+        "AUTH_PARAMS": {"access_type": "online"},
+        "OAUTH_PKCE_ENABLED": True,
+    }
+}
 
 # =========================================================
 # CLOUDINARY (MEDIA ONLY)
