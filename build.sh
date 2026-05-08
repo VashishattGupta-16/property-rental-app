@@ -14,10 +14,15 @@ PY
 
 python -m pip install -r requirements.txt
 
-# Build Tailwind CSS (required because WhiteNoise's manifest storage will 500
-# in production if a referenced static file doesn't exist).
-npm ci --no-audit --no-fund
-npm run build:css
+# Build Tailwind CSS before collectstatic. If npm is not present, the compiled
+# CSS must be committed at static/dist/output.css.
+if command -v npm >/dev/null 2>&1; then
+  npm ci --no-audit --no-fund
+  npm run build:css
+elif [ ! -f static/dist/output.css ]; then
+  echo "npm is not installed and static/dist/output.css is missing"
+  exit 1
+fi
 
 python manage.py collectstatic --no-input --clear
 python manage.py migrate
