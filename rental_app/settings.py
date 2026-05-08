@@ -15,12 +15,14 @@ load_dotenv()
 SECRET_KEY = os.getenv("SECRET_KEY", "django-insecure-dev-key")
 DEBUG = os.getenv("DJANGO_DEBUG", "False") == "True"
 
+# Hardcoded Render domain to ensure handshake with the server
 ALLOWED_HOSTS = [
     "rentalpro-web.onrender.com",
     "localhost",
     "127.0.0.1",
 ]
 
+# Required for Django 4.0+ to allow form submissions on Render
 CSRF_TRUSTED_ORIGINS = [
     "https://rentalpro-web.onrender.com"
 ]
@@ -29,10 +31,10 @@ SESSION_COOKIE_SECURE = not DEBUG
 CSRF_COOKIE_SECURE = not DEBUG
 
 # -------------------------------------------------
-# 3. APPS (Configured for Premium UI & Auth)
+# 3. APPS (SaaS-Ready Architecture)
 # -------------------------------------------------
 INSTALLED_APPS = [
-    "cloudinary_storage",  # Top priority
+    "cloudinary_storage",  # MUST stay at the top for media override
     "cloudinary",
     
     "django.contrib.admin",
@@ -44,8 +46,10 @@ INSTALLED_APPS = [
     "django.contrib.humanize",
     "django.contrib.sites",
 
+    # Custom Project Apps
     "tweet.apps.TweetConfig",
 
+    # Authentication Suite (vassu_backup@gmail.com context)
     "allauth",
     "allauth.account",
     "allauth.socialaccount",
@@ -53,11 +57,11 @@ INSTALLED_APPS = [
 ]
 
 # -------------------------------------------------
-# 4. MIDDLEWARE
+# 4. MIDDLEWARE (WhiteNoise at Position 2)
 # -------------------------------------------------
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
-    "whitenoise.middleware.WhiteNoiseMiddleware",
+    "whitenoise.middleware.WhiteNoiseMiddleware",  # Essential for Admin CSS
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
@@ -91,7 +95,7 @@ TEMPLATES = [
 ]
 
 # -------------------------------------------------
-# 6. DATABASE
+# 6. DATABASE (Render-Optimized)
 # -------------------------------------------------
 DATABASES = {
     "default": dj_database_url.config(
@@ -102,7 +106,7 @@ DATABASES = {
 }
 
 # -------------------------------------------------
-# 7. AUTHENTICATION
+# 7. AUTHENTICATION & USER MODEL
 # -------------------------------------------------
 AUTH_USER_MODEL = "tweet.CustomUser"
 
@@ -121,7 +125,7 @@ LOGIN_REDIRECT_URL = "/rentals/"
 LOGOUT_REDIRECT_URL = "/"
 
 # -------------------------------------------------
-# 8. CLOUDINARY
+# 8. CLOUDINARY (Media Management)
 # -------------------------------------------------
 CLOUDINARY_STORAGE = {
     "CLOUD_NAME": os.getenv("CLOUDINARY_CLOUD_NAME"),
@@ -130,13 +134,15 @@ CLOUDINARY_STORAGE = {
 }
 
 # -------------------------------------------------
-# 9. STATIC & MEDIA (STABLE & PREMIUM)
+# 9. STATIC & MEDIA (THE UI FIX)
 # -------------------------------------------------
 STATIC_URL = "/static/"
 STATIC_ROOT = BASE_DIR / "staticfiles"
+
+# Ensure local 'static' folder is checked for minimalist UI assets
 STATICFILES_DIRS = [BASE_DIR / "static"]
 
-# Change 'CompressedManifestStaticFilesStorage' to 'StaticFilesStorage'
+# Legacy support strings for Cloudinary/WhiteNoise stability
 STATICFILES_STORAGE = "whitenoise.storage.StaticFilesStorage"
 DEFAULT_FILE_STORAGE = "cloudinary_storage.storage.MediaCloudinaryStorage"
 
@@ -145,9 +151,12 @@ STORAGES = {
         "BACKEND": "cloudinary_storage.storage.MediaCloudinaryStorage",
     },
     "staticfiles": {
-        "BACKEND": "whitenoise.storage.StaticFilesStorage", # Fixes the MissingFileError
+        "BACKEND": "whitenoise.storage.StaticFilesStorage",
     },
 }
+
+MEDIA_URL = "/media/"
+MEDIA_ROOT = BASE_DIR / "media"
 
 # -------------------------------------------------
 # 10. GOOGLE SOCIAL & LOCALIZATION
