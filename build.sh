@@ -13,5 +13,11 @@ except UnicodeDecodeError:
 PY
 
 python -m pip install -r requirements.txt
+
+# Build Tailwind CSS (required because WhiteNoise's manifest storage will 500
+# in production if a referenced static file doesn't exist).
+npm ci --no-audit --no-fund
+npm run build:css
+
 python manage.py collectstatic --no-input --clear
 python manage.py migrate

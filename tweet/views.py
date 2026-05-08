@@ -2,6 +2,7 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import login
 from django.db.models import Q
+from django.http import HttpResponse
 
 from .models import Rental
 from .forms import RentalForm, UserRegisteration, GalleryFormSet
