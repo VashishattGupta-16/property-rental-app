@@ -234,28 +234,26 @@ CLOUDINARY_STORAGE = {
 STATIC_URL = "/static/"
 
 # Folder where collectstatic gathers files
-STATIC_ROOT = str(BASE_DIR / "staticfiles")
+STATIC_ROOT = BASE_DIR / "staticfiles"
 
 # Additional static folder
 STATICFILES_DIRS = [
-    str(BASE_DIR / "static"),
+    BASE_DIR / "static",
 ]
 
 # User uploaded files
 MEDIA_URL = "/media/"
-MEDIA_ROOT = str(BASE_DIR / "media")
+MEDIA_ROOT = BASE_DIR / "media"
 
-# IMPORTANT:
-# Using CompressedStaticFilesStorage avoids
-# WhiteNoise manifest errors during Render deploys.
-STATICFILES_STORAGE = (
-    "whitenoise.storage.CompressedStaticFilesStorage"
-)
+# Static files storage backend for WhiteNoise
+STORAGES = {
+    "staticfiles": {
+        "BACKEND": "whitenoise.storage.CompressedStaticFilesStorage",
+    },
+}
 
 # Cloudinary stores uploaded media
-DEFAULT_FILE_STORAGE = (
-    "cloudinary_storage.storage.MediaCloudinaryStorage"
-)
+DEFAULT_FILE_STORAGE = "cloudinary_storage.storage.MediaCloudinaryStorage"
 
 # ==============================================================================
 # Google authentication
