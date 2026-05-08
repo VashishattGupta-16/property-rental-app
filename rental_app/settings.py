@@ -56,6 +56,7 @@ SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 # =========================================================
 
 INSTALLED_APPS = [
+    'jet',
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
@@ -257,3 +258,27 @@ USE_TZ = True
 # =========================================================
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+# jet
+JET_SIDE_MENU_ITEMS = [
+    {
+        'label': 'Dashboard',
+        'url': '/admin/',
+        'icon': 'fa-solid fa-gauge',
+    },
+    {
+        'label': 'Rentals',
+        'url': '/admin/tweet/rental/',
+        'icon': 'fa-solid fa-house',
+    },
+    {
+        'label': 'Gallery Images',
+        'url': '/admin/tweet/galleryimage/',
+        'icon': 'fa-solid fa-image',
+    },
+    {
+        'label': 'Users',
+        'url': '/admin/tweet/customuser/',
+        'icon': 'fa-solid fa-users',
+    },
+]
