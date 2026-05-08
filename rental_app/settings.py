@@ -10,34 +10,33 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 load_dotenv()
 
 # -------------------------------------------------
-# 2. SECURITY
+# 2. SECURITY & DOMAINS (FIXES THE 400 ERROR)
 # -------------------------------------------------
 SECRET_KEY = os.getenv("SECRET_KEY", "django-insecure-dev-key")
 DEBUG = os.getenv("DJANGO_DEBUG", "False") == "True"
 
-ALLOWED_HOSTS = os.getenv(
-    "https://rentalpro-web.onrender.com",
-    "127.0.0.1,localhost"
-).split(",")
+# Fix: Use a clean list for hosts to avoid parsing errors
+ALLOWED_HOSTS = [
+    "rentalpro-web.onrender.com",
+    "localhost",
+    "127.0.0.1",
+]
 
+# Required for Django 4.0+ to allow secure form submissions on Render
 CSRF_TRUSTED_ORIGINS = [
-    i.strip()
-    for i in os.getenv("DJANGO_CSRF_TRUSTED_ORIGINS", "").split(",")
-    if i.strip()
+    "https://rentalpro-web.onrender.com"
 ]
 
 SESSION_COOKIE_SECURE = not DEBUG
 CSRF_COOKIE_SECURE = not DEBUG
 
 # -------------------------------------------------
-# 3. APPS
+# 3. APPS (Configured for Premium UI & Auth)
 # -------------------------------------------------
 INSTALLED_APPS = [
-    "cloudinary_storage",  # MUST stay at the top
+    "cloudinary_storage",  # Top priority for media
     "cloudinary",
-
-    "tweet.apps.TweetConfig",
-
+    
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
@@ -47,6 +46,10 @@ INSTALLED_APPS = [
     "django.contrib.humanize",
     "django.contrib.sites",
 
+    # Custom project apps
+    "tweet.apps.TweetConfig",
+
+    # Authentication Suite
     "allauth",
     "allauth.account",
     "allauth.socialaccount",
@@ -54,11 +57,11 @@ INSTALLED_APPS = [
 ]
 
 # -------------------------------------------------
-# 4. MIDDLEWARE
+# 4. MIDDLEWARE (WhiteNoise at Position 2)
 # -------------------------------------------------
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
-    "whitenoise.middleware.WhiteNoiseMiddleware",  # Correct position
+    "whitenoise.middleware.WhiteNoiseMiddleware",  # Essential for premium CSS
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
@@ -78,10 +81,7 @@ SITE_ID = 1
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": [
-            BASE_DIR / "templates",
-            BASE_DIR / "rental_app" / "templates",
-        ],
+        "DIRS": [BASE_DIR / "templates"],
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [
@@ -95,30 +95,18 @@ TEMPLATES = [
 ]
 
 # -------------------------------------------------
-# 6. DATABASE
+# 6. DATABASE (Render-Optimized)
 # -------------------------------------------------
-if os.getenv("DATABASE_URL"):
-    DATABASES = {
-        "default": dj_database_url.parse(
-            os.getenv("DATABASE_URL"),
-            conn_max_age=600,
-            ssl_require=True,
-        )
-    }
-else:
-    DATABASES = {
-        "default": {
-            "ENGINE": "django.db.backends.postgresql",
-            "NAME": "rental_db",
-            "USER": "postgres",
-            "PASSWORD": "admin123",
-            "HOST": "127.0.0.1",
-            "PORT": "5432",
-        }
-    }
+DATABASES = {
+    "default": dj_database_url.config(
+        default=os.getenv("DATABASE_URL"),
+        conn_max_age=600,
+        ssl_require=True
+    )
+}
 
 # -------------------------------------------------
-# 7. AUTH
+# 7. AUTHENTICATION & USER MODEL
 # -------------------------------------------------
 AUTH_USER_MODEL = "tweet.CustomUser"
 
@@ -137,52 +125,44 @@ LOGIN_REDIRECT_URL = "/rentals/"
 LOGOUT_REDIRECT_URL = "/"
 
 # -------------------------------------------------
-# 8. CLOUDINARY
+# 8. CLOUDINARY (Media Management for Let's Rentz)
 # -------------------------------------------------
 CLOUDINARY_STORAGE = {
-    "CLOUD_NAME": os.getenv("CLOUDINARY_CLOUD_NAME", ""),
-    "API_KEY": os.getenv("CLOUDINARY_API_KEY", ""),
-    "API_SECRET": os.getenv("CLOUDINARY_API_SECRET", ""),
+    "CLOUD_NAME": os.getenv("CLOUDINARY_CLOUD_NAME"),
+    "API_KEY": os.getenv("CLOUDINARY_API_KEY"),
+    "API_SECRET": os.getenv("CLOUDINARY_API_SECRET"),
 }
 
 # -------------------------------------------------
-# 9. STATIC & MEDIA FILES (STABLE VERSION)
+# 9. STATIC & MEDIA (Performance & Caching)
 # -------------------------------------------------
 STATIC_URL = "/static/"
 STATIC_ROOT = BASE_DIR / "staticfiles"
 
-STATICFILES_DIRS = [
-    BASE_DIR / "static",
-]
+# Ensure local 'static' folder is checked for minimalist UI assets
+STATICFILES_DIRS = [BASE_DIR / "static"]
 
-# Using StaticFilesStorage (NOT Manifest) stops the MissingFileError crash
 STORAGES = {
     "default": {
         "BACKEND": "cloudinary_storage.storage.MediaCloudinaryStorage",
     },
     "staticfiles": {
-        "BACKEND": "whitenoise.storage.StaticFilesStorage",
+        "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
     },
 }
-
-# 🌟 CRITICAL: Re-adding these legacy strings resolves the Cloudinary AttributeError
-STATICFILES_STORAGE = "whitenoise.storage.StaticFilesStorage"
-DEFAULT_FILE_STORAGE = "cloudinary_storage.storage.MediaCloudinaryStorage"
 
 MEDIA_URL = "/media/"
 MEDIA_ROOT = BASE_DIR / "media"
 
 # -------------------------------------------------
-# 10. GOOGLE LOGIN & INTERNATIONALIZATION
+# 10. GOOGLE SOCIAL & LOCALIZATION
 # -------------------------------------------------
-SOCIALACCOUNT_AUTO_SIGNUP = True
-SOCIALACCOUNT_LOGIN_ON_GET = True
-
 SOCIALACCOUNT_PROVIDERS = {
     "google": {
         "APP": {
             "client_id": os.getenv("GOOGLE_CLIENT_ID"),
             "secret": os.getenv("GOOGLE_CLIENT_SECRET"),
+            "key": ""
         },
         "SCOPE": ["profile", "email"],
         "AUTH_PARAMS": {"access_type": "online"},
