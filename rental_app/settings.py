@@ -236,7 +236,7 @@ STATIC_URL = "/static/"
 # Folder where collectstatic gathers files
 STATIC_ROOT = BASE_DIR / "staticfiles"
 
-# Additional static folder
+# Additional static source folder
 STATICFILES_DIRS = [
     BASE_DIR / "static",
 ]
@@ -245,15 +245,18 @@ STATICFILES_DIRS = [
 MEDIA_URL = "/media/"
 MEDIA_ROOT = BASE_DIR / "media"
 
-# Static files storage backend for WhiteNoise
+# Modern Django 5 static storage configuration
 STORAGES = {
+    "default": {
+        "BACKEND": "cloudinary_storage.storage.MediaCloudinaryStorage",
+    },
     "staticfiles": {
         "BACKEND": "whitenoise.storage.CompressedStaticFilesStorage",
     },
 }
 
-# Cloudinary stores uploaded media
-DEFAULT_FILE_STORAGE = "cloudinary_storage.storage.MediaCloudinaryStorage"
+STATICFILES_STORAGE = "staticfiles"
+DEFAULT_FILE_STORAGE = "default"
 
 # ==============================================================================
 # Google authentication
