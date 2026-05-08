@@ -10,31 +10,24 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 load_dotenv()
 
 # -------------------------------------------------
-# 2. SECURITY & DOMAINS (FIXES 400 ERROR)
+# 2. SECURITY (FIXES 400, PREPARES FOR 500 DEBUGGING)
 # -------------------------------------------------
 SECRET_KEY = os.getenv("SECRET_KEY", "django-insecure-dev-key")
+# Set this to False in Render Environment Variables for production
 DEBUG = os.getenv("DJANGO_DEBUG", "False") == "True"
 
-ALLOWED_HOSTS = [
-    "rentalpro-web.onrender.com",
-    "localhost",
-    "127.0.0.1",
-]
-
-CSRF_TRUSTED_ORIGINS = [
-    "https://rentalpro-web.onrender.com"
-]
+ALLOWED_HOSTS = ["rentalpro-web.onrender.com", "localhost", "127.0.0.1"]
+CSRF_TRUSTED_ORIGINS = ["https://rentalpro-web.onrender.com"]
 
 SESSION_COOKIE_SECURE = not DEBUG
 CSRF_COOKIE_SECURE = not DEBUG
 
 # -------------------------------------------------
-# 3. APPS (Configured for Cloudinary & Premium UI)
+# 3. APPS & 4. MIDDLEWARE
 # -------------------------------------------------
 INSTALLED_APPS = [
-    "cloudinary_storage",  # MUST stay at the top
+    "cloudinary_storage",
     "cloudinary",
-    
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
@@ -43,21 +36,16 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "django.contrib.humanize",
     "django.contrib.sites",
-
     "tweet.apps.TweetConfig",
-
     "allauth",
     "allauth.account",
     "allauth.socialaccount",
     "allauth.socialaccount.providers.google",
 ]
 
-# -------------------------------------------------
-# 4. MIDDLEWARE (WhiteNoise Positioned Correctly)
-# -------------------------------------------------
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
-    "whitenoise.middleware.WhiteNoiseMiddleware",  # Correct position
+    "whitenoise.middleware.WhiteNoiseMiddleware", # Vital for UI
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
@@ -72,7 +60,7 @@ WSGI_APPLICATION = "rental_app.wsgi.application"
 SITE_ID = 1
 
 # -------------------------------------------------
-# 5. TEMPLATES
+# 5. TEMPLATES & 6. DATABASE
 # -------------------------------------------------
 TEMPLATES = [
     {
@@ -90,9 +78,6 @@ TEMPLATES = [
     },
 ]
 
-# -------------------------------------------------
-# 6. DATABASE (Render Optimized)
-# -------------------------------------------------
 DATABASES = {
     "default": dj_database_url.config(
         default=os.getenv("DATABASE_URL"),
@@ -102,27 +87,13 @@ DATABASES = {
 }
 
 # -------------------------------------------------
-# 7. AUTHENTICATION (vassu_backup@gmail.com context)
+# 7. AUTH & 8. CLOUDINARY
 # -------------------------------------------------
 AUTH_USER_MODEL = "tweet.CustomUser"
-
-AUTHENTICATION_BACKENDS = [
-    "django.contrib.auth.backends.ModelBackend",
-    "allauth.account.auth_backends.AuthenticationBackend",
-]
-
 ACCOUNT_AUTHENTICATION_METHOD = "email"
 ACCOUNT_EMAIL_REQUIRED = True
-ACCOUNT_USERNAME_REQUIRED = False
 ACCOUNT_EMAIL_VERIFICATION = "none"
 
-LOGIN_URL = "/accounts/login/"
-LOGIN_REDIRECT_URL = "/rentals/"
-LOGOUT_REDIRECT_URL = "/"
-
-# -------------------------------------------------
-# 8. CLOUDINARY
-# -------------------------------------------------
 CLOUDINARY_STORAGE = {
     "CLOUD_NAME": os.getenv("CLOUDINARY_CLOUD_NAME"),
     "API_KEY": os.getenv("CLOUDINARY_API_KEY"),
@@ -130,20 +101,13 @@ CLOUDINARY_STORAGE = {
 }
 
 # -------------------------------------------------
-# 9. STATIC & MEDIA (THE UI REPAIR)
+# 9. STATIC & MEDIA (FIXES THE "RUBBISH" UI)
 # -------------------------------------------------
 STATIC_URL = "/static/"
 STATIC_ROOT = BASE_DIR / "staticfiles"
+STATICFILES_DIRS = [BASE_DIR / "static"]
 
-# Using os.path to be more robust across local V: drive and Render Linux
-STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, "static"),
-]
-
-# Stable storage to prevent build crashes
-STATICFILES_STORAGE = "whitenoise.storage.StaticFilesStorage"
-DEFAULT_FILE_STORAGE = "cloudinary_storage.storage.MediaCloudinaryStorage"
-
+# Force WhiteNoise to use standard storage to prevent MissingFileErrors
 STORAGES = {
     "default": {
         "BACKEND": "cloudinary_storage.storage.MediaCloudinaryStorage",
@@ -153,23 +117,9 @@ STORAGES = {
     },
 }
 
-MEDIA_URL = "/media/"
-MEDIA_ROOT = os.path.join(BASE_DIR, "media")
-
-# -------------------------------------------------
-# 10. GOOGLE SOCIAL & LOCALIZATION
-# -------------------------------------------------
-SOCIALACCOUNT_PROVIDERS = {
-    "google": {
-        "APP": {
-            "client_id": os.getenv("GOOGLE_CLIENT_ID"),
-            "secret": os.getenv("GOOGLE_CLIENT_SECRET"),
-            "key": ""
-        },
-        "SCOPE": ["profile", "email"],
-        "AUTH_PARAMS": {"access_type": "online"},
-    }
-}
+# Legacy strings for Cloudinary support
+STATICFILES_STORAGE = "whitenoise.storage.StaticFilesStorage"
+DEFAULT_FILE_STORAGE = "cloudinary_storage.storage.MediaCloudinaryStorage"
 
 LANGUAGE_CODE = "en-us"
 TIME_ZONE = "Asia/Kolkata"
