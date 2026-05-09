@@ -10,19 +10,12 @@ from .forms import RentalForm, UserRegisteration, GalleryFormSet
 # ================= INDEX / HOME =================
 def index(request):
     """
-    Main landing page showing featured listings. 
-    Includes logic for the 'My Listings' navbar filter.
+    Renders the main landing page.
     """
-    # Fetch all rentals for the commercial grid
-    rentals = Rental.objects.all().order_by('-created_at')
-
-    # Mechanical Check: Filter for "My Listings" if the navbar query is present
-    if request.GET.get('owner') == 'me' and request.user.is_authenticated:
-        rentals = rentals.filter(user=request.user)
-
+    # This view renders a largely static landing page. The previous implementation
+    # was inefficiently querying all Rental objects without using them in the template.
     return render(request, 'index.html', {
-        'rentals': rentals,
-        'hide_navbar': False,  # Navbar must be visible for auth/logout tools
+        'hide_navbar': False,
         'hide_sidebar': True
     })
 
