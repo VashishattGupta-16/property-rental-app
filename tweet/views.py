@@ -33,6 +33,7 @@ def rental_list(request):
     location_query = request.GET.get('location', '').strip()
     type_query = request.GET.get('type', '').strip()
     price_query = request.GET.get('max_price', '').strip()
+    owner_query = request.GET.get('owner', '').strip()
 
     if location_query:
         rentals = rentals.filter(
@@ -40,6 +41,9 @@ def rental_list(request):
             Q(title__icontains=location_query) |
             Q(description__icontains=location_query)
         )
+
+    if owner_query == 'me' and request.user.is_authenticated:
+        rentals = rentals.filter(user=request.user)
 
     if type_query:
         rentals = rentals.filter(property_type=type_query)
