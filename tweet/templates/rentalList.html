@@ -3,42 +3,40 @@
 {% load media_urls %}
 
 {% block content %}
-<section class="relative fluid-page fluid-section">
+<!-- GSAP Engine for Apple-like Motion -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+
+<section class="relative fluid-page fluid-section hero-section">
     <div class="max-w-7xl mx-auto grid sm:grid-cols-2 gap-10 sm:gap-16 items-center">
 
-        <div class="space-y-8">
+        <div class="space-y-8 hero-text">
             <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/10 border border-blue-500/20">
                 <span class="w-2 h-2 rounded-full bg-blue-500 animate-pulse"></span>
                 <span class="text-[10px] font-bold tracking-[0.2em] text-blue-400 uppercase">Premium Marketplace</span>
             </div>
 
             <h1 class="fluid-display-title font-black text-white">
-                ELEVATED <br><span
-                    class="text-blue-500 underline decoration-blue-500/30 underline-offset-8">RENTALS.</span>
+                ELEVATED <br><span class="text-blue-500 underline decoration-blue-500/30 underline-offset-8">RENTALS.</span>
             </h1>
 
             <p class="text-slate-400 text-lg font-medium max-w-lg">
-                Discover a collection of curated homes designed for the modern lifestyle. Fast, verified, and completely
-                digital.
+                Discover a collection of curated homes designed for the modern lifestyle. Fast, verified, and completely digital.
             </p>
 
             <form method="GET" action="{% url 'rental_list' %}"
                 class="glass-card p-2 rounded-2xl flex shadow-2xl group transition-all hover:border-blue-500/50">
                 <input type="text" name="location" placeholder="Where to?"
                     class="bg-transparent border-none focus:ring-0 flex-grow px-6 py-4 text-white font-bold placeholder-slate-600">
-                <button
-                    class="bg-blue-600 hover:bg-blue-500 text-white px-8 py-4 rounded-xl font-black transition-all flex items-center gap-2">
+                <button class="bg-blue-600 hover:bg-blue-500 text-white px-8 py-4 rounded-xl font-black transition-all flex items-center gap-2">
                     GO <i class="fa-solid fa-arrow-right text-xs"></i>
                 </button>
             </form>
         </div>
 
-        <div class="relative block group">
-            <div
-                class="absolute -inset-4 bg-blue-500/20 blur-3xl rounded-full opacity-0 group-hover:opacity-100 transition duration-700">
-            </div>
-            <div
-                class="relative glass-card p-2 rounded-[2.5rem] overflow-hidden transform group-hover:rotate-2 group-hover:scale-[1.02] transition duration-500 shadow-2xl">
+        <div class="relative block group hero-image">
+            <div class="absolute -inset-4 bg-blue-500/20 blur-3xl rounded-full opacity-0 group-hover:opacity-100 transition duration-700"></div>
+            <div class="relative glass-card p-2 rounded-[2.5rem] overflow-hidden transform transition duration-500 shadow-2xl">
                 <img src="https://res.cloudinary.com/dpm4n4dxy/image/upload/v1778223844/banner_qcytkt.png"
                     alt="Featured Banner" class="media-fluid marketplace-hero-media rounded-[2rem]">
             </div>
@@ -48,24 +46,37 @@
 </section>
 
 <section class="max-w-7xl mx-auto fluid-page fluid-section">
-    <div class="flex items-center gap-6 mb-16">
+    <div class="flex items-center gap-6 mb-16 section-header">
         <h2 class="text-4xl font-black text-white whitespace-nowrap tracking-tight">Available Houses</h2>
         <div class="w-full h-[1px] bg-gradient-to-r from-white/20 to-transparent"></div>
     </div>
 
     <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-10">
         {% for rental in rentals %}
-        <article
-            class="group relative glass-card rounded-[2rem] overflow-hidden transition-all duration-500 hover:-translate-y-4 hover:shadow-[0_40px_80px_-15px_rgba(59,130,246,0.2)]">
+        <article class="rental-card group relative glass-card rounded-[2rem] overflow-hidden transition-all duration-500 hover:-translate-y-4 hover:shadow-[0_40px_80px_-15px_rgba(59,130,246,0.2)]">
+            
+            <!-- OWNER TOOLS OVERLAY -->
+            {% if user.is_authenticated and user == rental.user or user.is_staff %}
+            <div class="absolute top-6 right-6 z-30 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                <a href="{% url 'rental_edit' rental.id %}" class="w-10 h-10 rounded-full bg-white/10 backdrop-blur-md border border-white/20 flex items-center justify-center text-white hover:bg-blue-600 transition-colors">
+                    <i class="fa-solid fa-pen-to-square text-xs"></i>
+                </a>
+                <form method="POST" action="{% url 'rental_edit' rental.id %}" onsubmit="return confirm('Archive this property permanently?')">
+                    {% csrf_token %}
+                    <button type="submit" name="delete_property" class="w-10 h-10 rounded-full bg-white/10 backdrop-blur-md border border-white/20 flex items-center justify-center text-red-400 hover:bg-red-600 hover:text-white transition-colors">
+                        <i class="fa-solid fa-trash-can text-xs"></i>
+                    </button>
+                </form>
+            </div>
+            {% endif %}
 
-            <div class="rental-card-media">
+            <div class="rental-card-media relative">
                 {% if rental.image %}
                 <img src="{{ rental.image|optimized_cloudinary_url:'f_auto,q_auto,c_fill,w_900,h_620' }}"
-                    alt="{{ rental.title|default:'Property Image' }}"
+                    alt="{{ rental.title }}"
                     class="media-cover grayscale-[30%] group-hover:grayscale-0 transition-all duration-700 group-hover:scale-110">
                 {% else %}
-                <div
-                    class="w-full h-full bg-slate-800 flex items-center justify-center text-slate-400 text-sm uppercase tracking-[0.2em]">
+                <div class="w-full h-full bg-slate-800 flex items-center justify-center text-slate-400 text-sm uppercase tracking-[0.2em]">
                     Image not available
                 </div>
                 {% endif %}
@@ -83,7 +94,7 @@
                         <span class="text-3xl font-black text-white">₹{{ rental.price }}</span>
                     </div>
                     <a href="{% url 'room_describe' rental.id %}"
-                        class="w-14 h-14 rounded-full border border-white/10 flex items-center justify-center hover:bg-blue-600 hover:border-blue-600 transition-all">
+                        class="w-14 h-14 rounded-full border border-white/10 flex items-center justify-center hover:bg-blue-600 hover:border-blue-600 transition-all text-white">
                         <i class="fa-solid fa-chevron-right"></i>
                     </a>
                 </div>
@@ -92,4 +103,41 @@
         {% endfor %}
     </div>
 </section>
+
+<script>
+    gsap.registerPlugin(ScrollTrigger);
+
+    // 1. Hero Entrance Animation
+    const tl = gsap.timeline();
+    tl.from(".hero-text", { x: -100, opacity: 0, duration: 1, ease: "power4.out" })
+      .from(".hero-image", { scale: 0.8, opacity: 0, duration: 1.2, ease: "expo.out" }, "-=0.6");
+
+    // 2. Apple-Style Dynamic Scroll for Cards
+    gsap.utils.toArray(".rental-card").forEach((card, i) => {
+        gsap.from(card, {
+            scrollTrigger: {
+                trigger: card,
+                start: "top 90%",
+                toggleActions: "play none none reverse"
+            },
+            y: 60,
+            opacity: 0,
+            duration: 1,
+            delay: i % 3 * 0.1, // Subtle stagger
+            ease: "power3.out"
+        });
+    });
+
+    // 3. Section Header Reveal
+    gsap.from(".section-header", {
+        scrollTrigger: {
+            trigger: ".section-header",
+            start: "top 85%"
+        },
+        width: 0,
+        opacity: 0,
+        duration: 1.5,
+        ease: "power2.inOut"
+    });
+</script>
 {% endblock %}
