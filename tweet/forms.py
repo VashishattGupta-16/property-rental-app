@@ -58,6 +58,11 @@ class RentalForm(forms.ModelForm):
                 if name != "image":
                     field.widget.attrs["class"] = base_classes
 
+                if name == "property_type":
+                    # Ensure the property type dropdown text is always readable
+                    field.widget.attrs["class"] += " text-black"
+                    field.widget.attrs["style"] = "color: black;"
+
                 label = field.label or name.replace("_", " ")
                 field.widget.attrs.setdefault(
                     "placeholder",
