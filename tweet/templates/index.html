@@ -1,83 +1,38 @@
 {% extends "layout.html" %}
 {% load static %}
+{% load media_urls %}
 
 {% block content %}
+<!-- Main Hero Section (Already built by you, optimized) -->
 <div class="relative min-h-screen">
-    <div
-        class="pointer-events-none absolute inset-0 bg-gradient-to-b from-slate-950/20 via-transparent to-slate-950/80">
-    </div>
-
-    <section class="max-w-7xl mx-auto fluid-page fluid-section min-h-screen flex items-center relative z-10">
+    <div class="pointer-events-none absolute inset-0 bg-gradient-to-b from-slate-950/20 via-transparent to-slate-950/80"></div>
+    <section class="max-w-7xl mx-auto fluid-page fluid-section min-h-screen flex items-center relative z-10 px-4">
         <div class="grid sm:grid-cols-2 gap-10 sm:gap-16 items-center w-full">
-
             <div class="hero-text-side space-y-10">
-                <div
-                    class="inline-flex items-center gap-3 px-5 py-2 rounded-full bg-sky-500/10 border border-sky-500/20 backdrop-blur-xl">
-                    <span
-                        class="flex h-2.5 w-2.5 rounded-full bg-sky-500 shadow-[0_0_10px_rgba(14,165,233,0.8)]"></span>
-                    <span class="text-[0.75rem] font-black uppercase tracking-[0.3em] text-sky-400 italic">Mohali •
-                        Chandigarh • Panchkula</span>
+                <div class="inline-flex items-center gap-3 px-5 py-2 rounded-full bg-sky-500/10 border border-sky-500/20 backdrop-blur-xl">
+                    <span class="flex h-2.5 w-2.5 rounded-full bg-sky-500 shadow-[0_0_10px_rgba(14,165,233,0.8)]"></span>
+                    <span class="text-[0.75rem] font-black uppercase tracking-[0.3em] text-sky-400 italic">Mohali • Chandigarh • Panchkula</span>
                 </div>
-
-                <h1 class="hero-title leading-[0.95] font-black text-white">
-                    Premium <span
-                        class="text-transparent bg-clip-text bg-gradient-to-r from-sky-400 to-blue-600">Spaces</span><br>For
-                    The Elite.
+                <h1 class="hero-title text-6xl md:text-8xl leading-[0.95] font-black text-white">
+                    Premium <span class="text-transparent bg-clip-text bg-gradient-to-r from-sky-400 to-blue-600">Spaces</span><br>For The Elite.
                 </h1>
-
                 <p class="hero-copy text-xl text-slate-400 max-w-lg leading-relaxed font-medium">
-                    Curated living experiences for professionals and students. No brokers, no hidden fees—just pure
-                    comfort in the heart of the city.
+                    Curated living experiences for professionals and students. No brokers, no hidden fees—just pure comfort.
                 </p>
-
                 <div class="hero-buttons flex flex-wrap items-center gap-8 pt-4">
-                    <a id="browseBtn" href="{% url 'rental_list' %}"
-                        class="group relative px-10 py-5 bg-sky-600 rounded-2xl font-black text-white text-lg transition-all hover:bg-sky-500 hover:shadow-[0_20px_50px_rgba(14,165,233,0.3)] hover:-translate-y-1 active:scale-95">
-                        Browse Listings
-                        <i class="fas fa-arrow-right-long ml-3 group-hover:translate-x-2 transition-transform"></i>
+                    <a id="browseBtn" href="{% url 'rental_list' %}" class="group relative px-10 py-5 bg-sky-600 rounded-2xl font-black text-white text-lg transition-all hover:bg-sky-500 shadow-xl active:scale-95">
+                        Browse Listings <i class="fas fa-arrow-right-long ml-3 group-hover:translate-x-2 transition-transform"></i>
                     </a>
-                    <a href="{% url 'rental_create' %}"
-                        class="group flex items-center gap-3 text-white font-bold text-lg hover:text-sky-400 transition-colors">
-                        <span
-                            class="w-12 h-12 flex items-center justify-center rounded-full border border-white/20 group-hover:border-sky-400 transition-colors">
-                            <i class="fas fa-plus text-sm"></i>
-                        </span>
-                        List Your Space
-                    </a>
-                </div>
-
-                <div class="hero-trust pt-12 flex items-center gap-16">
-                    <div class="space-y-1">
-                        <div class="text-4xl font-black text-white">500<span class="text-sky-500 text-2xl">+</span>
-                        </div>
-                        <div class="text-[0.7rem] uppercase tracking-widest font-bold text-slate-500">Verified Units
-                        </div>
-                    </div>
-                    <div class="w-[1px] h-12 bg-white/10"></div>
-                    <div class="space-y-1">
-                        <div class="text-4xl font-black text-white">12k<span class="text-sky-500 text-2xl">+</span>
-                        </div>
-                        <div class="text-[0.7rem] uppercase tracking-widest font-bold text-slate-500">Active Tenants
-                        </div>
-                    </div>
                 </div>
             </div>
-
-            <div class="hero-visual relative block">
-                <div
-                    class="hero-image-wrap relative z-20 transform rotate-2 glass-card !p-4 shadow-[0_50px_100px_rgba(0,0,0,0.6)]">
-                    <div class="responsive-media-frame w-full relative">
-                        <img src="https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?auto=format&fit=crop&q=80"
-                            class="media-cover hover:scale-110 transition-transform duration-[2s]" alt="Luxury Room">
-                        <div class="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-transparent to-transparent">
-                        </div>
+            <div class="hero-visual relative">
+                <div class="hero-image-wrap relative z-20 transform rotate-2 glass-card !p-4 shadow-2xl">
+                    <div class="responsive-media-frame w-full relative rounded-2xl overflow-hidden">
+                        <img src="https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?auto=format&fit=crop&q=80" class="w-full h-full object-cover" alt="Luxury Room">
                     </div>
                 </div>
-
-                <div
-                    class="info-card absolute -bottom-10 -left-12 z-30 glass-card !bg-white/10 !backdrop-blur-3xl p-6 flex items-center gap-5 shadow-2xl animate-bounce-slow">
-                    <div
-                        class="w-14 h-14 rounded-full bg-sky-500 flex items-center justify-center text-white text-xl shadow-[0_0_20px_rgba(14,165,233,0.5)]">
+                <div class="info-card absolute -bottom-10 -left-12 z-30 glass-card p-6 flex items-center gap-5 shadow-2xl animate-bounce-slow">
+                    <div class="w-14 h-14 rounded-full bg-sky-500 flex items-center justify-center text-white text-xl shadow-lg">
                         <i class="fa-solid fa-shield-check"></i>
                     </div>
                     <div>
@@ -85,36 +40,132 @@
                         <p class="font-bold text-white text-lg italic">Verified by RentalPro</p>
                     </div>
                 </div>
-
-                <div class="absolute -top-10 -right-10 w-32 h-32 bg-sky-500/20 rounded-full blur-3xl -z-10"></div>
             </div>
         </div>
     </section>
 </div>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+<!-- SECTION 2: CATEGORY MASONRY (New Content) -->
+<section class="max-w-7xl mx-auto py-24 px-4 overflow-hidden">
+    <div class="flex flex-col md:flex-row justify-between items-end mb-16 gap-6 category-header">
+        <div>
+            <h2 class="text-xs font-black text-sky-500 uppercase tracking-[0.4em] mb-4">Discover by type</h2>
+            <p class="text-4xl md:text-5xl font-black text-white italic">Tailored for your <span class="text-sky-500">lifestyle.</span></p>
+        </div>
+        <p class="text-slate-500 font-medium max-w-xs text-right">From high-rise apartments to shared co-living, find what fits.</p>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 h-[600px] category-grid">
+        <!-- Luxury Villas -->
+        <a href="{% url 'rental_list' %}?type=VILLA" class="group relative overflow-hidden rounded-[2.5rem] md:row-span-2 glass-card">
+            <img src="https://images.unsplash.com/photo-1613490493576-7fde63acd811?auto=format&fit=crop&q=80" class="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110 grayscale-[50%] group-hover:grayscale-0">
+            <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent opacity-80"></div>
+            <div class="absolute bottom-8 left-8">
+                <span class="text-xs font-black text-sky-400 uppercase tracking-widest">Premium</span>
+                <h3 class="text-2xl font-black text-white">Luxury Villas</h3>
+            </div>
+        </a>
+        <!-- Modern Flats -->
+        <a href="{% url 'rental_list' %}?type=2BHK" class="group relative overflow-hidden rounded-[2.5rem] glass-card">
+            <img src="https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?auto=format&fit=crop&q=80" class="absolute inset-0 w-full h-full object-cover grayscale-[50%] group-hover:grayscale-0 transition-all">
+            <div class="absolute bottom-8 left-8"><h3 class="text-xl font-black text-white">Modern Flats</h3></div>
+        </a>
+        <!-- Shared Spaces -->
+        <a href="{% url 'rental_list' %}?type=PG" class="group relative overflow-hidden rounded-[2.5rem] glass-card">
+            <img src="https://images.unsplash.com/photo-1554995207-c18c203602cb?auto=format&fit=crop&q=80" class="absolute inset-0 w-full h-full object-cover grayscale-[50%] group-hover:grayscale-0 transition-all">
+            <div class="absolute bottom-8 left-8"><h3 class="text-xl font-black text-white">Shared PGs</h3></div>
+        </a>
+        <!-- Commercial Plots -->
+        <a href="{% url 'rental_list' %}?type=SHOWROOM" class="group relative overflow-hidden rounded-[2.5rem] md:col-span-2 glass-card">
+            <img src="https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&q=80" class="absolute inset-0 w-full h-full object-cover grayscale-[50%] group-hover:grayscale-0 transition-all">
+            <div class="absolute bottom-8 left-8"><h3 class="text-xl font-black text-white">Showrooms & Offices</h3></div>
+        </a>
+    </div>
+</section>
+
+<!-- SECTION 3: WHY RENTALPRO (Feature Grid) -->
+<section class="bg-white/5 py-24 my-24 border-y border-white/5 backdrop-blur-3xl">
+    <div class="max-w-7xl mx-auto px-4">
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-12 text-center">
+            <div class="feature-item space-y-4">
+                <i class="fa-solid fa-bolt-lightning text-4xl text-sky-500"></i>
+                <h4 class="text-lg font-black text-white">Instant Booking</h4>
+                <p class="text-slate-500 text-sm font-medium">Digital signatures and payments in under 5 minutes.</p>
+            </div>
+            <div class="feature-item space-y-4">
+                <i class="fa-solid fa-handshake-slash text-4xl text-sky-500"></i>
+                <h4 class="text-lg font-black text-white">Zero Brokerage</h4>
+                <p class="text-slate-500 text-sm font-medium">Direct connection between owners and elite tenants.</p>
+            </div>
+            <div class="feature-item space-y-4">
+                <i class="fa-solid fa-camera-retro text-4xl text-sky-500"></i>
+                <h4 class="text-lg font-black text-white">Virtual Tours</h4>
+                <p class="text-slate-500 text-sm font-medium">High-definition walkthroughs of every single room.</p>
+            </div>
+            <div class="feature-item space-y-4">
+                <i class="fa-solid fa-headset text-4xl text-sky-500"></i>
+                <h4 class="text-lg font-black text-white">24/7 Concierge</h4>
+                <p class="text-slate-500 text-sm font-medium">On-call maintenance and support for all members.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- SECTION 4: CALL TO ACTION -->
+<section class="max-w-7xl mx-auto py-24 px-4">
+    <div class="relative glass-card rounded-[3rem] p-12 md:p-24 overflow-hidden text-center bg-gradient-to-br from-sky-600/20 to-transparent border-sky-500/30">
+        <div class="relative z-10 space-y-8">
+            <h2 class="text-5xl md:text-7xl font-black text-white tracking-tighter italic">Ready to move into <br>your <span class="text-sky-500 underline">dream space?</span></h2>
+            <div class="flex justify-center gap-6">
+                <a href="{% url 'account_signup' %}" class="px-12 py-5 bg-white text-black font-black rounded-2xl hover:scale-105 transition-transform">Get Started</a>
+                <a href="{% url 'rental_contact' 1 %}" class="px-12 py-5 border border-white/20 text-white font-black rounded-2xl hover:bg-white/5 transition-all">Speak to Support</a>
+            </div>
+        </div>
+        <!-- Decorative Circle -->
+        <div class="absolute -bottom-24 -right-24 w-96 h-96 bg-sky-500/10 rounded-full blur-[100px]"></div>
+    </div>
+</section>
+
+<!-- GSAP ScrollTrigger scripts -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
 <script>
     document.addEventListener('DOMContentLoaded', function () {
+        gsap.registerPlugin(ScrollTrigger);
+
+        // 1. Initial Hero Load
         const tl = gsap.timeline({ defaults: { ease: "expo.out" } });
-
-        // Entry Sequence
         tl.from('.hero-title', { y: 150, opacity: 0, duration: 1.5, skewY: 7 })
-            .from('.hero-copy', { x: -50, opacity: 0, duration: 1.2 }, "-=1")
-            .from('.hero-buttons', { y: 30, opacity: 0, duration: 1 }, "-=1")
-            .from('.hero-visual', {
-                scale: 0.9,
-                rotateY: 20,
-                opacity: 0,
-                duration: 2
-            }, "-=1.5")
-            .from('.hero-trust div', {
-                y: 20,
-                opacity: 0,
-                stagger: 0.2,
-                duration: 0.8
-            }, "-=1");
+          .from('.hero-copy', { x: -50, opacity: 0, duration: 1.2 }, "-=1")
+          .from('.hero-buttons', { y: 30, opacity: 0, duration: 1 }, "-=1")
+          .from('.hero-visual', { scale: 0.9, rotateY: 20, opacity: 0, duration: 2 }, "-=1.5");
 
-        // Infinite Float for Visual
+        // 2. Category Reveal on Scroll
+        gsap.from(".category-grid a", {
+            scrollTrigger: {
+                trigger: ".category-grid",
+                start: "top 80%",
+            },
+            y: 100,
+            opacity: 0,
+            stagger: 0.15,
+            duration: 1.2,
+            ease: "power4.out"
+        });
+
+        // 3. Feature Items Reveal
+        gsap.from(".feature-item", {
+            scrollTrigger: {
+                trigger: ".feature-item",
+                start: "top 90%",
+            },
+            scale: 0.8,
+            opacity: 0,
+            stagger: 0.2,
+            duration: 1,
+            ease: "back.out(1.7)"
+        });
+
+        // Infinite Float for Hero Visual
         gsap.to('.hero-visual', {
             y: 20,
             duration: 3,
@@ -122,22 +173,6 @@
             yoyo: true,
             ease: "sine.inOut"
         });
-
-        // Handle Smooth Exit
-        const browseBtn = document.getElementById('browseBtn');
-        if (browseBtn) {
-            browseBtn.addEventListener('click', function (e) {
-                e.preventDefault();
-                const url = this.href;
-                gsap.to('main', {
-                    opacity: 0,
-                    filter: "blur(20px)",
-                    scale: 1.05,
-                    duration: 0.6,
-                    onComplete: () => window.location.href = url
-                });
-            });
-        }
     });
 </script>
 
@@ -147,25 +182,8 @@
         backdrop-filter: blur(20px);
         border: 1px solid rgba(255, 255, 255, 0.1);
     }
-
-    .hero-title {
-        text-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-    }
-
-    @keyframes bounce-slow {
-
-        0%,
-        100% {
-            transform: translateY(0);
-        }
-
-        50% {
-            transform: translateY(-10px);
-        }
-    }
-
-    .animate-bounce-slow {
-        animation: bounce-slow 4s infinite ease-in-out;
-    }
+    .hero-title { text-shadow: 0 10px 30px rgba(0, 0, 0, 0.3); }
+    .animate-bounce-slow { animation: bounce-slow 4s infinite ease-in-out; }
+    @keyframes bounce-slow { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
 </style>
 {% endblock %}
