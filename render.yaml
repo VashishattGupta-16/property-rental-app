@@ -11,7 +11,7 @@ services:
     plan: free
     runtime: python
     buildCommand: "bash build.sh"
-    startCommand: "gunicorn rental_app.wsgi:application --config gunicorn.conf.py"
+    startCommand: "python manage.py migrate --no-input && gunicorn rental_app.wsgi:application --config gunicorn.conf.py"
     envVars:
       - key: PYTHON_VERSION
         value: 3.12.10
