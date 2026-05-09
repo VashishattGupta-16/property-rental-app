@@ -4,115 +4,201 @@
 
 {% block content %}
 
-<div class="relative min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
-    
-    <div class="w-full max-w-[min(90vw,1100px)] animate-fade-in">
+<div class="min-h-screen relative overflow-hidden bg-[#050816]">
 
-        <div class="text-center mb-8 md:mb-12">
-            <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-sky-500/10 border border-sky-500/20 mb-6">
-                <i class="fa-solid fa-building-shield text-sky-500 text-xs"></i>
-                <span class="text-[clamp(0.6rem,1.5vw,0.75rem)] font-black uppercase tracking-[0.3em] text-sky-400">Secure Contact Protocol</span>
+    <!-- Background Glow -->
+    <div class="absolute top-0 left-0 w-72 h-72 bg-sky-500/20 blur-3xl rounded-full"></div>
+    <div class="absolute bottom-0 right-0 w-80 h-80 bg-blue-600/20 blur-3xl rounded-full"></div>
+
+    <div class="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-14">
+
+        <!-- Header -->
+        <div class="text-center mb-10 sm:mb-14 animate-fade-up">
+
+            <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-sky-500/20 bg-sky-500/10 mb-6">
+                <i class="fa-solid fa-shield-halved text-sky-400 text-xs"></i>
+                <span class="text-[10px] sm:text-xs tracking-[0.25em] uppercase font-black text-sky-300">
+                    Verified Owner Profile
+                </span>
             </div>
 
-            <h1 class="text-[clamp(2.5rem,6vw,4.5rem)] font-black leading-tight text-white tracking-tighter">
-                Owner <span class="text-sky-500">Profile</span>
+            <h1 class="text-[clamp(2.5rem,8vw,5rem)] leading-none font-black tracking-tight text-white">
+                Connect With
+                <span class="text-transparent bg-clip-text bg-gradient-to-r from-sky-400 to-blue-500">
+                    The Owner
+                </span>
             </h1>
+
+            <p class="mt-5 text-slate-400 max-w-2xl mx-auto text-sm sm:text-base leading-relaxed">
+                Reach out directly to discuss availability, pricing, location details,
+                and everything you need before booking your next rental.
+            </p>
+
         </div>
 
-        <div class="glass-card overflow-hidden shadow-2xl">
-            <div class="p-6 md:p-12 lg:p-16 space-y-10 md:space-y-14">
+        <!-- Main Card -->
+        <div class="glass-card p-5 sm:p-8 lg:p-12 animate-fade-up-delayed">
 
-                <div class="flex flex-col md:flex-row items-center md:items-start gap-8 border-b border-white/5 pb-10">
-                    
-                    <div class="relative group">
-                        <div class="absolute -inset-1 bg-gradient-to-tr from-sky-500 to-blue-600 rounded-[2rem] blur opacity-25 group-hover:opacity-50 transition duration-500"></div>
-                        <div class="relative w-32 h-32 md:w-40 md:h-40 rounded-[2rem] bg-slate-900 border border-white/10 flex items-center justify-center text-4xl md:text-5xl font-black text-white shadow-2xl">
-                            {% if rental.user %}
+            <!-- Top Section -->
+            <div class="flex flex-col lg:flex-row gap-10 lg:gap-14 items-center lg:items-start">
+
+                <!-- Avatar -->
+                <div class="relative group shrink-0">
+
+                    <div class="absolute -inset-1 rounded-[2rem] bg-gradient-to-tr from-sky-500 to-blue-600 blur opacity-40 group-hover:opacity-70 transition duration-500"></div>
+
+                    <div class="relative w-32 h-32 sm:w-40 sm:h-40 rounded-[2rem] bg-[#0f172a] border border-white/10 flex items-center justify-center shadow-2xl">
+
+                        {% if rental.user %}
+                            <span class="text-5xl sm:text-6xl font-black text-white">
                                 {{ rental.user.first_name|default:rental.user.email|slice:":1"|upper }}
-                            {% else %}
-                                <i class="fa-solid fa-user-secret opacity-20"></i>
-                            {% endif %}
-                        </div>
-                    </div>
-
-                    
-
-                        <h2 class="text-[clamp(1.5rem,4vw,2.5rem)] font-black text-white">
-                            {% if rental.user %}
-                                {{ rental.user.first_name }} {{ rental.user.last_name }}
-                            {% else %}
-                                Independent Owner
-                            {% endif %}
-                        </h2>
-
-                        
-                    </div>
-                </div>
-
-                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 md:gap-12">
-                    
-                    <div class="group">
-                        <p class="text-[10px] uppercase text-sky-500 font-black tracking-widest mb-3">Direct Line</p>
-                        <div class="flex items-center gap-4">
-                            <div class="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center text-white group-hover:bg-sky-600 transition-colors">
-                                <i class="fa-solid fa-phone"></i>
-                            </div>
-                            <span class="text-lg md:text-xl font-bold text-white tracking-tight">
-                                {% firstof rental.contact rental.user.phone_number "Not Disclosed" %}
                             </span>
-                        </div>
-                    </div>
+                        {% else %}
+                            <i class="fa-solid fa-user text-5xl text-white/20"></i>
+                        {% endif %}
 
-                    <div class="group">
-                        <p class="text-[10px] uppercase text-sky-500 font-black tracking-widest mb-3">Official Email</p>
-                        <div class="flex items-center gap-4">
-                            <div class="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center text-white group-hover:bg-sky-600 transition-colors">
-                                <i class="fa-solid fa-envelope"></i>
-                            </div>
-                            <span class="text-lg md:text-xl font-bold text-white truncate max-w-[200px]">
-                                {{ rental.user.email|default:"N/A" }}
-                            </span>
-                        </div>
-                    </div>
-
-                    <div class="group sm:col-span-2 lg:col-span-1">
-                        <p class="text-[10px] uppercase text-sky-500 font-black tracking-widest mb-3">Registered Office</p>
-                        <div class="flex items-center gap-4">
-                            <div class="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center text-white group-hover:bg-sky-600 transition-colors">
-                                <i class="fa-solid fa-location-dot"></i>
-                            </div>
-                            <span class="text-lg md:text-xl font-bold text-white tracking-tight">
-                                {{ rental.location|default:"Punjab, India" }}
-                            </span>
-                        </div>
                     </div>
 
                 </div>
 
-                <div class="flex flex-col sm:flex-row gap-4 md:gap-6 pt-10 border-t border-white/5">
-                    
-                    {% if rental.contact or rental.user.phone_number %}
-                    <a href="tel:{% firstof rental.contact rental.user.phone_number %}"
-                       class="flex-1 bg-white text-slate-950 hover:bg-sky-500 hover:text-white py-5 rounded-2xl font-black text-center transition-all duration-300 shadow-xl shadow-white/5 flex items-center justify-center gap-3 active:scale-95">
-                        <i class="fa-solid fa-phone-volume"></i> Initiate Call
-                    </a>
-                    {% endif %}
+                <!-- Owner Info -->
+                <div class="flex-1 text-center lg:text-left">
 
-                    {% if rental.user and rental.user.email %}
-                    <a href="mailto:{{ rental.user.email }}"
-                       class="flex-1 bg-white/5 border border-white/10 hover:border-sky-500/50 hover:bg-white/10 py-5 rounded-2xl font-black text-center text-white transition-all duration-300 flex items-center justify-center gap-3">
-                        <i class="fa-solid fa-paper-plane"></i> Send Inquiry
-                    </a>
-                    {% endif %}
+                    <div class="flex flex-col gap-4">
+
+                        <div>
+                            <p class="text-sky-400 uppercase tracking-[0.25em] text-xs font-black mb-3">
+                                Property Owner
+                            </p>
+
+                            <h2 class="text-3xl sm:text-4xl font-black text-white tracking-tight">
+                                {% if rental.user %}
+                                    {{ rental.user.first_name }} {{ rental.user.last_name }}
+                                {% else %}
+                                    Independent Owner
+                                {% endif %}
+                            </h2>
+                        </div>
+
+                        <p class="text-slate-400 text-sm sm:text-base leading-relaxed max-w-2xl">
+                            This property owner is registered on RentalPro. You can contact them directly
+                            for rental inquiries, pricing discussions, property visits, and additional details.
+                        </p>
+
+                        <!-- Quick Stats -->
+                        <div class="grid grid-cols-2 sm:grid-cols-3 gap-4 mt-4">
+
+                            <div class="stat-card">
+                                <i class="fa-solid fa-circle-check text-sky-400"></i>
+                                <p>Verified</p>
+                            </div>
+
+                            <div class="stat-card">
+                                <i class="fa-solid fa-bolt text-sky-400"></i>
+                                <p>Fast Response</p>
+                            </div>
+
+                            <div class="stat-card col-span-2 sm:col-span-1">
+                                <i class="fa-solid fa-shield text-sky-400"></i>
+                                <p>Secure Contact</p>
+                            </div>
+
+                        </div>
+
+                    </div>
 
                 </div>
+
             </div>
+
+            <!-- Divider -->
+            <div class="my-10 h-px bg-gradient-to-r from-transparent via-white/10 to-transparent"></div>
+
+            <!-- Contact Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+
+                <!-- Phone -->
+                <div class="info-card">
+                    <div class="icon-box">
+                        <i class="fa-solid fa-phone"></i>
+                    </div>
+
+                    <div>
+                        <p class="label">Phone Number</p>
+                        <h3 class="value">
+                            {% firstof rental.contact rental.user.phone_number "Not Available" %}
+                        </h3>
+                    </div>
+                </div>
+
+                <!-- Email -->
+                <div class="info-card">
+                    <div class="icon-box">
+                        <i class="fa-solid fa-envelope"></i>
+                    </div>
+
+                    <div class="min-w-0">
+                        <p class="label">Email Address</p>
+                        <h3 class="value truncate">
+                            {{ rental.user.email|default:"Not Available" }}
+                        </h3>
+                    </div>
+                </div>
+
+                <!-- Location -->
+                <div class="info-card">
+                    <div class="icon-box">
+                        <i class="fa-solid fa-location-dot"></i>
+                    </div>
+
+                    <div>
+                        <p class="label">Property Location</p>
+                        <h3 class="value">
+                            {{ rental.location|default:"India" }}
+                        </h3>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Buttons -->
+            <div class="flex flex-col sm:flex-row gap-4 mt-10">
+
+                {% if rental.contact or rental.user.phone_number %}
+                <a href="tel:{% firstof rental.contact rental.user.phone_number %}"
+                   class="primary-btn">
+
+                    <i class="fa-solid fa-phone-volume"></i>
+                    Call Owner
+
+                </a>
+                {% endif %}
+
+                {% if rental.user and rental.user.email %}
+                <a href="mailto:{{ rental.user.email }}"
+                   class="secondary-btn">
+
+                    <i class="fa-solid fa-paper-plane"></i>
+                    Send Email
+
+                </a>
+                {% endif %}
+
+            </div>
+
         </div>
-        
+
+        <!-- Back -->
         <div class="mt-8 text-center">
-            <a href="{% url 'rental_list' %}" class="text-slate-500 hover:text-white font-bold text-xs uppercase tracking-widest transition-colors">
-                <i class="fa-solid fa-arrow-left-long mr-2"></i> Return to Marketplace
+
+            <a href="{% url 'rental_list' %}"
+               class="inline-flex items-center gap-2 text-slate-500 hover:text-white transition font-bold tracking-wide text-sm">
+
+                <i class="fa-solid fa-arrow-left-long"></i>
+                Back To Rentals
+
             </a>
+
         </div>
 
     </div>
@@ -120,27 +206,153 @@
 </div>
 
 <style>
-    .glass-card {
-        background: rgba(255, 255, 255, 0.03);
-        backdrop-filter: blur(20px);
-        border: 1px solid rgba(255, 255, 255, 0.1);
-        border-radius: 3rem;
-    }
-    
-    @keyframes fade-in {
-        from { opacity: 0; transform: translateY(20px); }
-        to { opacity: 1; transform: translateY(0); }
-    }
-    .animate-fade-in {
-        animation: fade-in 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+
+    .glass-card{
+        background: rgba(255,255,255,0.04);
+        border: 1px solid rgba(255,255,255,0.08);
+        backdrop-filter: blur(24px);
+        border-radius: 2rem;
+        box-shadow: 0 20px 80px rgba(0,0,0,0.35);
     }
 
-    /* Screen Ratio Optimization */
-    @media (max-aspect-ratio: 1/1) {
-        .glass-card {
-            border-radius: 2rem;
+    .info-card{
+        display:flex;
+        align-items:center;
+        gap:1rem;
+        padding:1.25rem;
+        border-radius:1.5rem;
+        background:rgba(255,255,255,0.03);
+        border:1px solid rgba(255,255,255,0.06);
+        transition:0.3s ease;
+    }
+
+    .info-card:hover{
+        transform:translateY(-4px);
+        border-color:rgba(14,165,233,0.4);
+        background:rgba(255,255,255,0.05);
+    }
+
+    .icon-box{
+        width:3rem;
+        height:3rem;
+        border-radius:1rem;
+        background:rgba(255,255,255,0.05);
+        display:flex;
+        align-items:center;
+        justify-content:center;
+        color:white;
+        flex-shrink:0;
+    }
+
+    .label{
+        font-size:0.7rem;
+        text-transform:uppercase;
+        letter-spacing:0.2em;
+        color:#38bdf8;
+        font-weight:800;
+        margin-bottom:0.4rem;
+    }
+
+    .value{
+        color:white;
+        font-weight:700;
+        font-size:1rem;
+        line-height:1.4;
+    }
+
+    .stat-card{
+        background:rgba(255,255,255,0.03);
+        border:1px solid rgba(255,255,255,0.06);
+        border-radius:1rem;
+        padding:1rem;
+        text-align:center;
+        color:white;
+        font-size:0.85rem;
+        font-weight:700;
+        display:flex;
+        flex-direction:column;
+        align-items:center;
+        gap:0.5rem;
+    }
+
+    .primary-btn{
+        flex:1;
+        display:flex;
+        align-items:center;
+        justify-content:center;
+        gap:0.8rem;
+        background:white;
+        color:#020617;
+        padding:1rem 1.5rem;
+        border-radius:1.2rem;
+        font-weight:900;
+        transition:0.3s ease;
+    }
+
+    .primary-btn:hover{
+        background:#0ea5e9;
+        color:white;
+        transform:translateY(-2px);
+    }
+
+    .secondary-btn{
+        flex:1;
+        display:flex;
+        align-items:center;
+        justify-content:center;
+        gap:0.8rem;
+        background:rgba(255,255,255,0.04);
+        border:1px solid rgba(255,255,255,0.08);
+        color:white;
+        padding:1rem 1.5rem;
+        border-radius:1.2rem;
+        font-weight:900;
+        transition:0.3s ease;
+    }
+
+    .secondary-btn:hover{
+        border-color:#0ea5e9;
+        background:rgba(255,255,255,0.08);
+        transform:translateY(-2px);
+    }
+
+    @keyframes fadeUp{
+        from{
+            opacity:0;
+            transform:translateY(30px);
+        }
+        to{
+            opacity:1;
+            transform:translateY(0);
         }
     }
+
+    .animate-fade-up{
+        animation:fadeUp 0.7s ease forwards;
+    }
+
+    .animate-fade-up-delayed{
+        animation:fadeUp 0.9s ease forwards;
+    }
+
+    @media (max-width:640px){
+
+        .glass-card{
+            border-radius:1.5rem;
+            padding:1.25rem;
+        }
+
+        .info-card{
+            padding:1rem;
+        }
+
+        .primary-btn,
+        .secondary-btn{
+            width:100%;
+        }
+
+    }
+
 </style>
 
 {% endblock %}
