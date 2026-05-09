@@ -132,6 +132,17 @@ def rental_delete(request, rental_id):
         'rental': rental
     })
 
+# ================= CONTACT =================
+@login_required
+def rental_contact(request, rental_id):
+    """
+    Handles the request to view contact details for a rental.
+    """
+    rental = get_object_or_404(Rental, pk=rental_id)
+    # This is a simple implementation. You might want to return a JSON response
+    # for an AJAX call or render a partial template.
+    return HttpResponse(f"Contact: {rental.contact}")
+
 # ================= DETAIL & AUTH =================
 def room_describe(request, rental_id):
     rental = get_object_or_404(Rental, pk=rental_id)
@@ -147,6 +158,13 @@ def register(request):
     else:
         form = UserRegisteration()
     return render(request, 'registration/register.html', {'form': form})
+
+def logout_success(request):
+    """
+    Renders a page to inform the user they have been successfully logged out.
+    """
+    # Note: You will need to create the 'logout_success.html' template.
+    return render(request, 'registration/logout_success.html')
 
 def ping_view(request):
     return HttpResponse("pong", content_type="text/plain")
