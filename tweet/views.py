@@ -168,3 +168,6 @@ def logout_success(request):
 
 def ping_view(request):
     return HttpResponse("pong", content_type="text/plain")
+
+def about(request):
+    return render(request, 'about.html')
