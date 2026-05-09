@@ -33,14 +33,14 @@
             </form>
         </div>
 
-        <div class="relative hidden lg:block group">
+        <div class="relative block group">
             <div
                 class="absolute -inset-4 bg-blue-500/20 blur-3xl rounded-full opacity-0 group-hover:opacity-100 transition duration-700">
             </div>
             <div
                 class="relative glass-card p-2 rounded-[2.5rem] overflow-hidden transform group-hover:rotate-2 group-hover:scale-[1.02] transition duration-500 shadow-2xl">
-                 <img src="https://res.cloudinary.com/dpm4n4dxy/image/upload/v1778223844/banner_qcytkt.png" 
-                      alt="Featured Banner" class="media-fluid marketplace-hero-media rounded-[2rem]">
+                <img src="https://res.cloudinary.com/dpm4n4dxy/image/upload/v1778223844/banner_qcytkt.png"
+                    alt="Featured Banner" class="media-fluid marketplace-hero-media rounded-[2rem]">
             </div>
         </div>
 
@@ -60,7 +60,8 @@
 
             <div class="rental-card-media">
                 {% if rental.image %}
-                <img src="{{ rental.image|optimized_cloudinary_url:'f_auto,q_auto,c_fill,w_900,h_620' }}" alt="{{ rental.title|default:'Property Image' }}"
+                <img src="{{ rental.image|optimized_cloudinary_url:'f_auto,q_auto,c_fill,w_900,h_620' }}"
+                    alt="{{ rental.title|default:'Property Image' }}"
                     class="media-cover grayscale-[30%] group-hover:grayscale-0 transition-all duration-700 group-hover:scale-110">
                 {% else %}
                 <div
