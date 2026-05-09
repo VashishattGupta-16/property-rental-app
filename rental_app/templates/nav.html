@@ -1,229 +1,243 @@
-<nav class="sticky top-4 z-[100] overflow-visible mx-2 md:mx-8 px-4 md:px-8 py-3 rounded-full border border-white/10 bg-slate-900/40 backdrop-blur-xl flex flex-col sm:flex-row items-center justify-between shadow-2xl gap-3 transition-all duration-300">
+<nav class="sticky top-3 z-[100] px-3 sm:px-5 lg:px-8">
 
-    <!-- LOGO + MOBILE AUTH -->
-    <div class="w-full sm:w-auto flex items-center justify-between gap-4">
+    <div class="mx-auto max-w-7xl rounded-3xl border border-white/10 bg-slate-900/70 backdrop-blur-2xl shadow-2xl">
 
-        <!-- LOGO -->
-        <div class="flex-shrink-0">
-            <a href="{% url 'index' %}" class="flex items-center no-underline group">
+        <!-- NAV CONTAINER -->
+        <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 px-4 sm:px-6 py-4">
 
-                <span class="text-lg md:text-2xl font-black tracking-tighter text-white">
+            <!-- TOP ROW -->
+            <div class="flex items-center justify-between w-full lg:w-auto">
 
-                    Rental
-                    <span class="text-sky-500 group-hover:text-sky-400 transition-colors">
-                        Pro
-                    </span>
+                <!-- LOGO -->
+                <a href="{% url 'index' %}"
+                   class="flex items-center shrink-0 group">
 
-                </span>
+                    <h1 class="text-xl sm:text-2xl lg:text-3xl font-black tracking-tight text-white leading-none">
 
-            </a>
-        </div>
-
-        <!-- MOBILE AUTH -->
-        <div class="flex items-center gap-2 sm:hidden">
-
-            {% if user.is_authenticated %}
-
-                <a href="{% url 'rental_create' %}"
-                   class="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center text-sky-500 border border-white/10">
-
-                    <i class="fa-solid fa-plus text-xs"></i>
-
-                </a>
-
-            {% else %}
-
-                <a href="{% url 'account_login' %}"
-                   class="text-[9px] font-black text-white uppercase tracking-widest px-2">
-
-                    Login
-
-                </a>
-
-            {% endif %}
-
-        </div>
-
-    </div>
-
-    <!-- NAVIGATION -->
-    <div class="w-full sm:w-auto overflow-visible py-1">
-
-        <div class="flex items-center justify-center sm:justify-start gap-6 md:gap-8 text-[9px] md:text-[10px] font-black uppercase tracking-[0.2em] text-slate-300 whitespace-nowrap px-2">
-
-            <!-- ACQUIRE -->
-            <div class="relative group overflow-visible">
-
-                <button type="button"
-                        class="hover:text-sky-400 transition flex items-center gap-1.5 cursor-pointer">
-
-                    Acquire
-
-                    <i class="fa-solid fa-chevron-down text-[7px] transition-transform duration-300 group-hover:rotate-180"></i>
-
-                </button>
-
-                <!-- DROPDOWN -->
-                <div class="absolute left-1/2 sm:left-0 -translate-x-1/2 sm:translate-x-0 top-full mt-4 z-[9999] w-52 rounded-2xl border border-white/10 bg-slate-950/95 backdrop-blur-2xl shadow-2xl overflow-hidden opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200">
-
-                    <a href="{% url 'rental_list' %}?type=VILLA"
-                       class="flex items-center gap-3 px-5 py-4 hover:bg-sky-500 hover:text-white transition-colors">
-
-                        <i class="fa-solid fa-hotel text-sky-400 text-[10px]"></i>
-                        Villas
-
-                    </a>
-
-                    <a href="{% url 'rental_list' %}?type=SHOWROOM"
-                       class="flex items-center gap-3 px-5 py-4 hover:bg-sky-500 hover:text-white transition-colors">
-
-                        <i class="fa-solid fa-store text-sky-400 text-[10px]"></i>
-                        Shops
-
-                    </a>
-
-                    <a href="{% url 'rental_list' %}?type=HOUSE"
-                       class="flex items-center gap-3 px-5 py-4 hover:bg-sky-500 hover:text-white transition-colors">
-
-                        <i class="fa-solid fa-house text-sky-400 text-[10px]"></i>
-                        Houses
-
-                    </a>
-
-                </div>
-
-            </div>
-
-            <!-- RENT -->
-            <div class="relative group overflow-visible">
-
-                <button type="button"
-                        class="hover:text-sky-400 transition flex items-center gap-1.5 cursor-pointer">
-
-                    Rent
-
-                    <i class="fa-solid fa-chevron-down text-[7px] transition-transform duration-300 group-hover:rotate-180"></i>
-
-                </button>
-
-                <!-- DROPDOWN -->
-                <div class="absolute left-1/2 sm:left-0 -translate-x-1/2 sm:translate-x-0 top-full mt-4 z-[9999] w-52 rounded-2xl border border-white/10 bg-slate-950/95 backdrop-blur-2xl shadow-2xl overflow-hidden opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200">
-
-                    <a href="{% url 'rental_list' %}?type=1BHK"
-                       class="flex items-center gap-3 px-5 py-4 hover:bg-sky-500 hover:text-white transition-colors">
-
-                        <i class="fa-solid fa-door-closed text-sky-400 text-[10px]"></i>
-                        1 BHK
-
-                    </a>
-
-                    <a href="{% url 'rental_list' %}?type=2BHK"
-                       class="flex items-center gap-3 px-5 py-4 hover:bg-sky-500 hover:text-white transition-colors">
-
-                        <i class="fa-solid fa-door-open text-sky-400 text-[10px]"></i>
-                        2 BHK
-
-                    </a>
-
-                    <a href="{% url 'rental_list' %}?type=PG"
-                       class="flex items-center gap-3 px-5 py-4 hover:bg-sky-500 hover:text-white transition-colors">
-
-                        <i class="fa-solid fa-bed text-sky-400 text-[10px]"></i>
-                        PGs
-
-                    </a>
-
-                </div>
-
-            </div>
-
-            <!-- ABOUT -->
-            <a href="{% url 'about' %}"
-               class="hover:text-sky-400 transition">
-
-                About
-
-            </a>
-
-        </div>
-
-    </div>
-
-    <!-- DESKTOP AUTH -->
-    <div class="hidden sm:flex items-center gap-4">
-
-        {% if user.is_authenticated %}
-
-            <div class="relative group">
-
-                <button class="flex items-center gap-3 p-1 outline-none">
-
-                    <div class="w-8 h-8 rounded-full bg-gradient-to-tr from-sky-500 to-blue-600 flex items-center justify-center text-white border border-white/20 shadow-lg group-hover:scale-105 transition-transform">
-
-                        <span class="text-[10px] font-black">
-
-                            {{ user.email|slice:":1"|upper }}
-
+                        Rental
+                        <span class="text-sky-500 group-hover:text-sky-400 transition-colors duration-300">
+                            Pro
                         </span>
 
-                    </div>
+                    </h1>
 
-                </button>
+                </a>
 
-                <!-- USER MENU -->
-                <div class="absolute right-0 top-full pt-4 hidden group-hover:block animate-fade-in z-[9999]">
+                <!-- MOBILE ACTIONS -->
+                <div class="flex items-center gap-2 lg:hidden">
 
-                    <div class="bg-slate-900/95 backdrop-blur-2xl border border-white/10 rounded-2xl shadow-2xl w-52 overflow-hidden">
+                    {% if user.is_authenticated %}
 
                         <a href="{% url 'rental_create' %}"
-                           class="flex items-center gap-3 px-5 py-4 text-[9px] font-black uppercase tracking-widest text-slate-300 hover:bg-white/5 hover:text-white transition">
+                           class="w-9 h-9 rounded-full bg-sky-500 text-white flex items-center justify-center shadow-lg hover:bg-sky-400 transition">
 
-                            <i class="fa-solid fa-user-gear text-sky-500"></i>
-                            List Space
+                            <i class="fa-solid fa-plus text-xs"></i>
 
                         </a>
 
-                        <form method="post" action="{% url 'account_logout' %}" class="border-t border-white/5">
+                    {% else %}
 
-                            {% csrf_token %}
+                        <a href="{% url 'account_login' %}"
+                           class="px-4 py-2 rounded-full border border-white/10 bg-white/5 text-white text-[10px] font-bold uppercase tracking-wider hover:border-sky-500 hover:text-sky-400 transition">
 
-                            <button type="submit"
-                                    class="w-full flex items-center gap-3 px-5 py-4 text-[9px] font-black uppercase tracking-widest text-red-400 hover:bg-red-500/10 transition text-left">
+                            Login
 
-                                <i class="fa-solid fa-power-off"></i>
-                                Logout
+                        </a>
 
-                            </button>
-
-                        </form>
-
-                    </div>
+                    {% endif %}
 
                 </div>
 
             </div>
 
-        {% else %}
+            <!-- CENTER NAV -->
+            <div class="flex-1 flex justify-center">
 
-            <div class="flex items-center gap-2">
+                <div class="flex flex-wrap items-center justify-center gap-x-5 gap-y-3 text-[10px] sm:text-[11px] font-black uppercase tracking-[0.18em] text-slate-300">
 
-                <a href="{% url 'account_login' %}"
-                   class="px-4 py-2 text-[9px] font-black text-white uppercase tracking-widest hover:text-sky-400 transition">
+                    <!-- ACQUIRE -->
+                    <div class="relative group">
 
-                    Login
+                        <button type="button"
+                                class="flex items-center gap-2 hover:text-sky-400 transition duration-300">
 
-                </a>
+                            Acquire
 
-                <a href="{% url 'register' %}"
-                   class="px-5 py-2 text-[9px] bg-sky-500 hover:bg-sky-400 text-white rounded-full font-black uppercase tracking-widest transition-all">
+                            <i class="fa-solid fa-chevron-down text-[8px] transition-transform duration-300 group-hover:rotate-180"></i>
 
-                    Sign Up
+                        </button>
 
-                </a>
+                        <!-- DROPDOWN -->
+                        <div class="absolute left-1/2 -translate-x-1/2 lg:left-0 lg:translate-x-0 top-full pt-4 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-[9999]">
+
+                            <div class="w-56 rounded-2xl border border-white/10 bg-slate-950/95 backdrop-blur-2xl shadow-2xl overflow-hidden">
+
+                                <a href="{% url 'rental_list' %}?type=VILLA"
+                                   class="dropdown-item">
+
+                                    <i class="fa-solid fa-hotel text-sky-400 text-xs"></i>
+                                    Villas
+
+                                </a>
+
+                                <a href="{% url 'rental_list' %}?type=SHOWROOM"
+                                   class="dropdown-item">
+
+                                    <i class="fa-solid fa-store text-sky-400 text-xs"></i>
+                                    Shops
+
+                                </a>
+
+                                <a href="{% url 'rental_list' %}?type=HOUSE"
+                                   class="dropdown-item">
+
+                                    <i class="fa-solid fa-house text-sky-400 text-xs"></i>
+                                    Houses
+
+                                </a>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                    <!-- RENT -->
+                    <div class="relative group">
+
+                        <button type="button"
+                                class="flex items-center gap-2 hover:text-sky-400 transition duration-300">
+
+                            Rent
+
+                            <i class="fa-solid fa-chevron-down text-[8px] transition-transform duration-300 group-hover:rotate-180"></i>
+
+                        </button>
+
+                        <!-- DROPDOWN -->
+                        <div class="absolute left-1/2 -translate-x-1/2 lg:left-0 lg:translate-x-0 top-full pt-4 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-[9999]">
+
+                            <div class="w-56 rounded-2xl border border-white/10 bg-slate-950/95 backdrop-blur-2xl shadow-2xl overflow-hidden">
+
+                                <a href="{% url 'rental_list' %}?type=1BHK"
+                                   class="dropdown-item">
+
+                                    <i class="fa-solid fa-door-closed text-sky-400 text-xs"></i>
+                                    1 BHK
+
+                                </a>
+
+                                <a href="{% url 'rental_list' %}?type=2BHK"
+                                   class="dropdown-item">
+
+                                    <i class="fa-solid fa-door-open text-sky-400 text-xs"></i>
+                                    2 BHK
+
+                                </a>
+
+                                <a href="{% url 'rental_list' %}?type=PG"
+                                   class="dropdown-item">
+
+                                    <i class="fa-solid fa-bed text-sky-400 text-xs"></i>
+                                    PGs
+
+                                </a>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                    <!-- ABOUT -->
+                    <a href="{% url 'about' %}"
+                       class="hover:text-sky-400 transition duration-300">
+
+                        About
+
+                    </a>
+
+                </div>
 
             </div>
 
-        {% endif %}
+            <!-- DESKTOP AUTH -->
+            <div class="hidden lg:flex items-center">
+
+                {% if user.is_authenticated %}
+
+                    <div class="relative group">
+
+                        <button class="flex items-center gap-3">
+
+                            <div class="w-10 h-10 rounded-full bg-gradient-to-tr from-sky-500 to-blue-600 border border-white/20 shadow-xl flex items-center justify-center text-white font-black text-xs">
+
+                                {{ user.email|slice:":1"|upper }}
+
+                            </div>
+
+                        </button>
+
+                        <!-- USER DROPDOWN -->
+                        <div class="absolute right-0 top-full pt-4 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-[9999]">
+
+                            <div class="w-56 rounded-2xl border border-white/10 bg-slate-950/95 backdrop-blur-2xl shadow-2xl overflow-hidden">
+
+                                <a href="{% url 'rental_create' %}"
+                                   class="dropdown-item">
+
+                                    <i class="fa-solid fa-plus text-sky-400"></i>
+                                    List Space
+
+                                </a>
+
+                                <form method="post"
+                                      action="{% url 'account_logout' %}"
+                                      class="border-t border-white/5">
+
+                                    {% csrf_token %}
+
+                                    <button type="submit"
+                                            class="w-full dropdown-item text-red-400 hover:bg-red-500/10">
+
+                                        <i class="fa-solid fa-power-off"></i>
+                                        Logout
+
+                                    </button>
+
+                                </form>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                {% else %}
+
+                    <div class="flex items-center gap-3">
+
+                        <a href="{% url 'account_login' %}"
+                           class="px-4 py-2 text-[11px] font-bold uppercase tracking-wider text-white hover:text-sky-400 transition">
+
+                            Login
+
+                        </a>
+
+                        <a href="{% url 'register' %}"
+                           class="px-5 py-2.5 rounded-full bg-sky-500 hover:bg-sky-400 text-white text-[11px] font-black uppercase tracking-wider transition shadow-lg shadow-sky-500/20">
+
+                            Sign Up
+
+                        </a>
+
+                    </div>
+
+                {% endif %}
+
+            </div>
+
+        </div>
 
     </div>
 
@@ -231,31 +245,44 @@
 
 <style>
 
-    .no-scrollbar::-webkit-scrollbar {
-        display: none;
+    .dropdown-item{
+        display:flex;
+        align-items:center;
+        gap:0.8rem;
+        padding:1rem 1.25rem;
+        font-size:0.72rem;
+        font-weight:800;
+        letter-spacing:0.12em;
+        text-transform:uppercase;
+        color:#cbd5e1;
+        transition:all 0.25s ease;
     }
 
-    .no-scrollbar {
-        -ms-overflow-style: none;
-        scrollbar-width: none;
+    .dropdown-item:hover{
+        background:#0ea5e9;
+        color:white;
     }
 
-    @keyframes fade-in {
+    @media (max-width:640px){
 
-        from {
-            opacity: 0;
-            transform: translateY(10px);
+        nav{
+            transform:scale(0.98);
+            transform-origin:top center;
         }
 
-        to {
-            opacity: 1;
-            transform: translateY(0);
-        }
-
     }
 
-    .animate-fade-in {
-        animation: fade-in 0.2s ease-out forwards;
+    @media (max-width:420px){
+
+        nav{
+            transform:scale(0.95);
+        }
+
+        .dropdown-item{
+            font-size:0.68rem;
+            padding:0.9rem 1rem;
+        }
+
     }
 
 </style>
