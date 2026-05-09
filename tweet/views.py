@@ -136,12 +136,10 @@ def rental_delete(request, rental_id):
 @login_required
 def rental_contact(request, rental_id):
     """
-    Handles the request to view contact details for a rental.
+    Renders a detailed contact page for a specific rental property.
     """
     rental = get_object_or_404(Rental, pk=rental_id)
-    # This is a simple implementation. You might want to return a JSON response
-    # for an AJAX call or render a partial template.
-    return HttpResponse(f"Contact: {rental.contact}")
+    return render(request, 'rental_contact.html', {'rental': rental})
 
 # ================= DETAIL & AUTH =================
 def room_describe(request, rental_id):
