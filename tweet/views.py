@@ -21,7 +21,12 @@ def index(request):
 
 # ================= SEARCH / LIST =================
 def rental_list(request):
-    rentals = Rental.objects.all().order_by('-created_at')
+    # Optimized query to prevent the N+1 problem.
+    # .select_related('user') fetches the associated user for each rental
+    # in the initial database query. This avoids making a separate DB call
+    # for every single rental when accessing `rental.user` in the template,
+    # drastically improving performance.
+    rentals = Rental.objects.select_related('user').all().order_by('-created_at')
 
     location_query = request.GET.get('location', '').strip()
     type_query = request.GET.get('type', '').strip()
