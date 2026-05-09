@@ -17,7 +17,7 @@
                     <i class="fa-solid fa-plus text-xs"></i>
                 </a>
             {% else %}
-                <a href="{% url 'login' %}" class="text-[9px] font-black text-white uppercase tracking-widest px-2">Login</a>
+                <a href="{% url 'account_login' %}" class="text-[9px] font-black text-white uppercase tracking-widest px-2">Login</a>
             {% endif %}
         </div>
     </div>
@@ -86,7 +86,7 @@
                         <a href="{% url 'rental_create' %}" class="flex items-center gap-3 px-5 py-3 text-[9px] font-black uppercase tracking-widest text-slate-300 hover:bg-white/5 hover:text-white transition">
                             <i class="fa-solid fa-user-gear text-sky-500"></i> List Space
                         </a>
-                        <form method="post" action="{% url 'logout' %}" class="border-t border-white/5">
+                        <form method="post" action="{% url 'account_logout' %}" class="border-t border-white/5">
                             {% csrf_token %}
                             <button type="submit" class="w-full flex items-center gap-3 px-5 py-3 text-[9px] font-black uppercase tracking-widest text-red-400 hover:bg-red-500/10 transition text-left">
                                 <i class="fa-solid fa-power-off"></i> Logout
@@ -97,7 +97,7 @@
             </div>
         {% else %}
             <div class="flex items-center gap-2">
-                <a href="{% url 'login' %}" class="px-4 py-2 text-[9px] font-black text-white uppercase tracking-widest hover:text-sky-400 transition">Login</a>
+                <a href="{% url 'account_login' %}" class="px-4 py-2 text-[9px] font-black text-white uppercase tracking-widest hover:text-sky-400 transition">Login</a>
                 <a href="{% url 'register' %}" class="px-5 py-2 text-[9px] bg-sky-500 hover:bg-sky-400 text-white rounded-full font-black uppercase tracking-widest transition-all">Sign Up</a>
             </div>
         {% endif %}
