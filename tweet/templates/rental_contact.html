@@ -25,43 +25,58 @@
                         <i class="fa-solid fa-location-dot text-sky-500"></i> {{ rental.location }}
                     </div>
                 </div>
-                {% endif %}
 
-                <div class="glass-card p-8 rounded-[2rem] border-white/5 bg-sky-500/5">
-                    <p class="text-[10px] font-black text-sky-500 uppercase tracking-[0.3em] mb-4 text-center italic">Verified Support</p>
+                <div class="glass-card p-8 rounded-[2rem] border-white/5 bg-sky-500/5 space-y-6">
+                    <p class="text-[10px] font-black text-sky-500 uppercase tracking-[0.3em] mb-4 text-center italic">Verified Owner Details</p>
+                    
                     <div class="space-y-4">
-                        <div class="flex items-center gap-4 text-white font-medium">
-                            <i class="fa-solid fa-phone-volume text-sky-500"></i> +91 98765-43210
-                        </div>
-                        <div class="flex items-center gap-4 text-white font-medium">
-                            <i class="fa-solid fa-envelope-open-text text-sky-500"></i> concierge@rentalpro.com
+                        <a href="mailto:{{ rental.user.email }}?subject=Inquiry regarding {{ rental.title }}" 
+                           class="flex items-center gap-4 p-4 rounded-2xl bg-white/5 border border-white/5 hover:border-sky-500/50 hover:bg-sky-500/10 transition-all group">
+                            <div class="w-10 h-10 rounded-xl bg-sky-500/20 flex items-center justify-center text-sky-500">
+                                <i class="fa-solid fa-envelope-open-text"></i>
+                            </div>
+                            <div>
+                                <p class="text-[8px] font-black text-slate-500 uppercase tracking-widest">Send Direct Email</p>
+                                <p class="text-white font-bold text-sm group-hover:text-sky-400 transition-colors">{{ rental.user.email }}</p>
+                            </div>
+                        </a>
+
+                        <div class="flex items-center gap-4 p-4">
+                            <div class="w-10 h-10 rounded-xl bg-sky-500/20 flex items-center justify-center text-sky-500">
+                                <i class="fa-solid fa-user-tie"></i>
+                            </div>
+                            <div>
+                                <p class="text-[8px] font-black text-slate-500 uppercase tracking-widest">Listing Agent</p>
+                                <p class="text-white font-bold text-sm">{{ rental.user.first_name }} {{ rental.user.last_name }}</p>
+                            </div>
                         </div>
                     </div>
                 </div>
+                {% endif %}
             </div>
 
             <div class="glass-card p-8 md:p-12 rounded-[2.5rem] border-white/10 shadow-2xl">
                 {% if success %}
-                <div class="text-center py-10 animate-fade-in">
-                    <div class="w-20 h-20 bg-sky-500/20 text-sky-500 rounded-full flex items-center justify-center mx-auto mb-6 text-3xl">
+                <div class="text-center py-10">
+                    <div class="w-20 h-20 bg-sky-500/20 text-sky-500 rounded-full flex items-center justify-center mx-auto mb-6 text-3xl animate-bounce">
                         <i class="fa-solid fa-paper-plane"></i>
                     </div>
                     <h3 class="text-2xl font-black text-white mb-2">Request Sent!</h3>
-                    <p class="text-slate-400">The owner will contact you on your registered email shortly.</p>
-                    <a href="{% url 'index' %}" class="mt-8 inline-block px-10 py-4 bg-sky-600 text-white font-black rounded-xl hover:bg-sky-500 transition-all">Back to Home</a>
+                    <p class="text-slate-400">The owner has been notified of your interest.</p>
+                    <a href="{% url 'index' %}" class="mt-8 inline-block px-10 py-4 bg-sky-600 text-white font-black rounded-xl">Back to Home</a>
                 </div>
                 {% else %}
                 <form method="POST" class="space-y-6">
                     {% csrf_token %}
                     <div class="space-y-2">
-                        <label class="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Full Name</label>
-                        <input type="text" name="name" required class="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-4 text-white focus:border-sky-500 outline-none transition-all" placeholder="Vassu Dev">
+                        <label class="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Your Full Name</label>
+                        <input type="text" name="name" value="{{ request.user.first_name }} {{ request.user.last_name }}" required class="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-4 text-white focus:border-sky-500 outline-none transition-all">
                     </div>
                     <div class="space-y-2">
-                        <label class="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Message</label>
-                        <textarea name="message" rows="4" required class="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-4 text-white focus:border-sky-500 outline-none transition-all" placeholder="I am interested in this property. Please call me back."></textarea>
+                        <label class="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Message to Owner</label>
+                        <textarea name="message" rows="4" required class="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-4 text-white focus:border-sky-500 outline-none transition-all">I am interested in "{{ rental.title }}". Please share more details.</textarea>
                     </div>
-                    <button type="submit" class="w-full py-5 bg-sky-600 hover:bg-sky-500 text-white font-black rounded-2xl transition-all shadow-xl shadow-sky-600/20">
+                    <button type="submit" class="w-full py-5 bg-sky-600 hover:bg-sky-500 text-white font-black rounded-2xl transition-all shadow-xl shadow-sky-600/20 active:scale-95">
                         CONFIRM INQUIRY
                     </button>
                 </form>
