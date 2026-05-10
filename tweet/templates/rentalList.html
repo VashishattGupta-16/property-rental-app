@@ -1,98 +1,64 @@
-<!-- COMPACT COMMERCIAL GRID -->
+{% extends "layout.html" %}
+{% load static %}
+{% load media_urls %}
+
+{% block content %}
+
 <section class="max-w-7xl mx-auto py-12 px-3 sm:px-4">
 
     <!-- HEADER -->
     <div class="flex items-center gap-4 mb-8 sm:mb-10">
-        <h2 class="text-xl sm:text-2xl font-black text-white tracking-tight uppercase whitespace-nowrap">
-            {% if request.GET.owner == 'me' %}
-                My Properties
-            {% else %}
-                Available Listings
-            {% endif %}
+        <h2 class="text-xl sm:text-2xl font-black text-white tracking-tight uppercase">
+            Available Listings
         </h2>
-
         <div class="h-[1px] flex-grow bg-gradient-to-r from-blue-500/50 to-transparent"></div>
     </div>
 
-    <!-- GRID (2 columns mobile) -->
+    <!-- GRID -->
     <div class="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-5 lg:gap-6">
 
         {% for rental in rentals %}
 
-        <article class="rental-card group relative glass-card rounded-2xl overflow-hidden border border-white/5 transition-all duration-300 hover:border-blue-500/30 hover:-translate-y-1 hover:shadow-2xl hover:shadow-blue-500/10">
-
-            <!-- OWNER TOOLS (FIXED SAFE CONDITION) -->
-            {% if user.is_authenticated %}
-                {% if rental.user == user or user.is_staff %}
-
-                <div class="absolute top-2 right-2 z-30 flex gap-2 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity">
-
-                    <a href="{% url 'rental_edit' rental.id %}"
-                       class="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-slate-900/90 backdrop-blur-md border border-white/10 flex items-center justify-center text-white hover:bg-blue-600 transition-all shadow-xl">
-
-                        <i class="fa-solid fa-pen text-[9px] sm:text-[10px]"></i>
-
-                    </a>
-
-                    <form method="POST"
-                          action="{% url 'rental_delete' rental.id %}"
-                          onsubmit="return confirm('Delete this listing?')">
-
-                        {% csrf_token %}
-
-                        <button type="submit"
-                                class="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-slate-900/90 backdrop-blur-md border border-white/10 flex items-center justify-center text-red-400 hover:bg-red-600 hover:text-white transition-all shadow-xl">
-
-                            <i class="fa-solid fa-trash text-[9px] sm:text-[10px]"></i>
-
-                        </button>
-
-                    </form>
-
-                </div>
-
-                {% endif %}
-            {% endif %}
+        <article class="group glass-card rounded-2xl overflow-hidden border border-white/5 transition-all duration-300 hover:border-blue-500/30 hover:-translate-y-1">
 
             <!-- IMAGE -->
             <div class="relative h-32 sm:h-40 lg:h-44 overflow-hidden">
 
                 {% if rental.image %}
-
-                <img src="{{ rental.image|optimized_cloudinary_url:'f_auto,q_auto,c_fill,w_600,h_400' }}"
-                     class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-                     alt="{{ rental.title }}">
-
+                    <img src="{{ rental.image|optimized_cloudinary_url:'f_auto,q_auto,c_fill,w_600,h_400' }}"
+                         class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+                         alt="{{ rental.title }}">
                 {% else %}
-
-                <div class="w-full h-full bg-slate-800 flex items-center justify-center text-[10px] text-slate-500 font-bold uppercase tracking-widest">
-                    No Image
-                </div>
-
+                    <div class="w-full h-full bg-slate-800 flex items-center justify-center text-slate-500 text-[10px] font-bold uppercase">
+                        No Image
+                    </div>
                 {% endif %}
 
                 <!-- BADGE -->
-                <div class="absolute bottom-2 left-2 bg-blue-600 text-[7px] sm:text-[8px] font-black text-white px-2 py-1 rounded uppercase shadow-lg">
-                    {{ rental.property_type }}
+                <div class="absolute bottom-2 left-2 bg-blue-600 text-[7px] sm:text-[8px] font-black text-white px-2 py-1 rounded">
+                    {{ rental.property_type|default:"Property" }}
                 </div>
 
-                <!-- OVERLAY -->
-                <div class="absolute inset-0 bg-gradient-to-t from-slate-950/60 via-transparent to-transparent"></div>
+                <!-- GRADIENT -->
+                <div class="absolute inset-0 bg-gradient-to-t from-slate-950/70 to-transparent"></div>
 
             </div>
 
             <!-- CONTENT -->
             <div class="p-3 sm:p-4 lg:p-5">
 
-                <h3 class="text-sm sm:text-base font-bold text-white truncate mb-1 leading-tight">
-                    {{ rental.title }}
+                <!-- TITLE -->
+                <h3 class="text-sm sm:text-base font-bold text-white truncate mb-1">
+                    {{ rental.title|default:"Untitled Property" }}
                 </h3>
 
+                <!-- LOCATION -->
                 <p class="text-slate-400 text-[10px] sm:text-[11px] flex items-center gap-1.5 mb-3 truncate">
                     <i class="fa-solid fa-location-dot text-blue-500 text-[9px]"></i>
-                    {{ rental.location }}
+                    {{ rental.location|default:"Location not available" }}
                 </p>
 
+                <!-- FOOTER -->
                 <div class="flex justify-between items-center border-t border-white/5 pt-3 sm:pt-4">
 
                     <div>
@@ -101,12 +67,12 @@
                         </p>
 
                         <span class="text-sm sm:text-lg font-black text-white">
-                            ₹{{ rental.price }}
+                            ₹{{ rental.price|default:"0" }}
                         </span>
                     </div>
 
                     <a href="{% url 'room_describe' rental.id %}"
-                       class="w-8 h-8 sm:w-9 sm:h-9 rounded-full border border-white/10 bg-white/5 backdrop-blur-md flex items-center justify-center hover:bg-blue-600 hover:text-white transition-all active:scale-95">
+                       class="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-white/5 border border-white/10 flex items-center justify-center hover:bg-blue-600 transition active:scale-95">
 
                         <i class="fa-solid fa-arrow-right text-[10px] sm:text-xs"></i>
 
@@ -117,6 +83,15 @@
             </div>
 
         </article>
+
+        {% empty %}
+
+        <!-- EMPTY STATE -->
+        <div class="col-span-full text-center py-20">
+            <p class="text-slate-500 font-bold uppercase tracking-widest text-sm">
+                No listings available
+            </p>
+        </div>
 
         {% endfor %}
 
@@ -130,10 +105,6 @@
     backdrop-filter: blur(22px);
     -webkit-backdrop-filter: blur(22px);
 }
-
-@media (max-width: 640px) {
-    .rental-card {
-        border-radius: 1.25rem;
-    }
-}
 </style>
+
+{% endblock %}
