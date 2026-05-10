@@ -74,10 +74,13 @@ class RentalForm(forms.ModelForm):
                     # The main select text should be white.
                     field.widget.attrs["class"] += " text-white"
 
-                label = field.label or name.replace("_", " ")
+                label = field.label or name.replace("_", " ").title()
+                if field.required:
+                    field.label = f"{label}*"
+                    field.widget.attrs["aria-required"] = "true"
+
                 field.widget.attrs.setdefault(
-                    "placeholder",
-                    f"Enter {label.lower()}..."
+                    "placeholder", f"Enter {label.lower()}..."
                 )
 
 
@@ -157,8 +160,11 @@ class UserRegisteration(UserCreationForm):
         for name, field in self.fields.items():
             field.widget.attrs["class"] = auth_classes
 
-            label = field.label or name.replace("_", " ")
+            label = field.label or name.replace("_", " ").title()
+            if field.required:
+                field.label = f"{label}*"
+                field.widget.attrs["aria-required"] = "true"
+
             field.widget.attrs.setdefault(
-                "placeholder",
-                f"Enter {label.lower()}..."
+                "placeholder", f"Enter {label.lower()}..."
             )
