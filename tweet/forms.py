@@ -6,6 +6,17 @@ from .models import Rental, CustomUser, RentalImage
 
 
 # =========================
+# CUSTOM WIDGETS
+# =========================
+class ColorStyledSelect(forms.Select):
+   
+    def create_option(self, name, value, label, selected, index, subindex=None, attrs=None):
+        option = super().create_option(name, value, label, selected, index, subindex, attrs)
+        # Force dropdown options to be black for readability against a white background.
+        option['attrs']['style'] = 'color: black; background-color: white;'
+        return option
+
+# =========================
 # RENTAL FORM
 # =========================
 class RentalForm(forms.ModelForm):
@@ -41,6 +52,7 @@ class RentalForm(forms.ModelForm):
             "description": forms.Textarea(attrs={"rows": 4}),
             "price": forms.NumberInput(),
             "sqft": forms.NumberInput(),
+            "property_type": ColorStyledSelect(),
         }
 
     def __init__(self, *args, **kwargs):
@@ -59,9 +71,8 @@ class RentalForm(forms.ModelForm):
                     field.widget.attrs["class"] = base_classes
 
                 if name == "property_type":
-                    # Ensure the property type dropdown text is always readable
+                    # The main select text should be white.
                     field.widget.attrs["class"] += " text-white"
-                    field.widget.attrs["style"] = "color: black;"
 
                 label = field.label or name.replace("_", " ")
                 field.widget.attrs.setdefault(
