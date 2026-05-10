@@ -3,7 +3,22 @@
         
         <div class="grid grid-cols-2 lg:grid-cols-3 items-center px-4 sm:px-6 py-4">
 
-            <div class="flex justify-start">
+            <div class="flex justify-start items-center gap-3">
+                <div class="relative group sm:hidden">
+                    <button type="button" class="w-10 h-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-white outline-none active:bg-sky-500/20 transition-all">
+                        <i class="fa-solid fa-bars-staggered text-sm"></i>
+                    </button>
+                    
+                    <div class="absolute left-0 top-full pt-4 opacity-0 invisible group-hover:opacity-100 group-hover:visible group-active:opacity-100 group-active:visible transition-all duration-200 z-[9999]">
+                        <div class="w-64 rounded-2xl border border-white/10 bg-slate-950/95 backdrop-blur-2xl shadow-2xl overflow-hidden p-2 space-y-1">
+                            <p class="text-[8px] font-black text-slate-500 uppercase tracking-[0.2em] px-4 py-2">Explore RentalPro</p>
+                            <a href="{% url 'rental_list' %}?category=acquire" class="dropdown-item rounded-xl"><i class="fa-solid fa-building-circle-check text-sky-500"></i> Acquire</a>
+                            <a href="{% url 'rental_list' %}?category=rent" class="dropdown-item rounded-xl"><i class="fa-solid fa-key text-sky-500"></i> Rent</a>
+                            <a href="{% url 'about' %}" class="dropdown-item rounded-xl"><i class="fa-solid fa-circle-info text-sky-500"></i> About Us</a>
+                        </div>
+                    </div>
+                </div>
+
                 <a href="{% url 'index' %}" class="flex items-center shrink-0 group">
                     <h1 class="text-xl sm:text-2xl font-black tracking-tight text-white leading-none">
                         Rental<span class="text-sky-500 group-hover:text-sky-400 transition-colors duration-300">Pro</span>
@@ -17,10 +32,12 @@
                         Acquire <i class="fa-solid fa-chevron-down text-[8px] transition-transform duration-300 group-hover:rotate-180"></i>
                     </button>
                     <div class="absolute left-1/2 -translate-x-1/2 top-full pt-4 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-[9999]">
-                        <div class="w-48 rounded-2xl border border-white/10 bg-slate-950/95 backdrop-blur-2xl shadow-2xl overflow-hidden">
+                        <div class="w-56 rounded-2xl border border-white/10 bg-slate-950/95 backdrop-blur-2xl shadow-2xl overflow-hidden">
                             <a href="{% url 'rental_list' %}?type=VILLA" class="dropdown-item">Villas</a>
                             <a href="{% url 'rental_list' %}?type=SHOWROOM" class="dropdown-item">Shops</a>
-                        </a>
+                            <a href="{% url 'rental_list' %}?type=APARTMENT" class="dropdown-item">Apartments</a>
+                            <a href="{% url 'rental_list' %}?type=INDUSTRIAL_PLOT" class="dropdown-item">Industrial Plots</a>
+                            <a href="{% url 'rental_list' %}?type=HOUSE" class="dropdown-item">Houses</a>
                         </div>
                     </div>
                 </div>
@@ -30,13 +47,14 @@
                         Rent <i class="fa-solid fa-chevron-down text-[8px] transition-transform duration-300 group-hover:rotate-180"></i>
                     </button>
                     <div class="absolute left-1/2 -translate-x-1/2 top-full pt-4 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-[9999]">
-                        <div class="w-48 rounded-2xl border border-white/10 bg-slate-950/95 backdrop-blur-2xl shadow-2xl overflow-hidden">
+                        <div class="w-56 rounded-2xl border border-white/10 bg-slate-950/95 backdrop-blur-2xl shadow-2xl overflow-hidden">
                             <a href="{% url 'rental_list' %}?type=1BHK" class="dropdown-item">1 BHK</a>
+                            <a href="{% url 'rental_list' %}?type=2BHK" class="dropdown-item">2 BHK</a>
+                            <a href="{% url 'rental_list' %}?type=3BHK" class="dropdown-item">3 BHK</a>
                             <a href="{% url 'rental_list' %}?type=PG" class="dropdown-item">PGs</a>
                         </div>
                     </div>
                 </div>
-
                 <a href="{% url 'about' %}" class="hover:text-sky-400 transition duration-300">About</a>
             </div>
 
@@ -48,16 +66,13 @@
                                 <p class="text-[9px] font-black text-white italic uppercase">{{ user.first_name|default:"Member" }}</p>
                                 <p class="text-[7px] text-sky-500 font-bold tracking-tighter uppercase">Elite Account</p>
                             </div>
-                            <div class="w-10 h-10 rounded-full bg-gradient-to-tr from-sky-500 to-blue-600 border border-white/20 shadow-xl flex items-center justify-center text-white font-black text-xs transition-transform group-hover:scale-105">
+                            <div class="w-10 h-10 rounded-full bg-gradient-to-tr from-sky-500 to-blue-600 border border-white/20 shadow-xl flex items-center justify-center text-white font-black text-xs transition-transform group-hover:scale-105 active:scale-95">
                                 {{ user.email|slice:":1"|upper }}
                             </div>
                         </button>
 
                         <div class="absolute right-0 top-full pt-4 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-[9999]">
                             <div class="w-56 rounded-2xl border border-white/10 bg-slate-950/95 backdrop-blur-2xl shadow-2xl overflow-hidden">
-                                <div class="px-5 py-3 border-b border-white/5 bg-white/[0.02] sm:hidden">
-                                    <p class="text-[8px] font-black text-slate-500 uppercase tracking-widest">{{ user.email }}</p>
-                                </div>
                                 <a href="{% url 'rental_create' %}" class="dropdown-item">
                                     <i class="fa-solid fa-plus text-sky-400"></i> List Space
                                 </a>
@@ -72,7 +87,7 @@
                     </div>
                 {% else %}
                     <a href="{% url 'account_login' %}" class="text-[10px] font-bold uppercase tracking-wider text-white hover:text-sky-400 transition">Login</a>
-                    <a href="{% url 'register' %}" class="px-5 py-2.5 rounded-full bg-sky-500 hover:bg-sky-400 text-white text-[10px] font-black uppercase transition shadow-lg shadow-sky-500/20">Join</a>
+                    <a href="{% url 'register' %}" class="px-5 py-2.5 rounded-full bg-sky-500 hover:bg-sky-400 text-white text-[10px] font-black uppercase transition shadow-lg shadow-sky-500/20 active:scale-95">Join</a>
                 {% endif %}
             </div>
         </div>
@@ -80,7 +95,6 @@
 </nav>
 
 <style>
-    /* DROPDOWN ITEM STYLING */
     .dropdown-item {
         display: flex;
         align-items: center;
@@ -99,11 +113,12 @@
         color: white;
     }
 
-    /* Prevent mobile hover issues */
+    /* Support for Android Tap */
     @media (hover: none) {
-        .group:active .dropdown-menu {
-            opacity: 1;
-            visibility: visible;
+        .group:active .dropdown-menu, 
+        .group:active > div {
+            opacity: 1 !important;
+            visibility: visible !important;
         }
     }
 </style>
