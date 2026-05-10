@@ -1,0 +1,55 @@
+{% extends "layout.html" %}
+{% load static %}
+
+{% block content %}
+
+<div class="min-h-screen py-16 px-4">
+
+    <div class="max-w-6xl mx-auto">
+
+        <h1 class="text-4xl font-black text-white mb-10">Your Wishlist</h1>
+
+        {% if wishlist %}
+
+        <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+
+            {% for item in wishlist %}
+            <div class="glass-card rounded-2xl overflow-hidden border border-white/10">
+
+                <img src="{{ item.rental.image.url }}" class="h-40 w-full object-cover">
+
+                <div class="p-5">
+                    <h3 class="text-white font-bold">{{ item.rental.title }}</h3>
+                    <p class="text-slate-400 text-sm">{{ item.rental.location }}</p>
+
+                    <div class="flex justify-between mt-4">
+                        <span class="text-sky-400 font-black">₹{{ item.rental.price }}</span>
+
+                        <a href="{% url 'room_describe' item.rental.id %}"
+                           class="text-xs text-white hover:text-sky-400 font-black">
+                            Open →
+                        </a>
+                    </div>
+                </div>
+
+            </div>
+            {% endfor %}
+
+        </div>
+
+        {% else %}
+            <p class="text-slate-500">Your wishlist is empty.</p>
+        {% endif %}
+
+    </div>
+
+</div>
+
+<style>
+.glass-card {
+    background: rgba(15, 23, 42, 0.65);
+    backdrop-filter: blur(22px);
+}
+</style>
+
+{% endblock %} 

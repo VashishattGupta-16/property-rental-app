@@ -148,3 +148,9 @@ class RentalImage(models.Model):
 
     def __str__(self):
         return f"Image for {self.rental.title}"
+
+#  whishlist
+class Wishlist(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    rental = models.ForeignKey(Rental, on_delete=models.CASCADE)
+    created_at = models.DateTimeField(auto_now_add=True)

@@ -8,21 +8,17 @@ from django.views.decorators.http import require_POST
 from .models import Rental
 from .forms import RentalForm, UserRegisteration, GalleryFormSet
 
+
 # ================= INDEX / HOME =================
 def index(request):
-    """
-    Renders the main landing page.
-    """
-    # This view renders a largely static landing page. The previous implementation
-    # was inefficiently querying all Rental objects without using them in the template.
     return render(request, 'index.html', {
         'hide_navbar': False,
         'hide_sidebar': True
     })
 
-# ================= SEARCH / LIST =================
+
+# ================= RENTAL LIST + SEARCH =================
 def rental_list(request):
-  
     rentals = Rental.objects.select_related('user').all().order_by('-created_at')
 
     location_query = request.GET.get('location', '').strip()
@@ -54,7 +50,8 @@ def rental_list(request):
         'search_params': request.GET
     })
 
-# ================= CREATE =================
+
+# ================= CREATE RENTAL =================
 @login_required
 def rental_create(request):
     if request.method == "POST":
@@ -63,13 +60,14 @@ def rental_create(request):
 
         if form.is_valid() and formset.is_valid():
             rental = form.save(commit=False)
-            rental.user = request.user  # Assigning the current logged-in user
+            rental.user = request.user
             rental.save()
 
             formset.instance = rental
             formset.save()
 
-            return redirect('index') # Redirecting to index to see the new card
+            return redirect('rental_list')
+
     else:
         form = RentalForm()
         formset = GalleryFormSet(prefix='gallery')
@@ -79,12 +77,12 @@ def rental_create(request):
         'formset': formset
     })
 
-# ================= EDIT =================
+
+# ================= EDIT RENTAL =================
 @login_required
 def rental_edit(request, rental_id):
-    # Security: Ensure only the owner (or staff) can access the edit view
     rental = get_object_or_404(Rental, pk=rental_id)
-    
+
     if rental.user != request.user and not request.user.is_staff:
         return redirect('index')
 
@@ -93,9 +91,9 @@ def rental_edit(request, rental_id):
         formset = GalleryFormSet(request.POST, request.FILES, instance=rental, prefix='gallery')
 
         if form.is_valid() and formset.is_valid():
-            rental = form.save()
+            form.save()
             formset.save()
-            return redirect('index')
+            return redirect('rental_list')
 
     else:
         form = RentalForm(instance=rental)
@@ -107,38 +105,26 @@ def rental_edit(request, rental_id):
         'rental': rental
     })
 
-# ================= DELETE =================
+
+# ================= DELETE RENTAL =================
 @login_required
 @require_POST
 def rental_delete(request, rental_id):
-    """
-    Handles property deletion. Validates ownership before purging.
-    This view is restricted to POST requests for security.
-    """
     rental = get_object_or_404(Rental, pk=rental_id)
-    
-    # Ownership firewall
+
     if rental.user != request.user and not request.user.is_staff:
         return HttpResponse('Forbidden', status=403)
 
     rental.delete()
-    return redirect('index')
+    return redirect('rental_list')
 
-# ================= CONTACT =================
+
+# ================= CONTACT RENTAL =================
 @login_required
 def rental_contact(request, rental_id):
-    """
-    Renders a detailed contact page for a specific rental property.
-    If reached via POST, simulates sending an inquiry.
-    """
     rental = get_object_or_404(Rental, pk=rental_id)
 
     if request.method == "POST":
-        # In a real application, you would process the form data here.
-        # For example:
-        # name = request.POST.get('name')
-        # message = request.POST.get('message')
-        # send_mail(...)
         return render(request, 'rental_contact.html', {
             'rental': rental,
             'success': True
@@ -146,11 +132,40 @@ def rental_contact(request, rental_id):
 
     return render(request, 'rental_contact.html', {'rental': rental})
 
-# ================= DETAIL & AUTH =================
+
+# ================= RENTAL DETAIL =================
 def room_describe(request, rental_id):
     rental = get_object_or_404(Rental, pk=rental_id)
     return render(request, 'room_describe.html', {'rental': rental})
 
+
+# ================= PROFILE =================
+@login_required
+def profile(request):
+    user = request.user
+    user_rentals = Rental.objects.filter(user=user).order_by('-created_at')
+
+    return render(request, 'profile.html', {
+        'user': user,
+        'rentals': user_rentals
+    })
+
+
+# ================= WISHLIST =================
+@login_required
+def wishlist(request):
+    """
+    Assumes User model has:
+    wishlist = ManyToManyField(Rental, blank=True)
+    """
+    wishlist_items = request.user.wishlist.all()
+
+    return render(request, 'wishlist.html', {
+        'wishlist_items': wishlist_items
+    })
+
+
+# ================= AUTH =================
 def register(request):
     if request.method == "POST":
         form = UserRegisteration(request.POST)
@@ -160,17 +175,18 @@ def register(request):
             return redirect('index')
     else:
         form = UserRegisteration()
+
     return render(request, 'registration/register.html', {'form': form})
 
+
 def logout_success(request):
-    """
-    Renders a page to inform the user they have been successfully logged out.
-    """
-    # Note: You will need to create the 'logout_success.html' template.
     return render(request, 'registration/logout_success.html')
 
+
+# ================= UTILITY =================
 def ping_view(request):
     return HttpResponse("pong", content_type="text/plain")
+
 
 def about(request):
     return render(request, 'about.html')
