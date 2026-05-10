@@ -11,8 +11,36 @@
                     <div class="dropdown-menu absolute left-0 top-full pt-4 opacity-0 invisible transition-all duration-200 z-[9999]">
                         <div class="w-64 rounded-2xl border border-white/10 bg-slate-950/95 backdrop-blur-2xl shadow-2xl overflow-hidden p-2 space-y-1">
                             <p class="text-[8px] font-black text-slate-500 uppercase tracking-[0.2em] px-4 py-2">Menu</p>
-                            <a href="{% url 'rental_list' %}?category=acquire" class="dropdown-item rounded-xl">Acquire</a>
-                            <a href="{% url 'rental_list' %}?category=rent" class="dropdown-item rounded-xl">Rent</a>
+                            
+                            <!-- Acquire Submenu -->
+                            <div>
+                                <button type="button" class="sub-dropdown-trigger w-full dropdown-item rounded-xl justify-between">
+                                    <span>Acquire</span>
+                                    <i class="fa-solid fa-chevron-right text-[8px] transition-transform"></i>
+                                </button>
+                                <div class="sub-dropdown-menu hidden pl-4 pt-1 space-y-1">
+                                    <a href="{% url 'rental_list' %}?type=VILLA" class="dropdown-item rounded-md">Villas</a>
+                                    <a href="{% url 'rental_list' %}?type=SHOWROOM" class="dropdown-item rounded-md">Shops</a>
+                                    <a href="{% url 'rental_list' %}?type=APARTMENT" class="dropdown-item rounded-md">Apartments</a>
+                                    <a href="{% url 'rental_list' %}?type=INDUSTRIAL_PLOT" class="dropdown-item rounded-md">Plots</a>
+                                    <a href="{% url 'rental_list' %}?type=HOUSE" class="dropdown-item rounded-md">Houses</a>
+                                </div>
+                            </div>
+
+                            <!-- Rent Submenu -->
+                            <div>
+                                <button type="button" class="sub-dropdown-trigger w-full dropdown-item rounded-xl justify-between">
+                                    <span>Rent</span>
+                                    <i class="fa-solid fa-chevron-right text-[8px] transition-transform"></i>
+                                </button>
+                                <div class="sub-dropdown-menu hidden pl-4 pt-1 space-y-1">
+                                    <a href="{% url 'rental_list' %}?type=1BHK" class="dropdown-item rounded-md">1 BHK</a>
+                                    <a href="{% url 'rental_list' %}?type=2BHK" class="dropdown-item rounded-md">2 BHK</a>
+                                    <a href="{% url 'rental_list' %}?type=3BHK" class="dropdown-item rounded-md">3 BHK</a>
+                                    <a href="{% url 'rental_list' %}?type=PG" class="dropdown-item rounded-md">PGs</a>
+                                </div>
+                            </div>
+
                             <a href="{% url 'about' %}" class="dropdown-item rounded-xl">About Us</a>
                         </div>
                     </div>
@@ -125,6 +153,21 @@
         // Close menu if user clicks anywhere else
         document.addEventListener('click', function() {
             document.querySelectorAll('.dropdown-menu').forEach(m => m.classList.remove('dropdown-show'));
+        });
+
+        // Handle nested dropdowns in mobile menu
+        const subTriggers = document.querySelectorAll('.sub-dropdown-trigger');
+        subTriggers.forEach(trigger => {
+            trigger.addEventListener('click', function(e) {
+                e.stopPropagation(); // Prevent the main menu from closing
+                
+                const subMenu = this.nextElementSibling;
+                const icon = this.querySelector('i');
+
+                // Toggle visibility and icon rotation
+                subMenu.classList.toggle('hidden');
+                icon.classList.toggle('rotate-90');
+            });
         });
     });
 </script>
