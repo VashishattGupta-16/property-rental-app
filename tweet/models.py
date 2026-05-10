@@ -7,9 +7,8 @@ from django.core.validators import RegexValidator
 from django.utils.text import slugify
 from django.utils.crypto import get_random_string
 
-# Cloudinary Imports
-from cloudinary.models import CloudinaryField
 from cloudinary_storage.storage import MediaCloudinaryStorage
+
 
 # =========================
 # VALIDATORS
@@ -20,10 +19,12 @@ def validate_image_size(value):
     if value.size > limit:
         raise ValidationError("File too large. Max size is 2MB.")
 
+
 phone_validator = RegexValidator(
     regex=r'^\+?\d{10,15}$',
     message="Enter a valid phone number (10–15 digits)."
 )
+
 
 # =========================
 # CUSTOM USER MANAGER
@@ -32,7 +33,7 @@ phone_validator = RegexValidator(
 class CustomUserManager(BaseUserManager):
     def create_user(self, email, password=None, **extra_fields):
         if not email:
-            raise ValueError("The Email field must be set")
+            raise ValueError("Email is required")
         email = self.normalize_email(email)
         user = self.model(email=email, **extra_fields)
         user.set_password(password)
@@ -44,15 +45,18 @@ class CustomUserManager(BaseUserManager):
         extra_fields.setdefault("is_superuser", True)
         return self.create_user(email, password, **extra_fields)
 
+
 # =========================
 # CUSTOM USER
 # =========================
 
 class CustomUser(AbstractUser):
     username = None
+
     email = models.EmailField(unique=True)
     first_name = models.CharField(max_length=150, blank=True)
     last_name = models.CharField(max_length=150, blank=True)
+
     phone_number = models.CharField(
         max_length=15,
         unique=True,
@@ -71,11 +75,13 @@ class CustomUser(AbstractUser):
             return f"{self.first_name} {self.last_name}".strip()
         return self.email
 
+
 # =========================
 # RENTAL MODEL
 # =========================
 
 class Rental(models.Model):
+
     class PropertyTypes(models.TextChoices):
         HOUSE = "HOUSE", "House"
         APARTMENT = "APARTMENT", "Apartment"
@@ -101,26 +107,27 @@ class Rental(models.Model):
     location = models.CharField(max_length=255)
     address = models.TextField(blank=True, null=True)
     property_type = models.CharField(max_length=50, choices=PropertyTypes.choices)
+
     furnishing = models.CharField(max_length=100, blank=True)
     sqft = models.PositiveIntegerField()
     floor = models.CharField(max_length=50, blank=True)
     facing = models.CharField(max_length=50, blank=True)
+
     is_available = models.BooleanField(default=True)
     bedrooms = models.PositiveIntegerField(default=1)
     bathrooms = models.PositiveIntegerField(default=1)
     security_deposit = models.DecimalField(max_digits=12, decimal_places=2, default=0)
-    
-    # Standardized ImageField for Cloudinary Storage
+
     image = models.ImageField(
-        upload_to='rentals/', 
-        storage=MediaCloudinaryStorage(), 
-        null=True, 
+        upload_to='rentals/',
+        storage=MediaCloudinaryStorage(),
+        null=True,
         blank=True,
         validators=[validate_image_size]
     )
 
     created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True) 
+    updated_at = models.DateTimeField(auto_now=True)
 
     def save(self, *args, **kwargs):
         if not self.slug:
@@ -130,8 +137,9 @@ class Rental(models.Model):
     def __str__(self):
         return self.title
 
+
 # =========================
-# RENTAL IMAGE MODEL (GALLERY)
+# RENTAL GALLERY
 # =========================
 
 class RentalImage(models.Model):
@@ -140,17 +148,37 @@ class RentalImage(models.Model):
         on_delete=models.CASCADE,
         related_name="gallery"
     )
-    # Using ImageField here for consistency across the app
+
     image = models.ImageField(
-        upload_to='rental_gallery/', 
+        upload_to='rental_gallery/',
         storage=MediaCloudinaryStorage()
     )
 
     def __str__(self):
         return f"Image for {self.rental.title}"
 
-#  whishlist
+
+# =========================
+# WISHLIST (FIXED)
+# =========================
+
 class Wishlist(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
-    rental = models.ForeignKey(Rental, on_delete=models.CASCADE)
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="wishlist_items"
+    )
+
+    rental = models.ForeignKey(
+        Rental,
+        on_delete=models.CASCADE,
+        related_name="saved_by"
+    )
+
     created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ('user', 'rental')  # prevents duplicate saves
+
+    def __str__(self):
+        return f"{self.user} → {self.rental}"
