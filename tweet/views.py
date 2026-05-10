@@ -21,11 +21,7 @@ def index(request):
 
 # ================= SEARCH / LIST =================
 def rental_list(request):
-    # Optimized query to prevent the N+1 problem.
-    # .select_related('user') fetches the associated user for each rental
-    # in the initial database query. This avoids making a separate DB call
-    # for every single rental when accessing `rental.user` in the template,
-    # drastically improving performance.
+  
     rentals = Rental.objects.select_related('user').all().order_by('-created_at')
 
     location_query = request.GET.get('location', '').strip()
@@ -132,11 +128,24 @@ def rental_delete(request, rental_id):
 
 # ================= CONTACT =================
 @login_required
-def rental_contact(request, rental_id):
+# ================= CONTACT (UPDATED) =================
+def rental_contact(request, rental_id=None):
     """
     Renders a detailed contact page for a specific rental property.
+    If reached via POST, simulates sending an inquiry.
     """
-    rental = get_object_or_404(Rental, pk=rental_id)
+    rental = None
+    if rental_id:
+        rental = get_object_or_404(Rental, pk=rental_id)
+
+    if request.method == "POST":
+        # Logic for processing the contact form (e.g., sending email)
+        # For now, we pass a success flag to the template
+        return render(request, 'rental_contact.html', {
+            'rental': rental,
+            'success': True
+        })
+
     return render(request, 'rental_contact.html', {'rental': rental})
 
 # ================= DETAIL & AUTH =================
