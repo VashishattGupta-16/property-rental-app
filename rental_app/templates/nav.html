@@ -4,14 +4,14 @@
         <div class="grid grid-cols-2 lg:grid-cols-3 items-center px-4 sm:px-6 py-4">
 
             <div class="flex justify-start items-center gap-3">
-                <div class="relative group sm:hidden">
-                    <button type="button" class="w-10 h-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-white outline-none active:bg-sky-500/20 transition-all">
+                <div class="relative group sm:hidden dropdown-mobile">
+                    <button type="button" class="mobile-toggle w-10 h-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-white outline-none transition-all">
                         <i class="fa-solid fa-bars-staggered text-sm"></i>
                     </button>
                     
-                    <div class="absolute left-0 top-full pt-4 opacity-0 invisible group-hover:opacity-100 group-hover:visible group-active:opacity-100 group-active:visible transition-all duration-200 z-[9999]">
-                        <div class="w-64 rounded-2xl border border-white/10 bg-slate-950/95 backdrop-blur-2xl shadow-2xl overflow-hidden p-2 space-y-1">
-                            <p class="text-[8px] font-black text-slate-500 uppercase tracking-[0.2em] px-4 py-2">Explore RentalPro</p>
+                    <div class="mobile-menu absolute left-0 top-full pt-4 opacity-0 invisible transition-all duration-200 z-[9999]">
+                        <div class="w-64 rounded-2xl border border-white/10 bg-slate-950/95 backdrop-blur-2xl shadow-2xl overflow-hidden p-2">
+                            <p class="text-[8px] font-black text-slate-500 uppercase tracking-[0.2em] px-4 py-2">Explore</p>
                             <a href="{% url 'rental_list' %}?category=acquire" class="dropdown-item rounded-xl"><i class="fa-solid fa-building-circle-check text-sky-500"></i> Acquire</a>
                             <a href="{% url 'rental_list' %}?category=rent" class="dropdown-item rounded-xl"><i class="fa-solid fa-key text-sky-500"></i> Rent</a>
                             <a href="{% url 'about' %}" class="dropdown-item rounded-xl"><i class="fa-solid fa-circle-info text-sky-500"></i> About Us</a>
@@ -27,67 +27,58 @@
             </div>
 
             <div class="hidden sm:flex justify-center items-center gap-x-5 lg:gap-x-8 text-[10px] font-black uppercase tracking-[0.18em] text-slate-300">
-                <div class="relative group">
-                    <button type="button" class="flex items-center gap-2 hover:text-sky-400 transition duration-300 outline-none">
+                
+                <div class="relative group dropdown-container">
+                    <button type="button" class="nav-btn flex items-center gap-2 hover:text-sky-400 transition duration-300 outline-none">
                         Acquire <i class="fa-solid fa-chevron-down text-[8px] transition-transform duration-300 group-hover:rotate-180"></i>
                     </button>
-                    <div class="absolute left-1/2 -translate-x-1/2 top-full pt-4 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-[9999]">
+                    <div class="nav-menu absolute left-1/2 -translate-x-1/2 top-full pt-4 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-[9999]">
                         <div class="w-56 rounded-2xl border border-white/10 bg-slate-950/95 backdrop-blur-2xl shadow-2xl overflow-hidden">
                             <a href="{% url 'rental_list' %}?type=VILLA" class="dropdown-item">Villas</a>
                             <a href="{% url 'rental_list' %}?type=SHOWROOM" class="dropdown-item">Shops</a>
                             <a href="{% url 'rental_list' %}?type=APARTMENT" class="dropdown-item">Apartments</a>
-                            <a href="{% url 'rental_list' %}?type=INDUSTRIAL_PLOT" class="dropdown-item">Industrial Plots</a>
                             <a href="{% url 'rental_list' %}?type=HOUSE" class="dropdown-item">Houses</a>
                         </div>
                     </div>
                 </div>
 
-                <div class="relative group">
-                    <button type="button" class="flex items-center gap-2 hover:text-sky-400 transition duration-300 outline-none">
+                <div class="relative group dropdown-container">
+                    <button type="button" class="nav-btn flex items-center gap-2 hover:text-sky-400 transition duration-300 outline-none">
                         Rent <i class="fa-solid fa-chevron-down text-[8px] transition-transform duration-300 group-hover:rotate-180"></i>
                     </button>
-                    <div class="absolute left-1/2 -translate-x-1/2 top-full pt-4 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-[9999]">
+                    <div class="nav-menu absolute left-1/2 -translate-x-1/2 top-full pt-4 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-[9999]">
                         <div class="w-56 rounded-2xl border border-white/10 bg-slate-950/95 backdrop-blur-2xl shadow-2xl overflow-hidden">
                             <a href="{% url 'rental_list' %}?type=1BHK" class="dropdown-item">1 BHK</a>
                             <a href="{% url 'rental_list' %}?type=2BHK" class="dropdown-item">2 BHK</a>
-                            <a href="{% url 'rental_list' %}?type=3BHK" class="dropdown-item">3 BHK</a>
                             <a href="{% url 'rental_list' %}?type=PG" class="dropdown-item">PGs</a>
                         </div>
                     </div>
                 </div>
+                
                 <a href="{% url 'about' %}" class="hover:text-sky-400 transition duration-300">About</a>
             </div>
 
             <div class="flex justify-end items-center gap-3">
                 {% if user.is_authenticated %}
-                    <div class="relative group">
-                        <button class="flex items-center gap-2 outline-none">
-                            <div class="hidden sm:block text-right mr-2">
-                                <p class="text-[9px] font-black text-white italic uppercase">{{ user.first_name|default:"Member" }}</p>
-                                <p class="text-[7px] text-sky-500 font-bold tracking-tighter uppercase">Elite Account</p>
-                            </div>
+                    <div class="relative group dropdown-container">
+                        <button class="nav-btn flex items-center gap-2 outline-none">
                             <div class="w-10 h-10 rounded-full bg-gradient-to-tr from-sky-500 to-blue-600 border border-white/20 shadow-xl flex items-center justify-center text-white font-black text-xs transition-transform group-hover:scale-105 active:scale-95">
                                 {{ user.email|slice:":1"|upper }}
                             </div>
                         </button>
-
-                        <div class="absolute right-0 top-full pt-4 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-[9999]">
+                        <div class="nav-menu absolute right-0 top-full pt-4 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-[9999]">
                             <div class="w-56 rounded-2xl border border-white/10 bg-slate-950/95 backdrop-blur-2xl shadow-2xl overflow-hidden">
-                                <a href="{% url 'rental_create' %}" class="dropdown-item">
-                                    <i class="fa-solid fa-plus text-sky-400"></i> List Space
-                                </a>
+                                <a href="{% url 'rental_create' %}" class="dropdown-item"><i class="fa-solid fa-plus text-sky-400"></i> List Space</a>
                                 <form method="post" action="{% url 'account_logout' %}" class="border-t border-white/5">
                                     {% csrf_token %}
-                                    <button type="submit" class="w-full dropdown-item text-red-400 hover:bg-red-500/10">
-                                        <i class="fa-solid fa-power-off"></i> Logout
-                                    </button>
+                                    <button type="submit" class="w-full dropdown-item text-red-400 hover:bg-red-500/10"><i class="fa-solid fa-power-off"></i> Logout</button>
                                 </form>
                             </div>
                         </div>
                     </div>
                 {% else %}
                     <a href="{% url 'account_login' %}" class="text-[10px] font-bold uppercase tracking-wider text-white hover:text-sky-400 transition">Login</a>
-                    <a href="{% url 'register' %}" class="px-5 py-2.5 rounded-full bg-sky-500 hover:bg-sky-400 text-white text-[10px] font-black uppercase transition shadow-lg shadow-sky-500/20 active:scale-95">Join</a>
+                    <a href="{% url 'register' %}" class="px-5 py-2.5 rounded-full bg-sky-500 text-white text-[10px] font-black uppercase transition shadow-lg active:scale-95">Join</a>
                 {% endif %}
             </div>
         </div>
@@ -96,29 +87,45 @@
 
 <style>
     .dropdown-item {
-        display: flex;
-        align-items: center;
-        gap: 0.8rem;
-        padding: 0.9rem 1.25rem;
-        font-size: 0.7rem;
-        font-weight: 800;
-        letter-spacing: 0.1em;
-        text-transform: uppercase;
-        color: #cbd5e1;
-        transition: all 0.2s ease;
+        display: flex; align-items: center; gap: 0.8rem; padding: 0.9rem 1.25rem;
+        font-size: 0.7rem; font-weight: 800; letter-spacing: 0.1em;
+        text-transform: uppercase; color: #cbd5e1; transition: all 0.2s ease;
     }
+    .dropdown-item:hover { background: #0ea5e9; color: white; }
 
-    .dropdown-item:hover {
-        background: #0ea5e9;
-        color: white;
-    }
-
-    /* Support for Android Tap */
-    @media (hover: none) {
-        .group:active .dropdown-menu, 
-        .group:active > div {
-            opacity: 1 !important;
-            visibility: visible !important;
-        }
-    }
+    /* JS Toggled Classes */
+    .show-menu { opacity: 1 !important; visibility: visible !important; transform: translateY(0) !important; }
 </style>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Function to handle toggling
+        const setupDropdown = (selector, triggerSelector, menuSelector) => {
+            const containers = document.querySelectorAll(selector);
+            containers.forEach(container => {
+                const trigger = container.querySelector(triggerSelector);
+                const menu = container.querySelector(menuSelector);
+                
+                trigger.addEventListener('click', (e) => {
+                    if (window.innerWidth < 1024 || selector === '.dropdown-mobile') {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        // Close all others
+                        document.querySelectorAll('.nav-menu, .mobile-menu').forEach(m => {
+                            if (m !== menu) m.classList.remove('show-menu');
+                        });
+                        menu.classList.toggle('show-menu');
+                    }
+                });
+            });
+        };
+
+        setupDropdown('.dropdown-container', '.nav-btn', '.nav-menu');
+        setupDropdown('.dropdown-mobile', '.mobile-toggle', '.mobile-menu');
+
+        // Close on outside click
+        document.addEventListener('click', () => {
+            document.querySelectorAll('.nav-menu, .mobile-menu').forEach(m => m.classList.remove('show-menu'));
+        });
+    });
+</script>
