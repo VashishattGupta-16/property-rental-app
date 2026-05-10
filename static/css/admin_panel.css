@@ -1,178 +1,156 @@
-@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Montserrat:wght@500;600;700&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap");
 
 :root {
-  --bg: #090b13;
-  --panel: rgba(18, 24, 40, 0.92);
-  --panel-border: rgba(255, 203, 86, 0.16);
-  --text: #f6f7fb;
-  --muted: #b3b9c7;
-  --accent: #f5c74f;
-  --accent-strong: #ffe79b;
-  --shadow: 0 28px 70px rgba(0, 0, 0, 0.28);
+  /* High-Contrast Monochrome Palette */
+  --bg: #000000;
+  --surface: #0a0a0a;
+  --panel: #111111;
+  --panel-border: rgba(255, 255, 255, 0.08);
+  --panel-strong: rgba(255, 255, 255, 0.12);
+  --text: #ffffff;
+  --muted: #666666;
+  --accent: #ffffff;
+  --accent-soft: rgba(255, 255, 255, 0.05);
+  --shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
 }
 
 body {
-  font-family: "Inter", "Montserrat", system-ui, sans-serif;
-  background:
-    radial-gradient(
-      circle at top left,
-      rgba(245, 199, 79, 0.16),
-      transparent 24%
-    ),
-    radial-gradient(
-      circle at bottom right,
-      rgba(255, 255, 255, 0.05),
-      transparent 20%
-    ),
-    linear-gradient(180deg, #06080f 0%, #0e1220 45%, #0b101c 100%);
+  font-family: "Inter", system-ui, -apple-system, sans-serif;
+  background-color: var(--bg);
+  background-image: none; /* Removed the radial blurs */
   color: var(--text);
+  margin: 0;
 }
 
-#header,
-#user-tools,
-.module caption,
-#branding,
-.breadcrumbs,
-#content-main h1,
-#content-main h2,
-.module h2 {
-  font-family: "Montserrat", sans-serif;
-}
-
+/* Header & Identity */
 #header {
-  background: rgba(8, 11, 19, 0.92);
-  border-bottom: 1px solid rgba(245, 199, 79, 0.14);
-  box-shadow: 0 18px 50px rgba(0, 0, 0, 0.24);
+  background: var(--bg);
+  border-bottom: 1px solid var(--panel-border);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+  padding: 0.75rem 1.5rem;
+}
+
+#branding h1 {
+  font-weight: 900;
+  letter-spacing: -0.03em;
+  text-transform: uppercase;
+  font-size: 1rem;
 }
 
 #branding a {
-  color: var(--accent-strong);
+  color: var(--text);
+  text-decoration: none;
 }
 
-#branding a:hover,
-#user-tools a:hover {
-  color: var(--accent);
-}
-
+/* Dashboard & Modules */
 #content-main,
 .module,
 .change-form,
 .change-form-box,
 .app-list {
-  background: var(--panel);
-  border: 1px solid rgba(255, 255, 255, 0.06);
-  border-radius: 24px;
+  background: var(--surface) !important;
+  border: 1px solid var(--panel-border) !important;
+  border-radius: 12px;
   box-shadow: var(--shadow);
-  backdrop-filter: blur(22px);
+  backdrop-filter: none; /* Clearer SaaS look */
+  margin-bottom: 2rem;
 }
 
 .module caption,
 .grp-module h2,
-.change-form h2,
-.model-admin h2 {
-  color: var(--accent);
-  letter-spacing: 0.12em;
-  font-size: 0.82rem;
+.change-form h2 {
+  background: #161616 !important;
+  color: var(--muted) !important;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  font-size: 0.65rem;
   text-transform: uppercase;
+  padding: 1rem 1.5rem;
+  border-bottom: 1px solid var(--panel-border);
 }
 
-#result_list th,
-#result_list td,
-.inline-related td {
-  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
-  padding: 1rem 1.25rem;
+/* Data Tables */
+#result_list th {
+  background: #161616;
+  color: var(--muted);
+  font-size: 0.65rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 1rem;
 }
 
-#result_list tbody tr:nth-child(even) {
-  background: rgba(255, 255, 255, 0.025);
+#result_list td {
+  border-bottom: 1px solid var(--panel-border);
+  padding: 1rem;
+  font-size: 0.85rem;
+  color: #e0e0e0;
 }
 
 #result_list tbody tr:hover {
-  background: rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.03);
 }
 
-#result_list th {
-  background: rgba(255, 255, 255, 0.04);
-  color: var(--accent);
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
-}
-
+/* Buttons: Solid Monochrome */
 .button,
 input[type="submit"],
 .submit-row input[type="submit"],
 .button.default {
-  border-radius: 999px;
-  background: linear-gradient(
-    135deg,
-    rgba(245, 199, 79, 0.96),
-    rgba(255, 234, 155, 0.95)
-  );
-  color: #111117;
-  box-shadow: 0 16px 32px rgba(245, 199, 79, 0.24);
+  border-radius: 6px;
+  background: #ffffff !important;
+  color: #000000 !important;
+  font-weight: 800;
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 0.8rem 1.5rem;
   border: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
 }
 
 .button:hover,
-input[type="submit"]:hover,
-.submit-row input[type="submit"]:hover {
+input[type="submit"]:hover {
+  background: #e0e0e0 !important;
   transform: translateY(-1px);
 }
 
+/* Forms & Inputs */
 input,
 select,
 textarea,
 .select-filter {
-  border-radius: 16px;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  background: rgba(255, 255, 255, 0.04);
+  border-radius: 8px;
+  border: 1px solid var(--panel-border);
+  background: #111111;
   color: var(--text);
+  padding: 0.75rem;
 }
 
 input:focus,
-select:focus,
-textarea:focus {
+select:focus {
   outline: none;
-  border-color: rgba(245, 199, 79, 0.45);
-  box-shadow: 0 0 0 0.25rem rgba(245, 199, 79, 0.12);
+  border-color: #444444;
+  box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.05);
 }
 
-#container {
-  max-width: 1500px;
-}
-
-.login,
-.login-form {
-  border-radius: 28px;
-  background: rgba(9, 12, 22, 0.92);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  box-shadow: 0 30px 90px rgba(0, 0, 0, 0.28);
-}
-
-.login-form input[type="submit"] {
-  background: linear-gradient(
-    135deg,
-    rgba(245, 199, 79, 0.98),
-    rgba(227, 171, 51, 0.95)
-  );
-}
-
-#footer {
-  border-top: 1px solid rgba(255, 255, 255, 0.08);
-}
-
-#branding {
-  text-transform: uppercase;
-  letter-spacing: 0.18em;
-}
-
-.admin-branding-pill {
+/* Specialized Components */
+.admin-status-indicator {
   display: inline-flex;
   align-items: center;
-  gap: 0.65rem;
-  padding: 0.7rem 1rem;
-  border-radius: 999px;
-  background: rgba(245, 199, 79, 0.12);
-  color: var(--accent-strong);
-  border: 1px solid rgba(245, 199, 79, 0.16);
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  font-size: 9px;
+  font-weight: 800;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+.status-dot {
+  width: 6px;
+  height: 6px;
+  background: #ffffff;
+  border-radius: 50%;
+  box-shadow: 0 0 8px rgba(255, 255, 255, 0.3);
 }

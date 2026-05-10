@@ -62,9 +62,6 @@ INSTALLED_APPS = [
     "django.contrib.contenttypes",
     "django.contrib.sessions",
     "django.contrib.messages",
-    # NOTE: django-cloudinary-storage overrides the `collectstatic` command if it
-    # appears before `django.contrib.staticfiles`. Since we use Cloudinary for
-    # MEDIA only, keep `staticfiles` first.
     "django.contrib.staticfiles",
     "django.contrib.humanize",
     "django.contrib.sites",
