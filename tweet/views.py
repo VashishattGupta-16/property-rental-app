@@ -3,6 +3,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth import login
 from django.db.models import Q
 from django.http import HttpResponse
+from django.views.decorators.http import require_POST
 
 from .models import Rental
 from .forms import RentalForm, UserRegisteration, GalleryFormSet
@@ -108,39 +109,36 @@ def rental_edit(request, rental_id):
 
 # ================= DELETE =================
 @login_required
+@require_POST
 def rental_delete(request, rental_id):
     """
     Handles property deletion. Validates ownership before purging.
+    This view is restricted to POST requests for security.
     """
     rental = get_object_or_404(Rental, pk=rental_id)
     
     # Ownership firewall
     if rental.user != request.user and not request.user.is_staff:
-        return redirect('index')
+        return HttpResponse('Forbidden', status=403)
 
-    if request.method == "POST":
-        rental.delete()
-        return redirect('index')
-
-    return render(request, 'rentalDelete.html', {
-        'rental': rental
-    })
+    rental.delete()
+    return redirect('index')
 
 # ================= CONTACT =================
 @login_required
-# ================= CONTACT (UPDATED) =================
-def rental_contact(request, rental_id=None):
+def rental_contact(request, rental_id):
     """
     Renders a detailed contact page for a specific rental property.
     If reached via POST, simulates sending an inquiry.
     """
-    rental = None
-    if rental_id:
-        rental = get_object_or_404(Rental, pk=rental_id)
+    rental = get_object_or_404(Rental, pk=rental_id)
 
     if request.method == "POST":
-        # Logic for processing the contact form (e.g., sending email)
-        # For now, we pass a success flag to the template
+        # In a real application, you would process the form data here.
+        # For example:
+        # name = request.POST.get('name')
+        # message = request.POST.get('message')
+        # send_mail(...)
         return render(request, 'rental_contact.html', {
             'rental': rental,
             'success': True
