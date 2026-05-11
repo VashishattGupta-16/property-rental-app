@@ -17,7 +17,8 @@ class ProfileCompletionMiddleware:
                 # Allowed pages include the profile setup itself, logout,
                 # and any URL under the /accounts/ path to prevent auth loops.
                 is_allowed_path = (
-                    request.path == reverse('profile_setup') or
+                    request.path == reverse('profile_setup') or 
+                    request.path == reverse('account_logout') or
                     request.path.startswith('/accounts/')
                 )
 
