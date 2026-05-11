@@ -12,21 +12,6 @@ services:
     runtime: python
     buildCommand: |
       set -e
-      # Fix potential windows encoding issue with requirements.txt
-      # and remove hashes to prevent mismatch errors in CI/CD.
-      python - <<'PY'
-      import re
-      from pathlib import Path
-      p = Path('requirements.txt')
-      if p.exists():
-          raw = p.read_bytes()
-          try:
-              content = raw.decode('utf-8')
-          except UnicodeDecodeError:
-              content = raw.decode('utf-16')
-          new_content = re.sub(r'\\\s+--hash=\S+', '', content)
-          p.write_text(new_content, encoding='utf-8')
-      PY
       pip install -r requirements.txt
       npm install
       npm run build:css
