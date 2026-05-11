@@ -11,16 +11,17 @@ class ProfileCompletionMiddleware:
 
     def __call__(self, request):
         if request.user.is_authenticated and not request.user.is_staff:
+            # If the profile is incomplete, redirect to the setup page,
+            # unless the user is already on an allowed page.
             if not request.user.profile_is_complete():
-                allowed_paths = [
-                    reverse('profile_setup'),
-                    reverse('account_logout'),
-                ]
-                # Allow access to allauth URLs to prevent login loops
-                if request.path_info.startswith('/accounts/'):
-                    return self.get_response(request)
+                # Allowed pages include the profile setup itself, logout,
+                # and any URL under the /accounts/ path to prevent auth loops.
+                is_allowed_path = (
+                    request.path == reverse('profile_setup') or
+                    request.path.startswith('/accounts/')
+                )
 
-                if request.path not in allowed_paths:
+                if not is_allowed_path:
                     return redirect('profile_setup')
 
         return self.get_response(request)
