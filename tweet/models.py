@@ -51,6 +51,12 @@ class CustomUserManager(BaseUserManager):
 # =========================
 
 class CustomUser(AbstractUser):
+
+    class UserType(models.TextChoices):
+        BROKER = "BROKER", "Broker"
+        OWNER = "OWNER", "Owner"
+        SEEKER = "SEEKER", "Looking for Property"
+
     username = None
 
     email = models.EmailField(unique=True)
@@ -65,6 +71,15 @@ class CustomUser(AbstractUser):
         null=True
     )
 
+    user_type = models.CharField(
+        max_length=50,
+        choices=UserType.choices,
+        blank=True,
+        null=True
+    )
+    address = models.TextField(blank=True, null=True)
+    current_location = models.CharField(max_length=255, blank=True, null=True)
+
     objects = CustomUserManager()
 
     USERNAME_FIELD = "email"
@@ -74,6 +89,17 @@ class CustomUser(AbstractUser):
         if self.first_name:
             return f"{self.first_name} {self.last_name}".strip()
         return self.email
+
+    def profile_is_complete(self):
+        """Checks if the user has filled out all required profile fields."""
+        return all([
+            self.first_name,
+            self.last_name,
+            self.phone_number,
+            self.user_type,
+            self.address,
+            self.current_location,
+        ])
 
 
 # =========================

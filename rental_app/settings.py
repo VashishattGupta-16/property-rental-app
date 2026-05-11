@@ -93,6 +93,8 @@ MIDDLEWARE = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 
     "allauth.account.middleware.AccountMiddleware",
+    # Ensures new users are redirected to complete their profile
+    "tweet.middleware.ProfileCompletionMiddleware",
 ]
 
 # =========================================================

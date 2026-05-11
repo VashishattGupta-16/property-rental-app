@@ -6,7 +6,7 @@ from django.http import HttpResponse
 from django.views.decorators.http import require_POST
 
 from .models import Rental
-from .forms import RentalForm, UserRegisteration, GalleryFormSet
+from .forms import RentalForm, UserRegisteration, GalleryFormSet, ProfileSetupForm
 
 
 # ================= INDEX / HOME =================
@@ -143,11 +143,14 @@ def room_describe(request, rental_id):
 @login_required
 def profile(request):
     user = request.user
-    user_rentals = Rental.objects.filter(user=user).order_by('-created_at')
+    listings = Rental.objects.filter(user=user).order_by('-created_at')
+    wishlist_count = user.wishlist_items.count()
 
     return render(request, 'profile.html', {
         'user': user,
-        'rentals': user_rentals
+        'listings': listings,
+        'listings_count': listings.count(),
+        'wishlist_count': wishlist_count,
     })
 
 
@@ -155,13 +158,13 @@ def profile(request):
 @login_required
 def wishlist(request):
     """
-    Assumes User model has:
-    wishlist = ManyToManyField(Rental, blank=True)
+    Renders the user's wishlist page.
     """
-    wishlist_items = request.user.wishlist.all()
+    # The Wishlist model has a ForeignKey to user with related_name="wishlist_items"
+    wishlist = request.user.wishlist_items.select_related('rental').all()
 
-    return render(request, 'wishlist.html', {
-        'wishlist_items': wishlist_items
+    return render(request, 'whishlist.html', {
+        'wishlist': wishlist
     })
 
 
@@ -179,9 +182,26 @@ def register(request):
     return render(request, 'registration/register.html', {'form': form})
 
 
-def logout_success(request):
-    return render(request, 'registration/logout_success.html')
+@login_required
+def profile_setup(request):
+    """
+    A view for new users to complete their profile information after signing up.
+    """
+    # If the profile is already complete, redirect them away.
+    if request.user.profile_is_complete():
+        return redirect('index')
 
+    if request.method == "POST":
+        form = ProfileSetupForm(request.POST, instance=request.user)
+        if form.is_valid():
+            form.save()
+            return redirect('index')
+    else:
+        form = ProfileSetupForm(instance=request.user)
+
+    return render(request, 'profile_setup.html', {
+        'form': form
+    })
 
 # ================= UTILITY =================
 def ping_view(request):

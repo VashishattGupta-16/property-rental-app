@@ -85,6 +85,50 @@ class RentalForm(forms.ModelForm):
 
 
 # =========================
+# PROFILE SETUP FORM
+# =========================
+class ProfileSetupForm(forms.ModelForm):
+    class Meta:
+        model = CustomUser
+        fields = [
+            "first_name",
+            "last_name",
+            "phone_number",
+            "user_type",
+            "address",
+            "current_location",
+        ]
+        widgets = {
+            "user_type": ColorStyledSelect(),
+            "address": forms.Textarea(attrs={"rows": 3}),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        for field_name in self.fields:
+            field = self.fields[field_name]
+            field.required = True
+            field.help_text = "" # Remove default help text
+
+        base_classes = (
+            "w-full rounded-2xl border px-6 py-4 "
+            "bg-slate-800/50 border-white/10 text-white "
+            "outline-none transition duration-300 "
+            "focus:border-sky-500 focus:ring-4 focus:ring-sky-500/10"
+        )
+
+        for name, field in self.fields.items():
+            field.widget.attrs["class"] = base_classes
+            if name == "user_type":
+                field.widget.attrs["class"] += " text-white"
+
+            label = field.label or name.replace("_", " ").title()
+            field.label = f"{label}*"
+            field.widget.attrs["aria-required"] = "true"
+            field.widget.attrs.setdefault("placeholder", f"Enter your {label.lower()}...")
+
+
+# =========================
 # GALLERY FORMSET
 # =========================
 GalleryFormSet = inlineformset_factory(
