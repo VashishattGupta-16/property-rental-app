@@ -10,7 +10,12 @@ services:
     name: rentalpro-web
     plan: free
     runtime: python
-    buildCommand: "bash build.sh && python manage.py makemigrations tweet jet"
+    buildCommand: |
+      set -e
+      npm install
+      npm run build
+      python manage.py collectstatic --no-input
+      python manage.py makemigrations tweet jet
     startCommand: "python manage.py migrate --no-input && gunicorn rental_app.wsgi:application --config gunicorn.conf.py"
     envVars:
       - key: PYTHON_VERSION
