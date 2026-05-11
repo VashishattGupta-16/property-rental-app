@@ -1,29 +1,74 @@
-<!-- This script enables Tailwind CSS via the Play CDN. For best results, move it to the <head> of your base template. -->
-<script src="https://cdn.tailwindcss.com"></script>
+{% load static %}
 
-<nav class="sticky top-3 z-[100] px-3 sm:px-5 lg:px-8 overflow-visible">
-    <div class="mx-auto max-w-7xl rounded-3xl border border-white/10 bg-slate-900/70 backdrop-blur-2xl shadow-2xl overflow-visible">
+<!-- Move this to base.html <head> if not already added -->
+<link rel="stylesheet" href="{% static 'css/navbar.css' %}">
 
-        <div class="grid grid-cols-2 lg:grid-cols-3 items-center px-4 sm:px-6 py-4 overflow-visible">
+<nav class="navbar-wrapper">
+    <div class="navbar-shell">
+
+        <div class="navbar-grid">
 
             <!-- ================= LEFT ================= -->
-            <div class="flex justify-start items-center gap-3 overflow-visible">
+            <div class="navbar-left">
 
                 <!-- Mobile Menu -->
-                <div class="relative sm:hidden dropdown-container overflow-visible">
-                    <button type="button" class="dropdown-trigger w-10 h-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-white">
-                        <i class="fa-solid fa-bars-staggered text-sm"></i>
+                <div class="mobile-dropdown dropdown-container">
+
+                    <button
+                        type="button"
+                        class="mobile-menu-btn dropdown-trigger"
+                        id="mobileMenuButton"
+                        aria-label="Open Menu"
+                    >
+                        <i class="fa-solid fa-bars-staggered"></i>
                     </button>
 
-                    <div class="dropdown-menu absolute left-0 top-full mt-4 opacity-0 invisible transition-all duration-200 z-[99999] overflow-visible">
-                        <div class="w-64 rounded-2xl border border-white/10 bg-slate-950/95 backdrop-blur-2xl shadow-2xl overflow-hidden p-2 space-y-1">
+                    <div
+                        class="mobile-dropdown-menu dropdown-menu"
+                        id="mobileDropdownMenu"
+                    >
+                        <div class="dropdown-card">
 
-                            <a href="{% url 'rental_list' %}" class="dropdown-item rounded-xl">Explore</a>
-                            <a href="{% url 'about' %}" class="dropdown-item rounded-xl">About</a>
+                            <a href="{% url 'rental_list' %}" class="dropdown-item">
+                                Explore
+                            </a>
+
+                            <a href="{% url 'about' %}" class="dropdown-item">
+                                About
+                            </a>
 
                             {% if user.is_authenticated %}
-                                <a href="{% url 'profile' %}" class="dropdown-item rounded-xl">Profile</a>
-                                <a href="{% url 'wishlist' %}" class="dropdown-item rounded-xl">Wishlist</a>
+
+                                <a href="{% url 'profile' %}" class="dropdown-item">
+                                    Profile
+                                </a>
+
+                                <a href="{% url 'wishlist' %}" class="dropdown-item">
+                                    Wishlist
+                                </a>
+
+                                <a href="{% url 'rental_create' %}" class="dropdown-item">
+                                    List Space
+                                </a>
+
+                                <form
+                                    method="post"
+                                    action="{% url 'account_logout' %}"
+                                    class="dropdown-form"
+                                >
+                                    {% csrf_token %}
+
+                                    <button type="submit" class="dropdown-item logout-btn">
+                                        Logout
+                                    </button>
+                                </form>
+
+                            {% else %}
+
+                                <a href="{% url 'account_login' %}" class="dropdown-item">
+                                    Login
+                                </a>
+
                             {% endif %}
 
                         </div>
@@ -31,114 +76,169 @@
                 </div>
 
                 <!-- Logo -->
-                <a href="{% url 'index' %}" class="flex items-center shrink-0 group">
-                    <h1 class="text-xl sm:text-2xl font-black tracking-tight text-white">
-                        Rental<span class="text-sky-500 group-hover:text-sky-400">Pro</span>
+                <a href="{% url 'index' %}" class="logo-wrap">
+                    <h1 class="logo-text">
+                        Rental<span class="logo-highlight">Pro</span>
                     </h1>
                 </a>
 
             </div>
 
-            <!-- ================= CENTER MENU (FIXED DROPDOWNS) ================= -->
-            <div class="hidden sm:flex justify-center items-center gap-x-6 lg:gap-x-10 text-[10px] font-black uppercase tracking-[0.18em] text-slate-300 overflow-visible">
+            <!-- ================= CENTER ================= -->
+            <div class="navbar-center">
 
                 <!-- Acquire -->
-                <div class="relative group dropdown-container overflow-visible z-[9999]">
-                    <button class="dropdown-trigger flex items-center gap-2 hover:text-sky-400">
-                        Acquire <i class="fa-solid fa-chevron-down text-[8px] group-hover:rotate-180 transition"></i>
+                <div class="desktop-dropdown dropdown-container">
+
+                    <button class="desktop-trigger dropdown-trigger">
+                        Acquire
+                        <i class="fa-solid fa-chevron-down dropdown-arrow"></i>
                     </button>
 
-                    <div class="dropdown-menu absolute left-1/2 -translate-x-1/2 top-full mt-4 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-[99999] overflow-visible">
+                    <div class="desktop-dropdown-menu dropdown-menu">
 
-                        <div class="w-56 rounded-2xl border border-white/10 bg-slate-950/95 backdrop-blur-2xl shadow-2xl overflow-hidden">
+                        <div class="dropdown-card">
 
-                            <a href="{% url 'rental_list' %}?type=VILLA" class="dropdown-item">Villas</a>
-                            <a href="{% url 'rental_list' %}?type=SHOWROOM" class="dropdown-item">Shops</a>
-                            <a href="{% url 'rental_list' %}?type=APARTMENT" class="dropdown-item">Apartments</a>
-                            <a href="{% url 'rental_list' %}?type=INDUSTRIAL_PLOT" class="dropdown-item">Plots</a>
-                            <a href="{% url 'rental_list' %}?type=HOUSE" class="dropdown-item">Houses</a>
+                            <a href="{% url 'rental_list' %}?type=VILLA" class="dropdown-item">
+                                Villas
+                            </a>
+
+                            <a href="{% url 'rental_list' %}?type=SHOWROOM" class="dropdown-item">
+                                Shops
+                            </a>
+
+                            <a href="{% url 'rental_list' %}?type=APARTMENT" class="dropdown-item">
+                                Apartments
+                            </a>
+
+                            <a href="{% url 'rental_list' %}?type=INDUSTRIAL_PLOT" class="dropdown-item">
+                                Plots
+                            </a>
+
+                            <a href="{% url 'rental_list' %}?type=HOUSE" class="dropdown-item">
+                                Houses
+                            </a>
 
                         </div>
                     </div>
                 </div>
 
                 <!-- Rent -->
-                <div class="relative group dropdown-container overflow-visible z-[9999]">
-                    <button class="dropdown-trigger flex items-center gap-2 hover:text-sky-400">
-                        Rent <i class="fa-solid fa-chevron-down text-[8px] group-hover:rotate-180 transition"></i>
+                <div class="desktop-dropdown dropdown-container">
+
+                    <button class="desktop-trigger dropdown-trigger">
+                        Rent
+                        <i class="fa-solid fa-chevron-down dropdown-arrow"></i>
                     </button>
 
-                    <div class="dropdown-menu absolute left-1/2 -translate-x-1/2 top-full mt-4 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-[99999] overflow-visible">
+                    <div class="desktop-dropdown-menu dropdown-menu">
 
-                        <div class="w-56 rounded-2xl border border-white/10 bg-slate-950/95 backdrop-blur-2xl shadow-2xl overflow-hidden">
+                        <div class="dropdown-card">
 
-                            <a href="{% url 'rental_list' %}?type=1BHK" class="dropdown-item">1 BHK</a>
-                            <a href="{% url 'rental_list' %}?type=2BHK" class="dropdown-item">2 BHK</a>
-                            <a href="{% url 'rental_list' %}?type=3BHK" class="dropdown-item">3 BHK</a>
-                            <a href="{% url 'rental_list' %}?type=PG" class="dropdown-item">PGs</a>
+                            <a href="{% url 'rental_list' %}?type=1BHK" class="dropdown-item">
+                                1 BHK
+                            </a>
+
+                            <a href="{% url 'rental_list' %}?type=2BHK" class="dropdown-item">
+                                2 BHK
+                            </a>
+
+                            <a href="{% url 'rental_list' %}?type=3BHK" class="dropdown-item">
+                                3 BHK
+                            </a>
+
+                            <a href="{% url 'rental_list' %}?type=PG" class="dropdown-item">
+                                PGs
+                            </a>
 
                         </div>
                     </div>
                 </div>
 
-                <a href="{% url 'about' %}" class="hover:text-sky-400">About</a>
+                <a href="{% url 'about' %}" class="nav-link">
+                    About
+                </a>
 
                 {% if user.is_authenticated %}
-                    <a href="{% url 'profile' %}" class="hover:text-sky-400">Profile</a>
-                    <a href="{% url 'wishlist' %}" class="hover:text-sky-400">Wishlist</a>
+
+                    <a href="{% url 'profile' %}" class="nav-link">
+                        Profile
+                    </a>
+
+                    <a href="{% url 'wishlist' %}" class="nav-link">
+                        Wishlist
+                    </a>
+
                 {% endif %}
 
             </div>
 
             <!-- ================= RIGHT ================= -->
-            <div class="flex justify-end items-center gap-3 overflow-visible">
+            <div class="navbar-right">
 
                 {% if user.is_authenticated %}
 
-                <div class="relative group dropdown-container overflow-visible">
+                    <div class="profile-dropdown dropdown-container">
 
-                    <button class="dropdown-trigger flex items-center gap-2">
+                        <button
+                            class="profile-trigger dropdown-trigger"
+                            id="profileMenuButton"
+                            type="button"
+                        >
+                            <div class="profile-avatar">
+                                {{ user.first_name|slice:":1"|upper }}
+                            </div>
+                        </button>
 
-                        <div class="w-10 h-10 rounded-full bg-gradient-to-tr from-sky-500 to-blue-600 flex items-center justify-center text-white font-black text-xs">
-                            {{ user.first_name|slice:":1"|upper }}
-                        </div>
+                        <div
+                            class="profile-dropdown-menu dropdown-menu"
+                            id="profileDropdownMenu"
+                        >
 
-                    </button>
+                            <div class="dropdown-card profile-card">
 
-                    <div class="dropdown-menu absolute right-0 top-full mt-4 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-[99999]">
+                                <a href="{% url 'profile' %}" class="dropdown-item">
+                                    <i class="fa-solid fa-user dropdown-icon"></i>
+                                    <span>Profile</span>
+                                </a>
 
-                        <div class="w-56 rounded-2xl border border-white/10 bg-slate-950/95 backdrop-blur-2xl shadow-2xl overflow-hidden">
+                                <a href="{% url 'rental_create' %}" class="dropdown-item">
+                                    <i class="fa-solid fa-plus dropdown-icon"></i>
+                                    <span>List Space</span>
+                                </a>
 
-                            <a href="{% url 'profile' %}" class="dropdown-item">
-                                <i class="fa-solid fa-user text-sky-400"></i> Profile
-                            </a>
+                                <a href="{% url 'wishlist' %}" class="dropdown-item">
+                                    <i class="fa-solid fa-heart wishlist-icon"></i>
+                                    <span>Wishlist</span>
+                                </a>
 
-                            <a href="{% url 'rental_create' %}" class="dropdown-item">
-                                <i class="fa-solid fa-plus text-sky-400"></i> List Space
-                            </a>
+                                <form
+                                    method="post"
+                                    action="{% url 'account_logout' %}"
+                                    class="dropdown-form"
+                                >
+                                    {% csrf_token %}
 
-                            <a href="{% url 'wishlist' %}" class="dropdown-item">
-                                <i class="fa-solid fa-heart text-pink-400"></i> Wishlist
-                            </a>
+                                    <button
+                                        type="submit"
+                                        class="dropdown-item logout-btn"
+                                    >
+                                        <i class="fa-solid fa-power-off"></i>
+                                        <span>Logout</span>
+                                    </button>
+                                </form>
 
-                            <form method="post" action="{% url 'account_logout' %}" class="border-t border-white/5">
-                                {% csrf_token %}
-                                <button type="submit" class="w-full dropdown-item text-red-400">
-                                    <i class="fa-solid fa-power-off"></i> Logout
-                                </button>
-                            </form>
-
+                            </div>
                         </div>
                     </div>
-                </div>
 
                 {% else %}
 
-                    <a href="{% url 'account_login' %}" class="text-[10px] font-bold uppercase hover:text-sky-400">
+                    <a href="{% url 'account_login' %}" class="login-link">
                         Login
                     </a>
 
-                    <a href="{% url 'account_login' %}" class="px-5 py-2.5 rounded-full bg-sky-500 text-white text-[10px] font-black">
+                    <a href="{% url 'account_login' %}" class="join-btn">
                         Join
                     </a>
 
@@ -149,3 +249,56 @@
         </div>
     </div>
 </nav>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+
+    // ================= MOBILE MENU =================
+    const mobileBtn = document.getElementById("mobileMenuButton");
+    const mobileMenu = document.getElementById("mobileDropdownMenu");
+
+    if (mobileBtn && mobileMenu) {
+
+        mobileBtn.addEventListener("click", function (e) {
+            e.stopPropagation();
+            mobileMenu.classList.toggle("show-dropdown");
+        });
+
+    }
+
+    // ================= PROFILE MENU =================
+    const profileBtn = document.getElementById("profileMenuButton");
+    const profileMenu = document.getElementById("profileDropdownMenu");
+
+    if (profileBtn && profileMenu) {
+
+        profileBtn.addEventListener("click", function (e) {
+            e.stopPropagation();
+            profileMenu.classList.toggle("show-dropdown");
+        });
+
+    }
+
+    // ================= CLOSE MENUS =================
+    document.addEventListener("click", function (e) {
+
+        if (
+            mobileMenu &&
+            !mobileMenu.contains(e.target) &&
+            !mobileBtn.contains(e.target)
+        ) {
+            mobileMenu.classList.remove("show-dropdown");
+        }
+
+        if (
+            profileMenu &&
+            !profileMenu.contains(e.target) &&
+            !profileBtn.contains(e.target)
+        ) {
+            profileMenu.classList.remove("show-dropdown");
+        }
+
+    });
+
+});
+</script>
