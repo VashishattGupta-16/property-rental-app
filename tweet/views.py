@@ -162,7 +162,7 @@ def wishlist(request):
     # The Wishlist model has a ForeignKey to user with related_name="wishlist_items"
     wishlist = request.user.wishlist_items.select_related('rental').all()
 
-    return render(request, 'whishlist.html', {
+    return render(request, 'wishlist.html', {
         'wishlist': wishlist
     })
 
