@@ -147,8 +147,6 @@ class Rental(models.Model):
     image = models.ImageField(
         upload_to='rentals/',
         storage=MediaCloudinaryStorage(),
-        null=True,
-        blank=True,
         validators=[validate_image_size]
     )
 

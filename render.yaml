@@ -27,7 +27,6 @@ services:
       npm install
       npm run build:css
       python manage.py collectstatic --no-input
-      python manage.py makemigrations tweet jet
     startCommand: "python manage.py migrate --no-input && gunicorn rental_app.wsgi:application --config gunicorn.conf.py"
     envVars:
       - key: PYTHON_VERSION
