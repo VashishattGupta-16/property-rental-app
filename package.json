@@ -11,8 +11,8 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "build:css": "node ./node_modules/tailwindcss/lib/cli.js -i ./assets/css/input.css -o ./static/dist/output.css --minify",
-    "watch:css": "node ./node_modules/tailwindcss/lib/cli.js -i ./assets/css/input.css -o ./static/dist/output.css --watch",
+    "build:css": "tailwindcss -i ./assets/css/input.css -o ./static/dist/output.css --minify",
+    "watch:css": "tailwindcss -i ./assets/css/input.css -o ./static/dist/output.css --watch",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
