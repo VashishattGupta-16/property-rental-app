@@ -1,12 +1,11 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth import login
 from django.db.models import Q
 from django.http import HttpResponse
 from django.views.decorators.http import require_POST
 
 from .models import Rental
-from .forms import RentalForm, UserRegisteration, GalleryFormSet, ProfileSetupForm
+from .forms import RentalForm, GalleryFormSet, ProfileSetupForm
 
 
 # ================= INDEX / HOME =================
@@ -166,20 +165,6 @@ def wishlist(request):
     return render(request, 'whishlist.html', {
         'wishlist': wishlist
     })
-
-
-# ================= AUTH =================
-def register(request):
-    if request.method == "POST":
-        form = UserRegisteration(request.POST)
-        if form.is_valid():
-            user = form.save()
-            login(request, user)
-            return redirect('index')
-    else:
-        form = UserRegisteration()
-
-    return render(request, 'registration/register.html', {'form': form})
 
 
 @login_required
