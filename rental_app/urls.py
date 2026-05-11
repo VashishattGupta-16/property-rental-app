@@ -4,7 +4,6 @@ from django.conf import settings
 from django.conf.urls.static import static
 
 urlpatterns = [
-    path("jet/", include(("jet.urls", "jet"), namespace="jet")),
     path("admin/", admin.site.urls),
     path("accounts/", include("allauth.urls")),
     path("", include("tweet.urls")),
