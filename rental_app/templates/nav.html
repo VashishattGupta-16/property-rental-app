@@ -174,16 +174,54 @@
 </nav>
 
 <script>
-document.addEventListener("DOMContentLoaded", function () {
+    document.addEventListener("DOMContentLoaded", function () {
+        // Function to handle dropdown toggling
+        function setupDropdown(triggerElement, menuElement) {
+            if (triggerElement && menuElement) {
+                triggerElement.addEventListener("click", function (e) {
+                    e.stopPropagation(); // Prevent click from propagating to document and closing immediately
 
-    const mobileBtn = document.getElementById("mobileMenuButton");
-    const mobileMenu = document.getElementById("mobileDropdownMenu");
+                    // Close other open dropdowns before opening this one
+                    document.querySelectorAll('.dropdown-menu.show-dropdown').forEach(openMenu => {
+                        if (openMenu !== menuElement) {
+                            openMenu.classList.remove('show-dropdown');
+                        }
+                    });
 
-    const profileBtn = document.getElementById("profileMenuButton");
-    const profileMenu = document.getElementById("profileDropdownMenu");
+                    menuElement.classList.toggle("show-dropdown");
+                });
+            }
+        }
 
-    if (mobileBtn && mobileMenu) {
-        mobileBtn.addEventListener("click", function (e) {
+        // Mobile Menu
+        const mobileBtn = document.getElementById("mobileMenuButton");
+        const mobileMenu = document.getElementById("mobileDropdownMenu");
+        setupDropdown(mobileBtn, mobileMenu);
+
+        // Profile Menu
+        const profileBtn = document.getElementById("profileMenuButton");
+        const profileMenu = document.getElementById("profileDropdownMenu");
+        setupDropdown(profileBtn, profileMenu);
+
+        // Desktop Dropdowns (Acquire, Rent)
+        const desktopDropdowns = document.querySelectorAll(".desktop-dropdown.dropdown-container");
+        desktopDropdowns.forEach(dropdownContainer => {
+            const trigger = dropdownContainer.querySelector(".desktop-trigger");
+            const menu = dropdownContainer.querySelector(".desktop-dropdown-menu");
+            setupDropdown(trigger, menu);
+        });
+
+        // Close dropdowns when clicking outside
+        document.addEventListener("click", function (e) {
+            document.querySelectorAll('.dropdown-menu.show-dropdown').forEach(openMenu => {
+                const parentContainer = openMenu.closest('.dropdown-container');
+                if (parentContainer && !parentContainer.contains(e.target)) {
+                    openMenu.classList.remove('show-dropdown');
+                }
+            });
+        });
+    });
+</script>
             e.stopPropagation();
             mobileMenu.classList.toggle("show-dropdown");
         });
