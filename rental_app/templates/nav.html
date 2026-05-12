@@ -38,11 +38,11 @@
 
                             <!-- Acquire Accordion -->
                             <div>
-                                <button type="button" class="mobile-accordion-trigger dropdown-item w-full flex justify-between items-center">
+                                <button type="button" class="mobile-accordion-trigger mobile-accordion-button w-full flex justify-between items-center py-2 px-4 text-sm font-medium text-slate-300 hover:text-white hover:bg-slate-800 transition-colors duration-200 rounded-md">
                                     <span>Acquire</span>
                                     <i class="fa-solid fa-chevron-down transition-transform duration-200"></i>
                                 </button>
-                                <div class="mobile-accordion-content overflow-hidden max-h-0 transition-all duration-300 ease-in-out pl-4">
+                                <div class="mobile-accordion-content overflow-hidden max-h-0 transition-all duration-300 ease-in-out pl-4 pt-2 pb-1">
                                     <a href="{% url 'rental_list' %}?type=VILLA" class="dropdown-item">Villas</a>
                                     <a href="{% url 'rental_list' %}?type=SHOWROOM" class="dropdown-item">Shops</a>
                                     <a href="{% url 'rental_list' %}?type=APARTMENT" class="dropdown-item">Apartments</a>
@@ -50,20 +50,22 @@
                                     <a href="{% url 'rental_list' %}?type=HOUSE" class="dropdown-item">Houses</a>
                                 </div>
                             </div>
+                            <hr class="my-2 border-slate-700" />
 
                             <!-- Rent Accordion -->
                             <div>
-                                <button type="button" class="mobile-accordion-trigger dropdown-item w-full flex justify-between items-center">
+                                <button type="button" class="mobile-accordion-trigger mobile-accordion-button w-full flex justify-between items-center py-2 px-4 text-sm font-medium text-slate-300 hover:text-white hover:bg-slate-800 transition-colors duration-200 rounded-md">
                                     <span>Rent</span>
                                     <i class="fa-solid fa-chevron-down transition-transform duration-200"></i>
                                 </button>
-                                <div class="mobile-accordion-content overflow-hidden max-h-0 transition-all duration-300 ease-in-out pl-4">
+                                <div class="mobile-accordion-content overflow-hidden max-h-0 transition-all duration-300 ease-in-out pl-4 pt-2 pb-1">
                                     <a href="{% url 'rental_list' %}?type=1BHK" class="dropdown-item">1 BHK</a>
                                     <a href="{% url 'rental_list' %}?type=2BHK" class="dropdown-item">2 BHK</a>
                                     <a href="{% url 'rental_list' %}?type=3BHK" class="dropdown-item">3 BHK</a>
                                     <a href="{% url 'rental_list' %}?type=PG" class="dropdown-item">PGs</a>
                                 </div>
                             </div>
+                            <hr class="my-2 border-slate-700" />
 
 
                             {% if user and user.is_authenticated %}
@@ -251,16 +253,29 @@
         const accordionTriggers = document.querySelectorAll(".mobile-accordion-trigger");
         accordionTriggers.forEach(trigger => {
             trigger.addEventListener("click", function(e) {
-                e.stopPropagation();
+                e.stopPropagation(); // Prevent the click from closing the main mobile menu
                 const content = this.nextElementSibling;
                 const arrow = this.querySelector("i.fa-chevron-down");
 
                 if (content.style.maxHeight) {
                     content.style.maxHeight = null;
                     if (arrow) arrow.classList.remove("rotate-180");
+                    this.classList.remove("mobile-accordion-active"); // Remove active class from button
                 } else {
+                    // Close any other open accordions in the mobile menu
+                    document.querySelectorAll('.mobile-accordion-content').forEach(openContent => {
+                        if (openContent !== content && openContent.style.maxHeight) {
+                            openContent.style.maxHeight = null;
+                            const otherTrigger = openContent.previousElementSibling;
+                            const otherArrow = otherTrigger.querySelector("i.fa-chevron-down");
+                            if (otherArrow) otherArrow.classList.remove("rotate-180");
+                            otherTrigger.classList.remove("mobile-accordion-active");
+                        }
+                    });
+
                     content.style.maxHeight = content.scrollHeight + "px";
                     if (arrow) arrow.classList.add("rotate-180");
+                    this.classList.add("mobile-accordion-active"); // Add active class to button
                 }
             });
         });
