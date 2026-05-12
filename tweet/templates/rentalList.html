@@ -87,15 +87,13 @@
 
                 <div class="absolute inset-0 bg-gradient-to-t from-slate-950/70 to-transparent"></div>
 
-                {% if user.is_authenticated %}
                 <!-- Wishlist Button -->
                 <button class="wishlist-btn absolute top-3 right-3 w-9 h-9 rounded-full bg-black/40 backdrop-blur-sm flex items-center justify-center text-white hover:bg-red-500/80 transition-colors duration-300 active:scale-90"
                         data-rental-id="{{ rental.id }}"
                         aria-label="Add to wishlist">
-                    {# The icon class will be toggled by JavaScript. For initial state, see Pro Tip below. #}
-                    <i class="fa-regular fa-heart text-lg"></i>
+                    <!-- This icon now correctly shows if an item is wishlisted on page load -->
+                    <i class="{% if rental.id in wishlisted_rental_ids %}fa-solid fa-heart text-red-500{% else %}fa-regular fa-heart{% endif %} text-lg"></i>
                 </button>
-                {% endif %}
 
             </div>
 
