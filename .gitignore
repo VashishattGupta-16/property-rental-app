@@ -1,5 +1,18 @@
 
+# Environment
 .env
 marketplace_final.json
 marketplace_fixed.json
+
+# Node
 node_modules
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Django
+db.sqlite3
+*.log
