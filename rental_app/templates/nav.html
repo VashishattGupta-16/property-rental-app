@@ -1,294 +1,140 @@
-{% load static %}
-
-<link rel="stylesheet" href="{% static 'css/navbar.css' %}">
-
-<nav class="navbar-wrapper">
-    <div class="navbar-shell">
-        <div class="navbar-grid">
-
-            <!-- ================= LEFT ================= -->
-            <div class="navbar-left">
-
-                <!-- Mobile Menu -->
-                <div class="mobile-dropdown dropdown-container">
-
-                    <button
-                        type="button"
-                        class="mobile-menu-btn dropdown-trigger"
-                        id="mobileMenuButton"
-                        aria-label="Open Menu"
-                    >
-                        <i class="fa-solid fa-bars-staggered"></i>
-                    </button>
-
-                    <div class="mobile-dropdown-menu dropdown-menu" id="mobileDropdownMenu">
-
-                        <div class="dropdown-card">
-
-                            <a href="{% url 'rental_list' %}" class="dropdown-item">
-                                Explore
-                            </a>
-
-                            <a href="{% url 'about' %}" class="dropdown-item">
-                                About
-                            </a>
-
-                            <!-- Acquire & Rent Links for Mobile -->
-                            <hr class="my-2 border-slate-700" />
-
-                            <!-- Acquire Accordion -->
-                            <div>
-                                <button type="button" class="mobile-accordion-trigger mobile-accordion-button w-full flex justify-between items-center py-2 px-4 text-sm font-medium text-slate-300 hover:text-white hover:bg-slate-800 transition-colors duration-200 rounded-md">
-                                    <span>Acquire</span>
-                                    <i class="fa-solid fa-chevron-down transition-transform duration-200"></i>
-                                </button>
-                                <div class="mobile-accordion-content overflow-hidden max-h-0 transition-all duration-300 ease-in-out pl-4 pt-2 pb-1">
-                                    <a href="{% url 'rental_list' %}?type=VILLA" class="dropdown-item">Villas</a>
-                                    <a href="{% url 'rental_list' %}?type=SHOWROOM" class="dropdown-item">Shops</a>
-                                    <a href="{% url 'rental_list' %}?type=APARTMENT" class="dropdown-item">Apartments</a>
-                                    <a href="{% url 'rental_list' %}?type=INDUSTRIAL_PLOT" class="dropdown-item">Plots</a>
-                                    <a href="{% url 'rental_list' %}?type=HOUSE" class="dropdown-item">Houses</a>
-                                </div>
-                            </div>
-                            <hr class="my-2 border-slate-700" />
-
-                            <!-- Rent Accordion -->
-                            <div>
-                                <button type="button" class="mobile-accordion-trigger mobile-accordion-button w-full flex justify-between items-center py-2 px-4 text-sm font-medium text-slate-300 hover:text-white hover:bg-slate-800 transition-colors duration-200 rounded-md">
-                                    <span>Rent</span>
-                                    <i class="fa-solid fa-chevron-down transition-transform duration-200"></i>
-                                </button>
-                                <div class="mobile-accordion-content overflow-hidden max-h-0 transition-all duration-300 ease-in-out pl-4 pt-2 pb-1">
-                                    <a href="{% url 'rental_list' %}?type=1BHK" class="dropdown-item">1 BHK</a>
-                                    <a href="{% url 'rental_list' %}?type=2BHK" class="dropdown-item">2 BHK</a>
-                                    <a href="{% url 'rental_list' %}?type=3BHK" class="dropdown-item">3 BHK</a>
-                                    <a href="{% url 'rental_list' %}?type=PG" class="dropdown-item">PGs</a>
-                                </div>
-                            </div>
-                            <hr class="my-2 border-slate-700" />
-
-
-                            {% if user and user.is_authenticated %}
-
-                                <hr class="my-2 border-slate-700" />
-                                <a href="{% url 'profile' %}" class="dropdown-item">Profile</a>
-                                <a href="{% url 'wishlist' %}" class="dropdown-item">Wishlist</a>
-                                <a href="{% url 'rental_create' %}" class="dropdown-item">List Space</a>
-
-                                <hr class="my-2 border-slate-700" />
-                                <form method="post" action="{% url 'account_logout' %}">
-                                    {% csrf_token %}
-                                    <button type="submit" class="dropdown-item logout-btn">
-                                        Logout
-                                    </button>
-                                </form>
-
-                            {% else %}
-
-                                <hr class="my-2 border-slate-700" />
-                                <a href="{% url 'account_login' %}" class="dropdown-item">
-                                    Login
-                                </a>
-
-                            {% endif %}
-
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Logo -->
-                <a href="{% url 'index' %}" class="logo-wrap">
-                    <h1 class="logo-text">
-                        Rental<span class="logo-highlight">Pro</span>
-                    </h1>
-                </a>
-
-            </div>
-
-            <!-- ================= CENTER ================= -->
-            <div class="navbar-center">
-
-                <!-- Acquire -->
-                <div class="desktop-dropdown dropdown-container">
-
-                    <button class="desktop-trigger dropdown-trigger">
-                        Acquire <i class="fa-solid fa-chevron-down dropdown-arrow"></i>
-                    </button>
-
-                    <div class="desktop-dropdown-menu dropdown-menu">
-                        <div class="dropdown-card">
-
-                            <a href="{% url 'rental_list' %}?type=VILLA" class="dropdown-item">Villas</a>
-                            <a href="{% url 'rental_list' %}?type=SHOWROOM" class="dropdown-item">Shops</a>
-                            <a href="{% url 'rental_list' %}?type=APARTMENT" class="dropdown-item">Apartments</a>
-                            <a href="{% url 'rental_list' %}?type=INDUSTRIAL_PLOT" class="dropdown-item">Plots</a>
-                            <a href="{% url 'rental_list' %}?type=HOUSE" class="dropdown-item">Houses</a>
-
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Rent -->
-                <div class="desktop-dropdown dropdown-container">
-
-                    <button class="desktop-trigger dropdown-trigger">
-                        Rent <i class="fa-solid fa-chevron-down dropdown-arrow"></i>
-                    </button>
-
-                    <div class="desktop-dropdown-menu dropdown-menu">
-                        <div class="dropdown-card">
-
-                            <a href="{% url 'rental_list' %}?type=1BHK" class="dropdown-item">1 BHK</a>
-                            <a href="{% url 'rental_list' %}?type=2BHK" class="dropdown-item">2 BHK</a>
-                            <a href="{% url 'rental_list' %}?type=3BHK" class="dropdown-item">3 BHK</a>
-                            <a href="{% url 'rental_list' %}?type=PG" class="dropdown-item">PGs</a>
-
-                        </div>
-                    </div>
-                </div>
-
-                <a href="{% url 'about' %}" class="nav-link">About</a>
-
-                {% if user and user.is_authenticated %}
-                    <a href="{% url 'profile' %}" class="nav-link">Profile</a>
-                    <a href="{% url 'wishlist' %}" class="nav-link">Wishlist</a>
-                {% endif %}
-
-            </div>
-
-            <!-- ================= RIGHT ================= -->
-            <div class="navbar-right">
-
-                {% if user and user.is_authenticated %}
-
-                    <div class="profile-dropdown dropdown-container">
-
-                        <button class="profile-trigger dropdown-trigger" id="profileMenuButton">
-
-                            <div class="profile-avatar">
-                                {{ user.first_name|default:"U"|slice:":1"|upper }}
-                            </div>
-
-                        </button>
-
-                        <div class="profile-dropdown-menu dropdown-menu" id="profileDropdownMenu">
-
-                            <div class="dropdown-card profile-card">
-
-                                <a href="{% url 'profile' %}" class="dropdown-item">
-                                    <i class="fa-solid fa-user"></i> Profile
-                                </a>
-
-                                <a href="{% url 'rental_create' %}" class="dropdown-item">
-                                    <i class="fa-solid fa-plus"></i> List Space
-                                </a>
-
-                                <a href="{% url 'wishlist' %}" class="dropdown-item">
-                                    <i class="fa-solid fa-heart"></i> Wishlist
-                                </a>
-
-                                <form method="post" action="{% url 'account_logout' %}">
-                                    {% csrf_token %}
-                                    <button type="submit" class="dropdown-item logout-btn">
-                                        <i class="fa-solid fa-power-off"></i> Logout
-                                    </button>
-                                </form>
-
-                            </div>
-                        </div>
-                    </div>
-
-                {% else %}
-
-                    <a href="{% url 'account_login' %}" class="login-link">Login</a>
-                    <a href="{% url 'account_login' %}" class="join-btn">Join</a>
-
-                {% endif %}
-
-            </div>
-
-        </div>
-    </div>
-</nav>
-
 <script>
-    document.addEventListener("DOMContentLoaded", function () {
-        // Function to handle dropdown toggling
-        function setupDropdown(triggerElement, menuElement) {
-            if (triggerElement && menuElement) {
-                triggerElement.addEventListener("click", function (e) {
-                    e.stopPropagation(); // Prevent click from propagating to document and closing immediately
+document.addEventListener("DOMContentLoaded", () => {
 
-                    // Close other open dropdowns before opening this one
-                    document.querySelectorAll('.dropdown-menu.show-dropdown').forEach(openMenu => {
-                        if (openMenu !== menuElement) {
-                            openMenu.classList.remove('show-dropdown');
-                        }
-                    });
+    // =========================================
+    // HELPERS
+    // =========================================
 
-                    menuElement.classList.toggle("show-dropdown");
-                });
+    const closeAllDropdowns = () => {
+        document.querySelectorAll(".dropdown-menu").forEach(menu => {
+            menu.classList.remove("show-dropdown");
+        });
+    };
+
+    const closeAllAccordions = () => {
+        document.querySelectorAll(".mobile-accordion-content").forEach(content => {
+            content.style.maxHeight = null;
+            content.classList.remove("accordion-open");
+
+            const trigger = content.previousElementSibling;
+            const arrow = trigger.querySelector(".fa-chevron-down");
+
+            trigger.classList.remove("mobile-accordion-active");
+
+            if (arrow) {
+                arrow.classList.remove("rotate-180");
             }
-        }
-
-        // Mobile Menu
-        const mobileBtn = document.getElementById("mobileMenuButton");
-        const mobileMenu = document.getElementById("mobileDropdownMenu");
-        setupDropdown(mobileBtn, mobileMenu);
-
-        // Profile Menu
-        const profileBtn = document.getElementById("profileMenuButton");
-        const profileMenu = document.getElementById("profileDropdownMenu");
-        setupDropdown(profileBtn, profileMenu);
-
-        // Desktop Dropdowns (Acquire, Rent)
-        const desktopDropdowns = document.querySelectorAll(".desktop-dropdown.dropdown-container");
-        desktopDropdowns.forEach(dropdownContainer => {
-            const trigger = dropdownContainer.querySelector(".desktop-trigger");
-            const menu = dropdownContainer.querySelector(".desktop-dropdown-menu");
-            setupDropdown(trigger, menu);
         });
+    };
 
-        // Mobile Accordion for nested dropdowns
-        const accordionTriggers = document.querySelectorAll(".mobile-accordion-trigger");
-        accordionTriggers.forEach(trigger => {
-            trigger.addEventListener("click", function(e) {
-                e.stopPropagation(); // Prevent the click from closing the main mobile menu
-                const content = this.nextElementSibling;
-                const arrow = this.querySelector("i.fa-chevron-down");
+    // =========================================
+    // DROPDOWN SETUP
+    // =========================================
 
-                if (content.style.maxHeight) {
-                    content.style.maxHeight = null;
-                    if (arrow) arrow.classList.remove("rotate-180");
-                    this.classList.remove("mobile-accordion-active"); // Remove active class from button
-                } else {
-                    // Close any other open accordions in the mobile menu
-                    document.querySelectorAll('.mobile-accordion-content').forEach(openContent => {
-                        if (openContent !== content && openContent.style.maxHeight) {
-                            openContent.style.maxHeight = null;
-                            const otherTrigger = openContent.previousElementSibling;
-                            const otherArrow = otherTrigger.querySelector("i.fa-chevron-down");
-                            if (otherArrow) otherArrow.classList.remove("rotate-180");
-                            otherTrigger.classList.remove("mobile-accordion-active");
-                        }
-                    });
+    const setupDropdown = (buttonId, menuId) => {
 
-                    content.style.maxHeight = content.scrollHeight + "px";
-                    if (arrow) arrow.classList.add("rotate-180");
-                    this.classList.add("mobile-accordion-active"); // Add active class to button
-                }
-            });
+        const button = document.getElementById(buttonId);
+        const menu = document.getElementById(menuId);
+
+        if (!button || !menu) return;
+
+        button.addEventListener("click", (e) => {
+            e.stopPropagation();
+
+            const isOpen = menu.classList.contains("show-dropdown");
+
+            closeAllDropdowns();
+
+            if (!isOpen) {
+                menu.classList.add("show-dropdown");
+            }
         });
+    };
 
-        // Close dropdowns when clicking outside
-        document.addEventListener("click", function (e) {
-            document.querySelectorAll('.dropdown-menu.show-dropdown').forEach(openMenu => {
-                const parentContainer = openMenu.closest('.dropdown-container');
-                if (parentContainer && !parentContainer.contains(e.target)) {
-                    openMenu.classList.remove('show-dropdown');
-                }
-            });
+    // Mobile Menu
+    setupDropdown("mobileMenuButton", "mobileDropdownMenu");
+
+    // Profile Menu
+    setupDropdown("profileMenuButton", "profileDropdownMenu");
+
+    // =========================================
+    // DESKTOP DROPDOWNS
+    // =========================================
+
+    const desktopDropdowns = document.querySelectorAll(".desktop-dropdown");
+
+    desktopDropdowns.forEach(dropdown => {
+
+        const trigger = dropdown.querySelector(".desktop-trigger");
+        const menu = dropdown.querySelector(".desktop-dropdown-menu");
+
+        if (!trigger || !menu) return;
+
+        trigger.addEventListener("click", (e) => {
+            e.stopPropagation();
+
+            const isOpen = menu.classList.contains("show-dropdown");
+
+            closeAllDropdowns();
+
+            if (!isOpen) {
+                menu.classList.add("show-dropdown");
+            }
         });
     });
+
+    // =========================================
+    // MOBILE ACCORDIONS
+    // =========================================
+
+    const accordionTriggers = document.querySelectorAll(".mobile-accordion-trigger");
+
+    accordionTriggers.forEach(trigger => {
+
+        trigger.addEventListener("click", (e) => {
+
+            e.stopPropagation();
+
+            const content = trigger.nextElementSibling;
+            const arrow = trigger.querySelector(".fa-chevron-down");
+
+            if (!content) return;
+
+            const isOpen = content.classList.contains("accordion-open");
+
+            // Close all first
+            closeAllAccordions();
+
+            // Open current if previously closed
+            if (!isOpen) {
+
+                content.classList.add("accordion-open");
+
+                content.style.maxHeight =
+                    content.scrollHeight + "px";
+
+                trigger.classList.add("mobile-accordion-active");
+
+                if (arrow) {
+                    arrow.classList.add("rotate-180");
+                }
+            }
+        });
+    });
+
+    // =========================================
+    // OUTSIDE CLICK CLOSE
+    // =========================================
+
+    document.addEventListener("click", (e) => {
+
+        const clickedInsideDropdown =
+            e.target.closest(".dropdown-container");
+
+        if (!clickedInsideDropdown) {
+            closeAllDropdowns();
+        }
+    });
+
+});
 </script>
-            
