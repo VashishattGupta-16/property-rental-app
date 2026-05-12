@@ -25,19 +25,19 @@
 
                         <div class="dropdown-card">
 
-                            <a href="{% url 'rental_list' %|default:'#' %}" class="dropdown-item">
+                            <a href="{% url 'rental_list' %}" class="dropdown-item">
                                 Explore
                             </a>
 
-                            <a href="{% url 'about' %|default:'#' %}" class="dropdown-item">
+                            <a href="{% url 'about' %}" class="dropdown-item">
                                 About
                             </a>
 
                             {% if user and user.is_authenticated %}
 
-                                <a href="{% url 'profile' %|default:'#' %}" class="dropdown-item">Profile</a>
-                                <a href="{% url 'wishlist' %|default:'#' %}" class="dropdown-item">Wishlist</a>
-                                <a href="{% url 'rental_create' %|default:'#' %}" class="dropdown-item">List Space</a>
+                                <a href="{% url 'profile' %}" class="dropdown-item">Profile</a>
+                                <a href="{% url 'wishlist' %}" class="dropdown-item">Wishlist</a>
+                                <a href="{% url 'rental_create' %}" class="dropdown-item">List Space</a>
 
                                 <form method="post" action="{% url 'account_logout' %}">
                                     {% csrf_token %}
@@ -48,7 +48,7 @@
 
                             {% else %}
 
-                                <a href="{% url 'account_login' %|default:'#' %}" class="dropdown-item">
+                                <a href="{% url 'account_login' %}" class="dropdown-item">
                                     Login
                                 </a>
 
@@ -59,7 +59,7 @@
                 </div>
 
                 <!-- Logo -->
-                <a href="{% url 'index' %|default:'#' %}" class="logo-wrap">
+                <a href="{% url 'index' %}" class="logo-wrap">
                     <h1 class="logo-text">
                         Rental<span class="logo-highlight">Pro</span>
                     </h1>
@@ -109,11 +109,11 @@
                     </div>
                 </div>
 
-                <a href="{% url 'about' %|default:'#' %}" class="nav-link">About</a>
+                <a href="{% url 'about' %}" class="nav-link">About</a>
 
                 {% if user and user.is_authenticated %}
-                    <a href="{% url 'profile' %|default:'#' %}" class="nav-link">Profile</a>
-                    <a href="{% url 'wishlist' %|default:'#' %}" class="nav-link">Wishlist</a>
+                    <a href="{% url 'profile' %}" class="nav-link">Profile</a>
+                    <a href="{% url 'wishlist' %}" class="nav-link">Wishlist</a>
                 {% endif %}
 
             </div>
@@ -137,15 +137,15 @@
 
                             <div class="dropdown-card profile-card">
 
-                                <a href="{% url 'profile' %|default:'#' %}" class="dropdown-item">
+                                <a href="{% url 'profile' %}" class="dropdown-item">
                                     <i class="fa-solid fa-user"></i> Profile
                                 </a>
 
-                                <a href="{% url 'rental_create' %|default:'#' %}" class="dropdown-item">
+                                <a href="{% url 'rental_create' %}" class="dropdown-item">
                                     <i class="fa-solid fa-plus"></i> List Space
                                 </a>
 
-                                <a href="{% url 'wishlist' %|default:'#' %}" class="dropdown-item">
+                                <a href="{% url 'wishlist' %}" class="dropdown-item">
                                     <i class="fa-solid fa-heart"></i> Wishlist
                                 </a>
 
@@ -162,8 +162,8 @@
 
                 {% else %}
 
-                    <a href="{% url 'account_login' %|default:'#' %}" class="login-link">Login</a>
-                    <a href="{% url 'account_login' %|default:'#' %}" class="join-btn">Join</a>
+                    <a href="{% url 'account_login' %}" class="login-link">Login</a>
+                    <a href="{% url 'account_login' %}" class="join-btn">Join</a>
 
                 {% endif %}
 
