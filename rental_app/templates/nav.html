@@ -35,19 +35,35 @@
 
                             <!-- Acquire & Rent Links for Mobile -->
                             <hr class="my-2 border-slate-700" />
-                            <div class="px-4 pt-2 pb-1 text-xs font-bold uppercase text-slate-400">Acquire</div>
-                            <a href="{% url 'rental_list' %}?type=VILLA" class="dropdown-item">Villas</a>
-                            <a href="{% url 'rental_list' %}?type=SHOWROOM" class="dropdown-item">Shops</a>
-                            <a href="{% url 'rental_list' %}?type=APARTMENT" class="dropdown-item">Apartments</a>
-                            <a href="{% url 'rental_list' %}?type=INDUSTRIAL_PLOT" class="dropdown-item">Plots</a>
-                            <a href="{% url 'rental_list' %}?type=HOUSE" class="dropdown-item">Houses</a>
 
-                            <hr class="my-2 border-slate-700" />
-                            <div class="px-4 pt-2 pb-1 text-xs font-bold uppercase text-slate-400">Rent</div>
-                            <a href="{% url 'rental_list' %}?type=1BHK" class="dropdown-item">1 BHK</a>
-                            <a href="{% url 'rental_list' %}?type=2BHK" class="dropdown-item">2 BHK</a>
-                            <a href="{% url 'rental_list' %}?type=3BHK" class="dropdown-item">3 BHK</a>
-                            <a href="{% url 'rental_list' %}?type=PG" class="dropdown-item">PGs</a>
+                            <!-- Acquire Accordion -->
+                            <div>
+                                <button type="button" class="mobile-accordion-trigger dropdown-item w-full flex justify-between items-center">
+                                    <span>Acquire</span>
+                                    <i class="fa-solid fa-chevron-down transition-transform duration-200"></i>
+                                </button>
+                                <div class="mobile-accordion-content overflow-hidden max-h-0 transition-all duration-300 ease-in-out pl-4">
+                                    <a href="{% url 'rental_list' %}?type=VILLA" class="dropdown-item">Villas</a>
+                                    <a href="{% url 'rental_list' %}?type=SHOWROOM" class="dropdown-item">Shops</a>
+                                    <a href="{% url 'rental_list' %}?type=APARTMENT" class="dropdown-item">Apartments</a>
+                                    <a href="{% url 'rental_list' %}?type=INDUSTRIAL_PLOT" class="dropdown-item">Plots</a>
+                                    <a href="{% url 'rental_list' %}?type=HOUSE" class="dropdown-item">Houses</a>
+                                </div>
+                            </div>
+
+                            <!-- Rent Accordion -->
+                            <div>
+                                <button type="button" class="mobile-accordion-trigger dropdown-item w-full flex justify-between items-center">
+                                    <span>Rent</span>
+                                    <i class="fa-solid fa-chevron-down transition-transform duration-200"></i>
+                                </button>
+                                <div class="mobile-accordion-content overflow-hidden max-h-0 transition-all duration-300 ease-in-out pl-4">
+                                    <a href="{% url 'rental_list' %}?type=1BHK" class="dropdown-item">1 BHK</a>
+                                    <a href="{% url 'rental_list' %}?type=2BHK" class="dropdown-item">2 BHK</a>
+                                    <a href="{% url 'rental_list' %}?type=3BHK" class="dropdown-item">3 BHK</a>
+                                    <a href="{% url 'rental_list' %}?type=PG" class="dropdown-item">PGs</a>
+                                </div>
+                            </div>
 
 
                             {% if user and user.is_authenticated %}
@@ -229,6 +245,24 @@
             const trigger = dropdownContainer.querySelector(".desktop-trigger");
             const menu = dropdownContainer.querySelector(".desktop-dropdown-menu");
             setupDropdown(trigger, menu);
+        });
+
+        // Mobile Accordion for nested dropdowns
+        const accordionTriggers = document.querySelectorAll(".mobile-accordion-trigger");
+        accordionTriggers.forEach(trigger => {
+            trigger.addEventListener("click", function(e) {
+                e.stopPropagation();
+                const content = this.nextElementSibling;
+                const arrow = this.querySelector("i.fa-chevron-down");
+
+                if (content.style.maxHeight) {
+                    content.style.maxHeight = null;
+                    if (arrow) arrow.classList.remove("rotate-180");
+                } else {
+                    content.style.maxHeight = content.scrollHeight + "px";
+                    if (arrow) arrow.classList.add("rotate-180");
+                }
+            });
         });
 
         // Close dropdowns when clicking outside
