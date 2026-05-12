@@ -88,12 +88,13 @@
                 <div class="absolute inset-0 bg-gradient-to-t from-slate-950/70 to-transparent"></div>
 
                 <!-- Wishlist Button -->
-                <button class="wishlist-btn absolute top-3 right-3 w-9 h-9 rounded-full bg-black/40 backdrop-blur-sm flex items-center justify-center text-white hover:bg-red-500/80 transition-colors duration-300 active:scale-90"
-                        data-rental-id="{{ rental.id }}"
-                        aria-label="Add to wishlist">
-                    <!-- This icon now correctly shows if an item is wishlisted on page load -->
-                    <i class="{% if rental.id in wishlisted_rental_ids %}fa-solid fa-heart text-red-500{% else %}fa-regular fa-heart{% endif %} text-lg"></i>
-                </button>
+                <form action="{% url 'toggle_wishlist' rental.id %}" method="POST" class="absolute top-3 right-3">
+                    {% csrf_token %}
+                    <button type="submit" class="wishlist-btn w-9 h-9 rounded-full bg-black/40 backdrop-blur-sm flex items-center justify-center text-white hover:bg-red-500/80 transition-colors duration-300 active:scale-90"
+                            aria-label="Add to wishlist">
+                        <i class="{% if rental.id in wishlisted_rental_ids %}fa-solid fa-heart text-red-500{% else %}fa-regular fa-heart{% endif %} text-lg"></i>
+                    </button>
+                </form>
 
             </div>
 
@@ -155,70 +156,5 @@
     -webkit-backdrop-filter: blur(22px);
 }
 </style>
-
-<script>
-document.addEventListener('DOMContentLoaded', function () {
-    // Function to get CSRF token from cookies, which is required for POST requests in Django
-    function getCookie(name) {
-        let cookieValue = null;
-        if (document.cookie && document.cookie !== '') {
-            const cookies = document.cookie.split(';');
-            for (let i = 0; i < cookies.length; i++) {
-                const cookie = cookies[i].trim();
-                if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                    break;
-                }
-            }
-        }
-        return cookieValue;
-    }
-    const csrftoken = getCookie('csrftoken');
-
-    const wishlistButtons = document.querySelectorAll('.wishlist-btn');
-
-    wishlistButtons.forEach(button => {
-        button.addEventListener('click', function (event) {
-            event.preventDefault();
-            const rentalId = this.dataset.rentalId;
-            const icon = this.querySelector('i');
-            // This is the new backend endpoint we will create
-            const url = `/wishlist/toggle/${rentalId}/`;
-
-            fetch(url, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRFToken': csrftoken
-                },
-            })
-            .then(response => {
-                // If the user is not logged in, Django's @login_required returns a 403 error
-                if (response.status === 403) {
-                    // Redirect to the login page
-                    window.location.href = `{% url 'account_login' %}?next={{ request.path }}`;
-                    return;
-                }
-                return response.json();
-            })
-            .then(data => {
-                if (data && data.status === 'ok') {
-                    // Optimistically toggle the icon's state in the UI
-                    if (data.action === 'added') {
-                        icon.classList.remove('fa-regular');
-                        icon.classList.add('fa-solid', 'text-red-500');
-                    } else { // 'removed'
-                        icon.classList.remove('fa-solid', 'text-red-500');
-                        icon.classList.add('fa-regular');
-                    }
-                }
-            })
-            .catch(error => {
-                console.error('Wishlist toggle failed:', error);
-            });
-        });
-    });
-});
-</script>
 
 {% endblock %}
