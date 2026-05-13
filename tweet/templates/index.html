@@ -22,11 +22,11 @@
         <!-- LEFT TEXT -->
         <div class="space-y-8">
 
-            <p class="hero-tag opacity-0 text-xs tracking-[0.4em] uppercase text-sky-400">
+            <p class="hero-tag text-xs tracking-[0.4em] uppercase text-sky-400">
                 Premium Rentals • Tricity • Verified Spaces
             </p>
 
-            <h1 class="hero-title text-5xl md:text-7xl font-black leading-[0.9]">
+            <h1 class="hero-title text-5xl md:text-7xl font-black leading-[0.9] text-white">
                 Find Your <span class="text-sky-400">Perfect</span><br>
                 Living Space
             </h1>
@@ -35,7 +35,7 @@
                 Discover curated apartments, PGs, villas, and commercial spaces with zero brokerage and full transparency.
             </p>
 
-            <div class="hero-btn opacity-0">
+            <div class="hero-btn">
                 <a href="{% url 'rental_list' %}"
                    class="inline-block bg-sky-500 hover:bg-sky-600 px-8 py-4 rounded-xl font-bold transition">
                     Explore Listings
@@ -45,7 +45,7 @@
         </div>
 
         <!-- RIGHT IMAGE -->
-        <div class="hero-img opacity-0 relative">
+        <div class="hero-img relative">
 
             {% if hero_rental and hero_rental.image %}
                 <img src="{{ hero_rental.image.url }}"
@@ -65,37 +65,63 @@
 </section>
 
 
-<!-- ================= FEATURES ================= -->
-<section class="py-24 px-6 border-t border-white/10">
+<!-- ================= CATEGORY MASONRY ================= -->
+<section class="max-w-7xl mx-auto py-24 px-4 overflow-hidden">
+    <div class="flex flex-col md:flex-row justify-between items-end mb-16 gap-6 category-header">
+        <div>
+            <h2 class="text-xs font-black text-sky-500 uppercase tracking-[0.4em] mb-4">Discover by type</h2>
+            <p class="text-4xl md:text-5xl font-black text-white italic">Tailored for your <span class="text-sky-500">lifestyle.</span></p>
+        </div>
+        <p class="text-slate-500 font-medium max-w-xs md:text-right">From high-rise apartments to shared co-living, find what fits.</p>
+    </div>
 
-    <div class="max-w-7xl mx-auto text-center space-y-4 mb-16">
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 h-auto md:h-[600px] category-grid">
+        <!-- Luxury Villas -->
+        <a href="{% url 'rental_list' %}?type=VILLA" class="group relative overflow-hidden rounded-[2.5rem] md:row-span-2 glass-card min-h-[300px]">
+            <img src="https://images.unsplash.com/photo-1613490493576-7fde63acd811?auto=format&fit=crop&q=80" class="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110 grayscale-[50%] group-hover:grayscale-0">
+            <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent opacity-80"></div>
+            <div class="absolute bottom-8 left-8">
+                <span class="text-xs font-black text-sky-400 uppercase tracking-widest">Premium</span>
+                <h3 class="text-2xl font-black text-white">Luxury Villas</h3>
+            </div>
+        </a>
+        <!-- Modern Flats -->
+        <a href="{% url 'rental_list' %}?type=APARTMENT" class="group relative overflow-hidden rounded-[2.5rem] glass-card min-h-[250px]">
+            <img src="https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?auto=format&fit=crop&q=80" class="absolute inset-0 w-full h-full object-cover grayscale-[50%] group-hover:grayscale-0 transition-all">
+            <div class="absolute bottom-8 left-8"><h3 class="text-xl font-black text-white">Modern Flats</h3></div>
+        </a>
+        <!-- Shared Spaces -->
+        <a href="{% url 'rental_list' %}?type=PG" class="group relative overflow-hidden rounded-[2.5rem] glass-card min-h-[250px]">
+            <img src="https://images.unsplash.com/photo-1554995207-c18c203602cb?auto=format&fit=crop&q=80" class="absolute inset-0 w-full h-full object-cover grayscale-[50%] group-hover:grayscale-0 transition-all">
+            <div class="absolute bottom-8 left-8"><h3 class="text-xl font-black text-white">Shared PGs</h3></div>
+        </a>
+        <!-- Commercial Plots -->
+        <a href="{% url 'rental_list' %}?type=SHOWROOM" class="group relative overflow-hidden rounded-[2.5rem] md:col-span-2 glass-card min-h-[250px]">
+            <img src="https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&q=80" class="absolute inset-0 w-full h-full object-cover grayscale-[50%] group-hover:grayscale-0 transition-all">
+            <div class="absolute bottom-8 left-8"><h3 class="text-xl font-black text-white">Showrooms & Offices</h3></div>
+        </a>
+    </div>
+</section>
+
+
+<!-- ================= WHY CHOOSE US ================= -->
+<section class="py-24 px-6 border-t border-white/5 bg-white/5">
+
+    <div class="max-w-7xl mx-auto text-center space-y-4 mb-20">
         <h2 class="text-3xl md:text-5xl font-black">Why Choose Us</h2>
         <p class="text-slate-400">A smarter way to find your next home</p>
     </div>
 
     <div class="max-w-7xl mx-auto grid md:grid-cols-3 gap-8">
-
-        <div class="feature p-6 bg-white/5 rounded-2xl">
-            <img src="https://images.unsplash.com/photo-1600585154340-be6161a56a0c"
-                 class="rounded-xl h-48 w-full object-cover mb-4">
-            <h3 class="font-bold text-xl">Verified Properties</h3>
-            <p class="text-slate-400 text-sm">Every listing is manually checked before publishing.</p>
+        {% for feature in "123"|make_list %}
+        <div class="feature p-8 bg-white/5 rounded-[2rem] border border-white/5 hover:border-sky-500/30 transition-all">
+            <div class="w-12 h-12 bg-sky-500/20 rounded-xl mb-6 flex items-center justify-center text-sky-500">
+                <i class="fa-solid {% if forloop.counter == 1 %}fa-shield-check{% elif forloop.counter == 2 %}fa-bolt{% else %}fa-handshake-simple{% endif %} text-xl"></i>
+            </div>
+            <h3 class="font-bold text-xl mb-3 text-white">{% if forloop.counter == 1 %}Verified Listings{% elif forloop.counter == 2 %}Instant Booking{% else %}Zero Brokerage{% endif %}</h3>
+            <p class="text-slate-400 text-sm leading-relaxed">{% if forloop.counter == 1 %}Every listing is manually checked by our team.{% elif forloop.counter == 2 %}Digital signatures and payments in under 5 minutes.{% else %}Direct connection between owners and elite tenants.{% endif %}</p>
         </div>
-
-        <div class="feature p-6 bg-white/5 rounded-2xl">
-            <img src="https://images.unsplash.com/photo-1560448204-603b3fc33ddc"
-                 class="rounded-xl h-48 w-full object-cover mb-4">
-            <h3 class="font-bold text-xl">Zero Brokerage</h3>
-            <p class="text-slate-400 text-sm">Connect directly with owners without middlemen.</p>
-        </div>
-
-        <div class="feature p-6 bg-white/5 rounded-2xl">
-            <img src="https://images.unsplash.com/photo-1522708323590-d24dbb6b0267"
-                 class="rounded-xl h-48 w-full object-cover mb-4">
-            <h3 class="font-bold text-xl">Instant Booking</h3>
-            <p class="text-slate-400 text-sm">Book your property in minutes with secure flow.</p>
-        </div>
-
+        {% endfor %}
     </div>
 
 </section>
@@ -103,7 +129,7 @@
 
 <!-- ================= CTA ================= -->
 <section class="py-28 px-6 text-center relative">
-
+    <div class="absolute -top-24 left-1/2 -translate-x-1/2 w-full h-96 bg-sky-500/5 blur-[120px]"></div>
     <div class="absolute inset-0 bg-gradient-to-r from-sky-500/10 to-purple-500/10 blur-3xl"></div>
 
     <div class="relative z-10 space-y-6">
@@ -128,14 +154,23 @@
 document.addEventListener('DOMContentLoaded', function() {
     gsap.registerPlugin(ScrollTrigger);
 
+    // Set initial states for elements that should animate in
+    gsap.set([".hero-title", ".hero-tag", ".hero-sub", ".hero-btn", ".hero-img"], { opacity: 0 });
+
     // HERO TIMELINE for a sequenced entrance
     const tl = gsap.timeline({ defaults: { ease: "power3.out", duration: 1.2 } });
 
-    tl.from(".hero-title", { y: 80, opacity: 0, skewY: 3 })
-      .from(".hero-tag", { y: 20, opacity: 0 }, "-=1")
-      .from(".hero-sub", { y: 20, opacity: 0 }, "-=0.9")
-      .from(".hero-btn", { y: 20, opacity: 0 }, "-=0.7")
-      .from(".hero-img", { x: -50, opacity: 0, duration: 1.5 }, "-=1");
+    tl.to(".hero-title", { y: 0, opacity: 1, skewY: 0, startAt: { y: 80, skewY: 3 } })
+      .to(".hero-tag", { y: 0, opacity: 1, startAt: { y: 20 } }, "-=1")
+      .to(".hero-sub", { y: 0, opacity: 1, startAt: { y: 20 } }, "-=0.9")
+      .to(".hero-btn", { y: 0, opacity: 1, startAt: { y: 20 } }, "-=0.7")
+      .to(".hero-img", { x: 0, opacity: 1, duration: 1.5, startAt: { x: 50 } }, "-=1");
+
+    // Category reveal
+    gsap.from(".category-grid a", {
+        scrollTrigger: ".category-grid",
+        y: 60, opacity: 0, stagger: 0.1, duration: 1, ease: "power2.out"
+    });
 
     // FEATURES (reveal on scroll)
     gsap.from(".feature", {
