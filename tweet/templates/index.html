@@ -1,14 +1,9 @@
+{% extends "layout.html" %}
 {% load static %}
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Property-X | Future of Real Estate</title>
+{% block title %}Property-X | Future of Real Estate{% endblock %}
 
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@500;600;700;800&display=swap" rel="stylesheet">
-
+{% block content %}
 <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollTrigger.min.js"></script>
 
@@ -184,15 +179,9 @@ body{
 }
 
 </style>
-</head>
-
-<body>
 
 <div class="bg-glow"></div>
 <div class="bg-glow2"></div>
-
-<!-- NAV -->
-{% include "navbar.html" %}
 
 <!-- HERO -->
 <section class="hero">
@@ -277,8 +266,10 @@ body{
   </a>
 
 </section>
+{% endblock %}
 
 <!-- SCRIPT -->
+{% block extra_scripts %}
 <script>
 
 gsap.registerPlugin(ScrollTrigger);
@@ -319,6 +310,4 @@ document.querySelectorAll(".counter").forEach(counter=>{
 });
 
 </script>
-
-</body>
-</html>
+{% endblock %}

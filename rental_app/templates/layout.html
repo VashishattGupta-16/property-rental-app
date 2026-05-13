@@ -74,6 +74,7 @@
     {% endif %}
     <main>{% block content %}{% endblock %}</main>
     {% include "footer.html" %}
+    {% block extra_scripts %}{% endblock %}
 </body>
 
 </html>
