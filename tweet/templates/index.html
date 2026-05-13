@@ -1,249 +1,186 @@
 {% load static %}
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Property-X | Next Gen Real Estate Platform</title>
+<title>Property-X | Future of Real Estate</title>
 
-<!-- Fonts -->
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@500;600;700;800&display=swap" rel="stylesheet">
 
-<!-- GSAP -->
 <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollTrigger.min.js"></script>
 
 <style>
 
-/* ================= BASE ================= */
-
 *{
-margin:0;
-padding:0;
-box-sizing:border-box;
+  margin:0;
+  padding:0;
+  box-sizing:border-box;
 }
 
 body{
-font-family:'Inter',sans-serif;
-background:#050b18;
-color:white;
-overflow-x:hidden;
+  font-family:'Inter';
+  background:#050814;
+  color:white;
+  overflow-x:hidden;
 }
 
-a{text-decoration:none;color:inherit}
-
-section{
-padding:120px 8%;
-position:relative;
+/* ===== BACKGROUND LAYERS ===== */
+.bg-glow{
+  position:fixed;
+  width:800px;
+  height:800px;
+  background:radial-gradient(circle,#3b82f6aa,transparent 60%);
+  top:-200px;
+  right:-200px;
+  filter:blur(30px);
+  z-index:-1;
 }
 
-/* ================= BACKGROUND ================= */
-
-.bg-blur{
-position:absolute;
-width:600px;
-height:600px;
-background:radial-gradient(circle,#3b82f6 0%, transparent 70%);
-filter:blur(80px);
-opacity:0.25;
-animation:float 8s infinite ease-in-out;
+.bg-glow2{
+  position:fixed;
+  width:600px;
+  height:600px;
+  background:radial-gradient(circle,#8b5cf6aa,transparent 60%);
+  bottom:-200px;
+  left:-200px;
+  filter:blur(40px);
+  z-index:-1;
 }
 
-.bg-1{top:-200px;left:-200px;}
-.bg-2{bottom:-200px;right:-200px;}
-
-/* GRID OVERLAY */
-.grid{
-position:fixed;
-inset:0;
-background-image:linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
-linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
-background-size:60px 60px;
-pointer-events:none;
-z-index:0;
-}
-
-/* ================= NAV ================= */
-
-nav{
-position:fixed;
-top:0;
-width:100%;
-padding:20px 8%;
-display:flex;
-justify-content:space-between;
-align-items:center;
-backdrop-filter:blur(20px);
-background:rgba(0,0,0,0.3);
-z-index:999;
-border-bottom:1px solid rgba(255,255,255,0.08);
-}
-
-.logo{
-font-size:26px;
-font-weight:800;
-color:#3b82f6;
-}
-
-.nav-links{
-display:flex;
-gap:30px;
-}
-
-.nav-links a{
-color:#cbd5e1;
-font-weight:500;
-transition:.3s;
-}
-
-.nav-links a:hover{
-color:white;
-}
-
-.btn{
-padding:12px 20px;
-border-radius:12px;
-background:#3b82f6;
-font-weight:600;
-}
-
-/* ================= HERO ================= */
-
+/* ===== HERO ===== */
 .hero{
-min-height:100vh;
-display:flex;
-align-items:center;
-justify-content:space-between;
-gap:60px;
-position:relative;
-z-index:1;
+  min-height:100vh;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:120px 8%;
 }
 
 .hero h1{
-font-size:70px;
-line-height:1.05;
+  font-size:72px;
+  font-family:Poppins;
+  line-height:1.05;
 }
 
-.hero h1 span{color:#3b82f6}
+.hero h1 span{
+  color:#3b82f6;
+}
 
 .hero p{
-margin-top:20px;
-color:#94a3b8;
-font-size:18px;
-line-height:1.7;
+  margin-top:20px;
+  color:#cbd5e1;
+  max-width:600px;
+  line-height:1.8;
 }
 
-.hero-actions{
-margin-top:40px;
-display:flex;
-gap:15px;
+.hero-btns{
+  margin-top:40px;
+  display:flex;
+  gap:15px;
 }
 
-.btn-outline{
-border:1px solid rgba(255,255,255,0.2);
-padding:12px 20px;
-border-radius:12px;
+.btn{
+  padding:14px 26px;
+  border-radius:14px;
+  font-weight:600;
+  text-decoration:none;
 }
 
-/* HERO CARD */
-.hero-card{
-width:420px;
-border-radius:24px;
-overflow:hidden;
-background:rgba(255,255,255,0.05);
-border:1px solid rgba(255,255,255,0.1);
+.btn-primary{
+  background:#3b82f6;
+  color:white;
 }
 
-.hero-card img{height:260px;object-fit:cover}
-
-.hero-card-content{padding:20px}
-
-.hero-card h3{margin-bottom:10px}
-
-.badge{
-display:inline-block;
-padding:6px 12px;
-background:rgba(59,130,246,0.15);
-border:1px solid rgba(59,130,246,0.3);
-border-radius:999px;
-font-size:12px;
-color:#93c5fd;
+.btn-glass{
+  border:1px solid rgba(255,255,255,0.1);
+  background:rgba(255,255,255,0.05);
 }
 
-/* ================= FEATURES ================= */
-
+/* ===== FEATURES ===== */
 .features{
-display:grid;
-grid-template-columns:repeat(auto-fit,minmax(260px,1fr));
-gap:25px;
+  padding:120px 8%;
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(260px,1fr));
+  gap:25px;
 }
 
-.card{
-padding:30px;
-border-radius:20px;
-background:rgba(255,255,255,0.04);
-border:1px solid rgba(255,255,255,0.08);
-transition:.4s;
+.feature-card{
+  padding:30px;
+  border-radius:24px;
+  background:rgba(255,255,255,0.05);
+  border:1px solid rgba(255,255,255,0.08);
+  backdrop-filter:blur(20px);
 }
 
-.card:hover{
-transform:translateY(-10px);
-background:rgba(255,255,255,0.06);
+.feature-card h3{
+  margin-top:10px;
+  font-size:22px;
 }
 
-.card h3{
-margin:15px 0;
+.feature-card p{
+  color:#94a3b8;
+  margin-top:10px;
+  line-height:1.6;
 }
 
-.card p{
-color:#94a3b8;
-line-height:1.6;
+/* ===== PARALLAX SECTION ===== */
+.parallax{
+  height:70vh;
+  background:url("https://images.unsplash.com/photo-1501183638710-841dd1904471?q=80&w=2000") center/cover fixed;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  position:relative;
 }
 
-/* ================= BENEFITS ================= */
-
-.benefits{
-display:grid;
-grid-template-columns:1fr 1fr;
-gap:60px;
-align-items:center;
+.parallax::after{
+  content:"";
+  position:absolute;
+  inset:0;
+  background:rgba(0,0,0,0.6);
 }
 
-.benefits img{
-border-radius:24px;
-width:100%;
+.parallax h2{
+  font-size:48px;
+  z-index:1;
 }
 
-/* ================= CTA ================= */
+/* ===== STATS ===== */
+.stats{
+  padding:120px 8%;
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
+  gap:20px;
+}
 
+.stat{
+  text-align:center;
+}
+
+.stat h2{
+  font-size:48px;
+  color:#3b82f6;
+}
+
+/* ===== CTA ===== */
 .cta{
-text-align:center;
-padding:100px;
-border-radius:30px;
-background:linear-gradient(135deg,#3b82f6,#0f172a);
+  margin:100px 8%;
+  padding:80px;
+  border-radius:40px;
+  background:linear-gradient(135deg,#3b82f6,#0f172a);
+  text-align:center;
 }
 
-.cta h2{font-size:50px}
+.cta h2{
+  font-size:52px;
+}
 
 .cta p{
-margin-top:20px;
-color:#dbeafe;
-}
-
-/* ================= ANIMATIONS ================= */
-
-@keyframes float{
-0%,100%{transform:translateY(0)}
-50%{transform:translateY(40px)}
-}
-
-/* RESPONSIVE */
-@media(max-width:900px){
-.hero{flex-direction:column;text-align:center}
-.hero h1{font-size:48px}
-.benefits{grid-template-columns:1fr}
+  margin-top:15px;
+  color:#dbeafe;
 }
 
 </style>
@@ -251,140 +188,136 @@ color:#dbeafe;
 
 <body>
 
-<div class="grid"></div>
-<div class="bg-blur bg-1"></div>
-<div class="bg-blur bg-2"></div>
+<div class="bg-glow"></div>
+<div class="bg-glow2"></div>
 
 <!-- NAV -->
-<nav>
-<div class="logo">Property-X</div>
-
-<div class="nav-links">
-<a href="{% url 'index' %}">Home</a>
-<a href="{% url 'rental_list' %}">Explore</a>
-<a href="{% url 'profile' %}">Dashboard</a>
-<a href="{% url 'about' %}">About</a>
-</div>
-
-<a class="btn" href="{% url 'rental_create' %}">
-List Property
-</a>
-</nav>
+{% include "navbar.html" %}
 
 <!-- HERO -->
 <section class="hero">
 
-<div>
-<div class="badge">Next Gen Real Estate Platform</div>
+  <div class="hero-left">
+    <h1>
+      Discover<br>
+      <span>Luxury Living</span>
+    </h1>
 
-<h1>
-Find Premium<br>
-<span>Living Spaces</span>
-</h1>
+    <p>
+      Property-X is a next-generation real estate platform
+      for buying, renting, and investing in premium properties.
+    </p>
 
-<p>
-Property-X is a modern real estate intelligence platform that helps users discover,
-analyze and invest in premium residential & commercial properties.
-</p>
-
-<div class="hero-actions">
-<a class="btn" href="{% url 'rental_list' %}">Explore</a>
-<a class="btn-outline" href="{% url 'about' %}">Learn More</a>
-</div>
-</div>
-
-<div class="hero-card">
-<img src="https://images.unsplash.com/photo-1600585154526-990dced4db0d">
-<div class="hero-card-content">
-<h3>AI Verified Luxury Home</h3>
-<p>Smart valuation • Verified listings • Premium insights</p>
-</div>
-</div>
+    <div class="hero-btns">
+      <a href="{% url 'rental_list' %}" class="btn btn-primary">Explore</a>
+      <a href="{% url 'rental_create' %}" class="btn btn-glass">List Property</a>
+    </div>
+  </div>
 
 </section>
 
 <!-- FEATURES -->
-<section>
+<section class="features">
 
-<h2 style="text-align:center;font-size:42px;margin-bottom:60px;">
-Powerful Features
-</h2>
+  <div class="feature-card reveal">
+    <h3>Smart Search</h3>
+    <p>Find properties using AI-powered filters and recommendations.</p>
+  </div>
 
-<div class="features">
+  <div class="feature-card reveal">
+    <h3>Verified Listings</h3>
+    <p>Every property is verified for trust and transparency.</p>
+  </div>
 
-<div class="card">
-<h3>Smart Discovery</h3>
-<p>AI-driven property recommendations based on behavior & budget.</p>
-</div>
+  <div class="feature-card reveal">
+    <h3>Instant Booking</h3>
+    <p>Schedule visits or rent properties instantly.</p>
+  </div>
 
-<div class="card">
-<h3>Verified Listings</h3>
-<p>Every property is verified for authenticity and pricing accuracy.</p>
-</div>
-
-<div class="card">
-<h3>Instant Connect</h3>
-<p>Direct chat with owners, brokers and agents in real-time.</p>
-</div>
-
-<div class="card">
-<h3>Market Insights</h3>
-<p>Track property trends, pricing history and ROI analytics.</p>
-</div>
-
-</div>
+  <div class="feature-card reveal">
+    <h3>Investment Insights</h3>
+    <p>Get analytics on ROI, rental demand, and market trends.</p>
+  </div>
 
 </section>
 
-<!-- BENEFITS -->
-<section class="benefits">
+<!-- PARALLAX -->
+<section class="parallax">
+  <h2>Find Homes That Match Your Future</h2>
+</section>
 
-<div>
-<h2 style="font-size:44px;">
-Why Property-X?
-</h2>
+<!-- STATS -->
+<section class="stats">
 
-<p style="color:#94a3b8;margin-top:20px;line-height:1.7;">
-We combine real estate intelligence with modern UX to deliver a premium experience
-for buyers, investors and brokers.
-</p>
+  <div class="stat">
+    <h2 class="counter" data-target="25000">0</h2>
+    <p>Listings</p>
+  </div>
 
-<ul style="margin-top:20px;color:#cbd5e1;line-height:2;">
-<li>✔ AI-powered property matching</li>
-<li>✔ Clean luxury UI/UX system</li>
-<li>✔ Fast listings & verification</li>
-<li>✔ Secure transactions ecosystem</li>
-</ul>
-</div>
+  <div class="stat">
+    <h2 class="counter" data-target="12000">0</h2>
+    <p>Happy Users</p>
+  </div>
 
-<img src="https://images.unsplash.com/photo-1600596542815-ffad4c1539a9">
+  <div class="stat">
+    <h2 class="counter" data-target="500">0</h2>
+    <p>Cities Covered</p>
+  </div>
 
 </section>
 
 <!-- CTA -->
-<section>
-<div class="cta">
-<h2>Build Your Real Estate Future</h2>
-<p>Join thousands already using Property-X to invest smarter.</p>
-<br>
-<a class="btn" href="{% url 'rental_list' %}">Get Started</a>
-</div>
+<section class="cta reveal">
+
+  <h2>Start Your Journey Today</h2>
+  <p>Join thousands of investors using Property-X worldwide.</p>
+
+  <a href="{% url 'rental_list' %}" class="btn btn-primary" style="margin-top:30px;">
+    Get Started
+  </a>
+
 </section>
 
-<!-- GSAP -->
+<!-- SCRIPT -->
 <script>
-gsap.from(".hero h1",{y:60,opacity:0,duration:1});
-gsap.from(".hero p",{y:40,opacity:0,duration:1,delay:.3});
-gsap.from(".hero-card",{x:80,opacity:0,duration:1.2});
 
-gsap.utils.toArray(".card").forEach(el=>{
-gsap.from(el,{
-scrollTrigger:{trigger:el,start:"top 85%"},
-y:60,
-opacity:0,
-duration:1
+gsap.registerPlugin(ScrollTrigger);
+
+// HERO
+gsap.from(".hero-left h1",{y:80,opacity:0,duration:1});
+gsap.from(".hero-left p",{y:40,opacity:0,duration:1,delay:.2});
+gsap.from(".hero-btns",{y:40,opacity:0,duration:1,delay:.4});
+
+// SCROLL REVEAL
+gsap.utils.toArray(".reveal").forEach(el=>{
+  gsap.from(el,{
+    scrollTrigger:{
+      trigger:el,
+      start:"top 85%"
+    },
+    y:60,
+    opacity:0,
+    duration:1
+  });
 });
+
+// COUNTER
+document.querySelectorAll(".counter").forEach(counter=>{
+  let update=()=>{
+    let target=+counter.dataset.target;
+    let count=+counter.innerText;
+    let inc=target/100;
+
+    if(count<target){
+      counter.innerText=Math.ceil(count+inc);
+      setTimeout(update,20);
+    }else{
+      counter.innerText=target;
+    }
+  };
+  update();
 });
+
 </script>
 
 </body>
