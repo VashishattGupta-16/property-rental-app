@@ -14,7 +14,7 @@ urlpatterns = [
     path('property/<slug:slug>/', views.rental_detail, name='rental_detail'),
 
     # ================= PROPERTY CRUD =================
-    path('property/<int:rental_id>/create/', views.rental_create, name='rental_create'),
+    path('property/create/', views.rental_create, name='rental_create'),
     path('property/<int:rental_id>/edit/', views.rental_edit, name='rental_edit'),
     path('property/<int:rental_id>/delete/', views.rental_delete, name='rental_delete'),
 
