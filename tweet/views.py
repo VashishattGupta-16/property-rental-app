@@ -10,18 +10,30 @@ from .forms import RentalForm, GalleryFormSet, ProfileSetupForm
 
 
 # ================= INDEX / ELITE BRAND ENTRY =================
+# ================= INDEX / ELITE BRAND ENTRY =================
 def index(request):
     """
-    Renders the commercial-standard brand landing page.
-    Property queries are removed to maintain a clean, GSAP-driven entry.
+    Renders the elite landing page. 
+    Queries are restored to prevent 500 errors in the template sections.
     """
+    # Fetch data required by the template
+    featured_rentals = Rental.objects.all().order_by('-created_at')[:6]
+    latest_villa = Rental.objects.filter(property_type='VILLA').first()
+    latest_flat = Rental.objects.filter(property_type='APARTMENT').first()
+    latest_pg = Rental.objects.filter(property_type='PG').first()
+    # Added showroom to match your masonry grid
+    latest_showroom = Rental.objects.filter(property_type='SHOWROOM').first()
+
     return render(request, 'index.html', {
+        'featured_rentals': featured_rentals,
+        'latest_villa': latest_villa,
+        'latest_flat': latest_flat,
+        'latest_pg': latest_pg,
+        'latest_showroom': latest_showroom,
         'hide_navbar': False,
         'hide_sidebar': True,
         'is_hero_active': True
     })
-
-
 # ================= RENTAL MARKETPLACE (LIST + SEARCH) =================
 def rental_list(request):
     """

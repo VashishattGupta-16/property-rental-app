@@ -2,154 +2,126 @@
 {% load static %}
 
 {% block content %}
-<!-- 1. ELITE HERO SECTION -->
-<div class="relative min-h-screen overflow-hidden bg-[#050608]">
-    <!-- Animated Ambient Background -->
-    <div class="absolute top-0 left-0 w-full h-full">
-        <div class="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] bg-sky-500/10 rounded-full blur-[120px]"></div>
-        <div class="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] bg-blue-600/10 rounded-full blur-[120px]"></div>
-    </div>
+<!-- GSAP & ScrollTrigger Initialization -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
 
-    <section class="max-w-7xl mx-auto min-h-screen flex items-center relative z-10 px-6 py-20">
-        <div class="grid lg:grid-cols-2 gap-16 items-center w-full">
-            
-            <!-- LEFT: CONTENT -->
-            <div class="space-y-8">
-                <div class="inline-flex items-center gap-3 px-4 py-2 rounded-full bg-white/5 border border-white/10 backdrop-blur-md">
-                    <span class="relative flex h-2 w-2">
-                        <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-sky-400 opacity-75"></span>
-                        <span class="relative inline-flex rounded-full h-2 w-2 bg-sky-500"></span>
-                    </span>
-                    <span class="text-[10px] font-black uppercase tracking-[0.3em] text-slate-300">Available in Tricity</span>
-                </div>
+<div class="bg-black text-white selection:bg-white selection:text-black overflow-x-hidden">
 
-                <h1 class="text-6xl md:text-8xl font-black text-white leading-[0.9] tracking-tighter uppercase italic">
-                    Pure <span class="text-sky-500">Luxury.</span><br>Zero Brokers.
+<!-- ================= HERO SECTION (Reference: image_560879.jpg) ================= -->
+<section class="relative min-h-screen flex flex-col justify-center px-6 lg:px-20 overflow-hidden">
+    
+    <div class="relative z-10 w-full max-w-7xl mx-auto">
+        <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8">
+            <div class="overflow-hidden">
+                <h1 class="hero-title text-[18vw] lg:text-[240px] font-black leading-[0.75] tracking-tighter uppercase italic">
+                    Space
                 </h1>
-
-                <p class="text-lg text-slate-400 max-w-md font-medium leading-relaxed">
-                    Access high-end residential and commercial spaces in Mohali & Chandigarh. Curated for the modern professional.
-                </p>
-
-                <div class="flex flex-wrap items-center gap-6">
-                    <a href="{% url 'rental_list' %}" class="px-10 py-5 bg-white text-black font-black rounded-2xl hover:bg-sky-500 hover:text-white transition-all duration-300 shadow-2xl shadow-sky-500/20 active:scale-95 uppercase text-sm tracking-widest">
-                        Explore Market
-                    </a>
-                    <div class="flex -space-x-4">
-                        <img class="w-12 h-12 rounded-full border-4 border-[#050608]" src="https://i.pravatar.cc/100?u=1" alt="user">
-                        <img class="w-12 h-12 rounded-full border-4 border-[#050608]" src="https://i.pravatar.cc/100?u=2" alt="user">
-                        <img class="w-12 h-12 rounded-full border-4 border-[#050608]" src="https://i.pravatar.cc/100?u=3" alt="user">
-                        <div class="w-12 h-12 rounded-full border-4 border-[#050608] bg-slate-800 flex items-center justify-center text-[10px] font-bold text-white">+2k</div>
-                    </div>
-                </div>
             </div>
-
-            <!-- RIGHT: VISUAL -->
-            <div class="relative">
-                <div class="relative z-20 rounded-[3rem] overflow-hidden border border-white/10 shadow-2xl rotate-2 hover:rotate-0 transition-transform duration-700">
-                    <img src="https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&q=80" class="w-full h-[600px] object-cover" alt="Elite Property">
-                </div>
-                <!-- Floating Stats Card -->
-                <div class="absolute -bottom-6 -left-10 z-30 bg-white p-6 rounded-3xl shadow-2xl animate-bounce-slow">
-                    <p class="text-[10px] font-black text-slate-400 uppercase mb-1">Total Listings</p>
-                    <p class="text-3xl font-black text-black italic">1,240+</p>
+            
+            <!-- Verified Listing Preview Frame -->
+            <div class="hero-img-box hidden md:block w-80 h-52 rounded-3xl overflow-hidden border border-white/10 group relative shadow-2xl">
+                {% if latest_villa and latest_villa.image %}
+                    <img src="{{ latest_villa.image.url }}" class="w-full h-full object-cover grayscale transition-all duration-1000 group-hover:grayscale-0">
+                {% else %}
+                    <img src="https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&q=80" class="w-full h-full object-cover grayscale">
+                {% endif %}
+                <div class="absolute bottom-3 left-3 px-3 py-1 bg-black/50 backdrop-blur-md rounded-full text-[9px] font-black uppercase tracking-widest border border-white/10">
+                    Verified Listing
                 </div>
             </div>
         </div>
-    </section>
+
+        <div class="space-y-12">
+            <p class="hero-sub opacity-0 text-slate-400 font-medium leading-relaxed max-w-sm text-lg">
+                Discover curated apartments, PGs, villas, and commercial spaces with zero brokerage and full transparency.
+            </p>
+
+            <div class="hero-btn opacity-0">
+                <a href="{% url 'rental_list' %}"
+                   class="inline-block bg-sky-500 text-white px-12 py-5 rounded-2xl font-black uppercase tracking-widest hover:bg-sky-400 transition-all shadow-[0_0_40px_rgba(14,165,233,0.25)]">
+                    Explore Market
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Secondary Tagline Reveal -->
+    <div class="mt-32 pt-12 border-t border-white/5 flex flex-col md:flex-row justify-between items-end gap-8">
+        <h2 class="tagline text-4xl md:text-7xl font-black italic uppercase tracking-tighter leading-none">
+            Tailored for your <span class="text-sky-500">lifestyle.</span>
+        </h2>
+        <p class="text-slate-500 text-[10px] font-black uppercase tracking-[0.3em] max-w-[280px] text-right leading-loose opacity-60">
+            From high-rise apartments to shared co-living, find what fits.
+        </p>
+    </div>
+</section>
+
+<!-- ================= WHY CHOOSE US SECTION ================= -->
+<section class="py-40 px-6 lg:px-20 bg-[#050505] border-t border-white/5">
+    <div class="max-w-5xl mx-auto">
+        <h2 class="choose-title text-6xl md:text-9xl font-black text-center uppercase italic tracking-tighter mb-24">
+            Why Choose Us
+        </h2>
+
+        <div class="grid gap-6">
+            <!-- Feature: Verified -->
+            <div class="feature-card bg-[#111111] border border-white/5 p-16 rounded-[3.5rem] group hover:border-white/20 transition-all duration-500">
+                <div class="w-16 h-16 bg-sky-500/10 rounded-2xl flex items-center justify-center mb-10 group-hover:scale-110 transition-transform">
+                    <div class="w-6 h-6 bg-sky-500 rounded-lg shadow-[0_0_15px_rgba(14,165,233,0.5)]"></div>
+                </div>
+                <h3 class="text-4xl font-black uppercase italic mb-4">Verified Listings</h3>
+                <p class="text-slate-500 text-lg font-medium">Every listing is manually checked by our team.</p>
+            </div>
+
+            <!-- Feature: Booking -->
+            <div class="feature-card bg-[#111111] border border-white/5 p-16 rounded-[3.5rem] group hover:border-white/20 transition-all duration-500">
+                <div class="w-16 h-16 bg-sky-500/10 rounded-2xl flex items-center justify-center mb-10 group-hover:scale-110 transition-transform">
+                    <i class="fa-solid fa-bolt text-sky-500 text-3xl"></i>
+                </div>
+                <h3 class="text-4xl font-black uppercase italic mb-4">Instant Booking</h3>
+                <p class="text-slate-500 text-lg font-medium">Digital signatures and payments in under 5 minutes.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
 </div>
 
-<!-- 2. CATEGORY BROWSER (The Grid) -->
-<section class="bg-black py-32 px-6">
-    <div class="max-w-7xl mx-auto">
-        <div class="mb-20 text-center">
-            <h2 class="text-sky-500 font-black uppercase tracking-[0.4em] text-xs mb-4 italic">The Collection</h2>
-            <p class="text-4xl md:text-6xl font-black text-white italic tracking-tighter uppercase">Browse by <span class="text-white/20">Destination Type.</span></p>
-        </div>
+<!-- GSAP Animation Engine -->
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        gsap.registerPlugin(ScrollTrigger);
 
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-8 h-[700px]">
-            <!-- VILLA (Large) -->
-            <a href="{% url 'rental_list' %}?type=VILLA" class="group relative overflow-hidden rounded-[3rem] md:row-span-2 border border-white/5">
-                <img src="https://images.unsplash.com/photo-1613490493576-7fde63acd811?auto=format&fit=crop&q=80" class="absolute inset-0 w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110">
-                <div class="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent"></div>
-                <div class="absolute bottom-10 left-10">
-                    <p class="text-sky-400 font-black uppercase text-[10px] tracking-widest mb-2">Exclusive</p>
-                    <h3 class="text-3xl font-black text-white italic uppercase">Private Villas</h3>
-                </div>
-            </a>
+        const tl = gsap.timeline({ defaults: { ease: "expo.out", duration: 1.8 }});
 
-            <!-- FLATS -->
-            <a href="{% url 'rental_list' %}?type=APARTMENT" class="group relative overflow-hidden rounded-[3rem] border border-white/5">
-                <img src="https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?auto=format&fit=crop&q=80" class="absolute inset-0 w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110">
-                <div class="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent"></div>
-                <div class="absolute bottom-10 left-10">
-                    <h3 class="text-2xl font-black text-white italic uppercase">Modern Flats</h3>
-                </div>
-            </a>
+        // Hero Entrance Sequence
+        tl.from(".hero-title", { y: 250, skewY: 10, opacity: 0 })
+          .to(".hero-sub, .hero-btn", { opacity: 1, y: -20, stagger: 0.2 }, "-=1.2")
+          .from(".hero-img-box", { x: 100, opacity: 0, scale: 0.8 }, "-=1.5");
 
-            <!-- PG -->
-            <a href="{% url 'rental_list' %}?type=PG" class="group relative overflow-hidden rounded-[3rem] border border-white/5">
-                <img src="https://images.unsplash.com/photo-1554995207-c18c203602cb?auto=format&fit=crop&q=80" class="absolute inset-0 w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110">
-                <div class="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent"></div>
-                <div class="absolute bottom-10 left-10">
-                    <h3 class="text-2xl font-black text-white italic uppercase">Premium PGs</h3>
-                </div>
-            </a>
-        </div>
-    </div>
-</section>
-
-<!-- 3. FEATURED LISTINGS -->
-<section class="bg-[#050608] py-32 px-6">
-    <div class="max-w-7xl mx-auto">
-        <div class="flex justify-between items-end mb-16">
-            <div>
-                <h2 class="text-white text-4xl font-black uppercase italic tracking-tighter">Live Market</h2>
-                <p class="text-slate-500 font-medium">Newly listed properties in the Tricity area.</p>
-            </div>
-            <a href="{% url 'rental_list' %}" class="text-xs font-black text-sky-500 uppercase tracking-widest border-b border-sky-500/20 pb-2 hover:text-white hover:border-white transition-all">View All Listings</a>
-        </div>
-
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
-            {% for rental in featured_rentals %}
-            <div class="group">
-                <div class="relative h-80 rounded-[2.5rem] overflow-hidden mb-6 border border-white/5">
-                    <img src="{{ rental.image.url }}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700">
-                    <div class="absolute top-6 left-6 px-4 py-1.5 bg-black/50 backdrop-blur-md rounded-full border border-white/10 text-[10px] font-black text-white uppercase tracking-widest">
-                        ₹{{ rental.price }}
-                    </div>
-                </div>
-                <h4 class="text-xl font-bold text-white mb-2">{{ rental.title }}</h4>
-                <div class="flex items-center gap-2 text-slate-500 text-xs uppercase font-black tracking-widest italic">
-                    <i class="fa-solid fa-location-dot text-sky-500"></i> {{ rental.location }}
-                </div>
-            </div>
-            {% endfor %}
-        </div>
-    </div>
-</section>
-
-<!-- 4. CTA SECTION -->
-<section class="py-32 px-6 bg-black relative overflow-hidden">
-    <div class="max-w-5xl mx-auto bg-white rounded-[4rem] p-16 text-center relative z-10">
-        <h2 class="text-5xl md:text-7xl font-black text-black uppercase italic tracking-tighter mb-8">Ready to move?</h2>
-        <p class="text-slate-600 font-medium text-lg max-w-xl mx-auto mb-10">
-            Join thousands of professionals finding their perfect space without the headache of middle-men.
-        </p>
-        <div class="flex justify-center gap-4">
-            <a href="{% url 'register' %}" class="px-12 py-6 bg-black text-white font-black rounded-2xl hover:scale-105 transition-all uppercase text-xs tracking-[0.2em]">Create Account</a>
-        </div>
-    </div>
-</section>
+        // Scroll-Triggered Cards
+        gsap.from(".feature-card", {
+            scrollTrigger: {
+                trigger: ".choose-title",
+                start: "top 80%",
+            },
+            y: 120,
+            opacity: 0,
+            stagger: 0.3,
+            duration: 1.4
+        });
+    });
+</script>
 
 <style>
-    .animate-bounce-slow {
-        animation: bounce-slow 5s infinite ease-in-out;
-    }
-    @keyframes bounce-slow {
-        0%, 100% { transform: translateY(0) rotate(2deg); }
-        50% { transform: translateY(-20px) rotate(2deg); }
-    }
+    /* Industrial Scrollbar */
+    ::-webkit-scrollbar { width: 4px; }
+    ::-webkit-scrollbar-track { background: #000; }
+    ::-webkit-scrollbar-thumb { background: #222; }
+    ::-webkit-scrollbar-thumb:hover { background: #fff; }
+
     body { background-color: #000; }
+    .hero-title { text-shadow: 0 20px 60px rgba(0,0,0,0.8); }
 </style>
 {% endblock %}
