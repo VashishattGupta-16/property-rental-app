@@ -1,974 +1,553 @@
-{% load static %}
+<!-- ================= WHY PROPERTY X ================= -->
 
-<!DOCTYPE html>
-<html lang="en">
+<section class="features-section">
 
-<head>
+    <div class="section-title">
 
-    <meta charset="UTF-8" />
-
-    <meta name="viewport"
-          content="width=device-width, initial-scale=1.0" />
-
-    <title>
-        Property-X | Luxury Real Estate Platform
-    </title>
-
-    <!-- SEO -->
-    <meta name="description"
-          content="Discover luxury apartments, villas, PGs, and commercial spaces with Property-X.">
-
-    <!-- FONTS -->
-    <link rel="preconnect"
-          href="https://fonts.googleapis.com">
-
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Poppins:wght@500;600;700;800&display=swap"
-          rel="stylesheet">
-
-    <!-- GSAP -->
-    <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
-
-    <!-- SCROLL TRIGGER -->
-    <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollTrigger.min.js"></script>
-
-    <!-- LENIS SMOOTH SCROLL -->
-    <script src="https://cdn.jsdelivr.net/npm/@studio-freight/lenis@1.0.42/bundled/lenis.min.js"></script>
-
-    <style>
-
-        *{
-            margin:0;
-            padding:0;
-            box-sizing:border-box;
-        }
-
-        html{
-            scroll-behavior:smooth;
-        }
-
-        body{
-            font-family:'Inter',sans-serif;
-            background:#07111f;
-            color:white;
-            overflow-x:hidden;
-        }
-
-        a{
-            text-decoration:none;
-            color:inherit;
-        }
-
-        img{
-            width:100%;
-            display:block;
-        }
-
-        section{
-            padding:120px 8%;
-            position:relative;
-        }
-
-        h1,h2,h3{
-            font-family:'Poppins',sans-serif;
-        }
-
-        /* ================= NAVBAR ================= */
-
-        nav{
-            position:fixed;
-            top:0;
-            left:0;
-            width:100%;
-            z-index:999;
-            display:flex;
-            justify-content:space-between;
-            align-items:center;
-            padding:20px 8%;
-            backdrop-filter:blur(16px);
-            background:rgba(255,255,255,0.04);
-            border-bottom:1px solid rgba(255,255,255,0.08);
-        }
-
-        .logo{
-            font-size:32px;
-            font-weight:800;
-            color:#3b82f6;
-        }
-
-        .nav-links{
-            display:flex;
-            align-items:center;
-            gap:35px;
-        }
-
-        .nav-links a{
-            color:#fff;
-            font-weight:500;
-            position:relative;
-        }
-
-        .nav-links a::after{
-            content:"";
-            position:absolute;
-            left:0;
-            bottom:-8px;
-            width:0%;
-            height:2px;
-            background:#3b82f6;
-            transition:.4s;
-        }
-
-        .nav-links a:hover::after{
-            width:100%;
-        }
-
-        .nav-btn{
-            background:#3b82f6;
-            padding:12px 22px;
-            border-radius:14px;
-            font-weight:600;
-            transition:.4s;
-        }
-
-        .nav-btn:hover{
-            transform:translateY(-4px);
-        }
-
-        /* ================= HERO ================= */
-
-        .hero{
-            min-height:100vh;
-            display:flex;
-            align-items:center;
-            justify-content:space-between;
-            gap:60px;
-            overflow:hidden;
-        }
-
-        .hero::before{
-            content:"";
-            position:absolute;
-            width:700px;
-            height:700px;
-            background:radial-gradient(circle,#2563eb55,transparent 70%);
-            top:-250px;
-            right:-100px;
-            animation:float 7s ease-in-out infinite;
-        }
-
-        .hero-content{
-            max-width:650px;
-            z-index:2;
-        }
-
-        .hero-subtitle{
-            display:inline-block;
-            padding:10px 18px;
-            background:rgba(59,130,246,0.12);
-            border:1px solid rgba(59,130,246,0.3);
-            border-radius:999px;
-            color:#93c5fd;
-            margin-bottom:25px;
-        }
-
-        .hero h1{
-            font-size:78px;
-            line-height:1.05;
-            margin-bottom:25px;
-        }
-
-        .hero h1 span{
-            color:#3b82f6;
-        }
-
-        .hero p{
-            font-size:18px;
-            line-height:1.8;
-            color:#cbd5e1;
-            margin-bottom:40px;
-        }
-
-        .hero-buttons{
-            display:flex;
-            gap:20px;
-            margin-bottom:60px;
-        }
-
-        .btn{
-            padding:16px 30px;
-            border-radius:16px;
-            font-weight:600;
-            transition:.4s;
-            display:inline-flex;
-            align-items:center;
-            gap:10px;
-        }
-
-        .btn-primary{
-            background:#3b82f6;
-            color:white;
-            box-shadow:0 10px 40px rgba(59,130,246,0.4);
-        }
-
-        .btn-primary:hover{
-            transform:translateY(-5px);
-        }
-
-        .btn-secondary{
-            border:1px solid rgba(255,255,255,0.1);
-            background:rgba(255,255,255,0.05);
-        }
-
-        .btn-secondary:hover{
-            transform:translateY(-5px);
-            background:rgba(255,255,255,0.08);
-        }
-
-        /* ================= FLOAT CARD ================= */
-
-        .hero-card{
-            width:420px;
-            border-radius:34px;
-            overflow:hidden;
-            background:rgba(255,255,255,0.05);
-            border:1px solid rgba(255,255,255,0.08);
-            backdrop-filter:blur(20px);
-            box-shadow:0 20px 60px rgba(0,0,0,0.45);
-            animation:cardFloat 6s ease-in-out infinite;
-            z-index:2;
-        }
-
-        .hero-card img{
-            height:280px;
-            object-fit:cover;
-        }
-
-        .hero-card-content{
-            padding:28px;
-        }
-
-        .hero-price{
-            font-size:34px;
-            color:#3b82f6;
-            margin:15px 0;
-            font-weight:800;
-        }
-
-        .hero-card p{
-            color:#cbd5e1;
-        }
-
-        .live-badge{
-            margin-top:20px;
-            display:inline-block;
-            background:#0f172a;
-            padding:10px 18px;
-            border-radius:999px;
-            animation:pulse 2s infinite;
-        }
-
-        /* ================= STATS ================= */
-
-        .stats{
-            display:grid;
-            grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
-            gap:25px;
-            margin-top:80px;
-        }
-
-        .stat-box{
-            padding:35px;
-            border-radius:24px;
-            background:rgba(255,255,255,0.05);
-            border:1px solid rgba(255,255,255,0.08);
-            transition:.4s;
-        }
-
-        .stat-box:hover{
-            transform:translateY(-10px);
-        }
-
-        .stat-box h2{
-            font-size:52px;
-            color:#3b82f6;
-        }
-
-        .stat-box p{
-            margin-top:12px;
-            color:#cbd5e1;
-        }
-
-        /* ================= SECTION TITLE ================= */
-
-        .section-title{
-            text-align:center;
-            margin-bottom:70px;
-        }
-
-        .section-title h2{
-            font-size:58px;
-            margin-bottom:18px;
-        }
-
-        .section-title p{
-            color:#94a3b8;
-            max-width:700px;
-            margin:auto;
-        }
-
-        /* ================= PROPERTY GRID ================= */
-
-        .property-grid{
-            display:grid;
-            grid-template-columns:repeat(auto-fit,minmax(340px,1fr));
-            gap:35px;
-        }
-
-        .property-card{
-            background:rgba(255,255,255,0.05);
-            border-radius:30px;
-            overflow:hidden;
-            border:1px solid rgba(255,255,255,0.08);
-            transition:.5s;
-            position:relative;
-        }
-
-        .property-card:hover{
-            transform:translateY(-12px);
-            box-shadow:0 30px 60px rgba(0,0,0,0.5);
-        }
-
-        .property-card img{
-            height:260px;
-            object-fit:cover;
-            transition:.7s;
-        }
-
-        .property-card:hover img{
-            transform:scale(1.08);
-        }
-
-        .property-content{
-            padding:28px;
-        }
-
-        .property-type{
-            display:inline-block;
-            background:#1e293b;
-            color:#93c5fd;
-            padding:8px 14px;
-            border-radius:999px;
-            margin-bottom:18px;
-            font-size:14px;
-        }
-
-        .property-content h3{
-            font-size:28px;
-            margin-bottom:12px;
-        }
-
-        .property-location{
-            color:#94a3b8;
-            margin-bottom:18px;
-        }
-
-        .property-meta{
-            display:flex;
-            gap:18px;
-            margin-bottom:20px;
-            color:#cbd5e1;
-        }
-
-        .property-footer{
-            display:flex;
-            justify-content:space-between;
-            align-items:center;
-        }
-
-        .property-price{
-            color:#3b82f6;
-            font-size:28px;
-            font-weight:700;
-        }
-
-        .view-btn{
-            background:#3b82f6;
-            padding:12px 20px;
-            border-radius:14px;
-            transition:.4s;
-        }
-
-        .view-btn:hover{
-            transform:translateY(-4px);
-        }
-
-        .trending{
-            position:absolute;
-            top:18px;
-            right:18px;
-            background:#0f172acc;
-            padding:10px 18px;
-            border-radius:999px;
-            backdrop-filter:blur(10px);
-        }
-
-        /* ================= CATEGORY GRID ================= */
-
-        .masonry{
-            display:grid;
-            grid-template-columns:2fr 1fr 1fr;
-            gap:24px;
-        }
-
-        .masonry-card{
-            position:relative;
-            border-radius:30px;
-            overflow:hidden;
-            min-height:300px;
-        }
-
-        .masonry-card.large{
-            min-height:620px;
-        }
-
-        .masonry-card img{
-            height:100%;
-            object-fit:cover;
-            transition:.8s;
-        }
-
-        .masonry-card:hover img{
-            transform:scale(1.08);
-        }
-
-        .overlay{
-            position:absolute;
-            inset:0;
-            background:linear-gradient(to top,rgba(0,0,0,0.8),transparent);
-            display:flex;
-            align-items:flex-end;
-            padding:30px;
-        }
-
-        .overlay h3{
-            font-size:32px;
-        }
-
-        /* ================= CTA ================= */
-
-        .cta{
-            background:linear-gradient(135deg,#2563eb,#0f172a);
-            border-radius:40px;
-            text-align:center;
-            overflow:hidden;
-        }
-
-        .cta h2{
-            font-size:60px;
-            margin-bottom:20px;
-        }
-
-        .cta p{
-            max-width:700px;
-            margin:auto;
-            line-height:1.8;
-            color:#dbeafe;
-            margin-bottom:40px;
-        }
-
-        /* ================= FOOTER ================= */
-
-        footer{
-            padding:50px;
-            text-align:center;
-            color:#94a3b8;
-        }
-
-        /* ================= ANIMATIONS ================= */
-
-        @keyframes float{
-            0%,100%{
-                transform:translateY(0px);
-            }
-            50%{
-                transform:translateY(30px);
-            }
-        }
-
-        @keyframes cardFloat{
-            0%,100%{
-                transform:translateY(0px);
-            }
-            50%{
-                transform:translateY(-20px);
-            }
-        }
-
-        @keyframes pulse{
-            0%{
-                box-shadow:0 0 0 0 rgba(59,130,246,0.7);
-            }
-            70%{
-                box-shadow:0 0 0 15px rgba(59,130,246,0);
-            }
-            100%{
-                box-shadow:0 0 0 0 rgba(59,130,246,0);
-            }
-        }
-
-        /* ================= RESPONSIVE ================= */
-
-        @media(max-width:1000px){
-
-            .hero{
-                flex-direction:column;
-                text-align:center;
-                padding-top:150px;
-            }
-
-            .hero-buttons{
-                justify-content:center;
-            }
-
-            .hero h1{
-                font-size:56px;
-            }
-
-            .masonry{
-                grid-template-columns:1fr;
-            }
-
-            .masonry-card.large{
-                min-height:350px;
-            }
-
-            nav{
-                flex-direction:column;
-                gap:20px;
-            }
-        }
-
-    </style>
-
-</head>
-
-<body>
-
-<!-- NAVBAR -->
-
-<nav>
-
-    <a href="{% url 'home' %}"
-       class="logo">
-
-        Property-X
-
-    </a>
-
-    <div class="nav-links">
-
-        <a href="{% url 'home' %}">
-            Home
-        </a>
-
-        <a href="{% url 'rental_list' %}">
-            Properties
-        </a>
-
-        <a href="{% url 'wishlist' %}">
-            Wishlist
-        </a>
-
-        <a href="{% url 'profile' %}">
-            Dashboard
-        </a>
-
-        <a href="{% url 'about' %}">
-            About
-        </a>
-
-    </div>
-
-    <a href="{% url 'rental_create' %}"
-       class="nav-btn">
-
-        List Property
-
-    </a>
-
-</nav>
-
-<!-- HERO -->
-
-<section class="hero">
-
-    <div class="hero-content">
-
-        <div class="hero-subtitle">
-            #1 Luxury Real Estate Platform
-        </div>
-
-        <h1>
-            Discover Elite
-            <span>Luxury Living</span>
-        </h1>
+        <h2>
+            Why Choose Property-X
+        </h2>
 
         <p>
-            Property-X helps buyers, renters, and investors
-            discover premium homes, villas, apartments,
-            and commercial properties with immersive experiences.
+            Designed with modern architecture, immersive discovery,
+            AI-powered recommendations, and enterprise-grade
+            property technology.
         </p>
 
-        <div class="hero-buttons">
+    </div>
 
-            <a href="{% url 'rental_list' %}"
-               class="btn btn-primary">
+    <div class="features-grid">
 
-                Explore Properties
+        <!-- FEATURE -->
 
-            </a>
+        <div class="feature-card reveal">
 
-            <a href="{% url 'rental_create' %}"
-               class="btn btn-secondary">
+            <div class="feature-icon">
+                🏙
+            </div>
 
-                Add Listing
+            <h3>
+                Smart Property Discovery
+            </h3>
 
-            </a>
+            <p>
+                AI-driven recommendations that match
+                your lifestyle, investment goals,
+                and preferred locations.
+            </p>
 
         </div>
 
-        <!-- STATS -->
+        <!-- FEATURE -->
 
-        <div class="stats">
+        <div class="feature-card reveal">
 
-            <div class="stat-box">
-                <h2 class="counter"
-                    data-target="25000">0</h2>
-
-                <p>Properties Listed</p>
+            <div class="feature-icon">
+                ⚡
             </div>
 
-            <div class="stat-box">
-                <h2 class="counter"
-                    data-target="12000">0</h2>
+            <h3>
+                Lightning Fast Experience
+            </h3>
 
-                <p>Happy Buyers</p>
+            <p>
+                Commercial-grade performance engineered
+                for ultra-fast property browsing and
+                smooth immersive interactions.
+            </p>
+
+        </div>
+
+        <!-- FEATURE -->
+
+        <div class="feature-card reveal">
+
+            <div class="feature-icon">
+                🔒
             </div>
 
-            <div class="stat-box">
-                <h2 class="counter"
-                    data-target="500">0</h2>
+            <h3>
+                Verified Listings
+            </h3>
 
-                <p>Cr+ Transactions</p>
+            <p>
+                Every premium property undergoes
+                advanced verification and fraud
+                prevention protocols.
+            </p>
+
+        </div>
+
+        <!-- FEATURE -->
+
+        <div class="feature-card reveal">
+
+            <div class="feature-icon">
+                🌎
+            </div>
+
+            <h3>
+                Global Luxury Access
+            </h3>
+
+            <p>
+                Explore villas, apartments,
+                penthouses, and commercial
+                investments worldwide.
+            </p>
+
+        </div>
+
+    </div>
+
+</section>
+
+<!-- ================= IMMERSIVE EXPERIENCE ================= -->
+
+<section class="immersive-section">
+
+    <div class="immersive-left reveal">
+
+        <div class="mini-tag">
+            IMMERSIVE EXPERIENCE
+        </div>
+
+        <h2>
+            Experience Real Estate
+            In A Completely New Way
+        </h2>
+
+        <p>
+            Property-X transforms traditional property
+            discovery into a cinematic luxury experience
+            with smooth animations, visual storytelling,
+            and immersive digital exploration.
+        </p>
+
+        <div class="benefits">
+
+            <div class="benefit-item">
+                ✅ 3D Property Showcase
+            </div>
+
+            <div class="benefit-item">
+                ✅ Real-Time Market Analytics
+            </div>
+
+            <div class="benefit-item">
+                ✅ AI Investment Suggestions
+            </div>
+
+            <div class="benefit-item">
+                ✅ Secure Digital Communication
             </div>
 
         </div>
 
     </div>
 
-    <!-- HERO PROPERTY CARD -->
+    <div class="immersive-right reveal">
 
-    {% if latest_villa %}
+        <img src="https://images.unsplash.com/photo-1600607687644-c7171b42498f?q=80&w=1400&auto=format&fit=crop"
+             alt="Luxury Interior">
 
-    <a href="{% url 'rental_detail' latest_villa.slug %}"
-       class="hero-card">
+    </div>
 
-        <img src="{{ latest_villa.image.url }}"
-             alt="{{ latest_villa.title }}">
+</section>
 
-        <div class="hero-card-content">
+<!-- ================= EXPERIENCE SHOWCASE ================= -->
 
-            <h2>
-                {{ latest_villa.title }}
-            </h2>
+<section class="showcase-section">
 
-            <div class="hero-price">
-                ₹{{ latest_villa.price }}
+    <div class="section-title">
+
+        <h2>
+            The Future Of Property Technology
+        </h2>
+
+        <p>
+            Combining architecture, luxury,
+            design systems, and technology
+            into one premium platform.
+        </p>
+
+    </div>
+
+    <div class="showcase-grid">
+
+        <!-- IMAGE -->
+
+        <div class="showcase-card reveal large-card">
+
+            <img src="https://images.unsplash.com/photo-1600607687920-4e2a09cf159d?q=80&w=1400&auto=format&fit=crop">
+
+            <div class="showcase-overlay">
+
+                <h3>
+                    Luxury Smart Homes
+                </h3>
+
+                <p>
+                    Intelligent automation systems
+                    integrated into premium spaces.
+                </p>
+
+            </div>
+
+        </div>
+
+        <!-- IMAGE -->
+
+        <div class="showcase-card reveal">
+
+            <img src="https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?q=80&w=1200&auto=format&fit=crop">
+
+            <div class="showcase-overlay">
+
+                <h3>
+                    Architectural Excellence
+                </h3>
+
+            </div>
+
+        </div>
+
+        <!-- IMAGE -->
+
+        <div class="showcase-card reveal">
+
+            <img src="https://images.unsplash.com/photo-1600047509807-ba8f99d2cdde?q=80&w=1200&auto=format&fit=crop">
+
+            <div class="showcase-overlay">
+
+                <h3>
+                    Oceanfront Living
+                </h3>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</section>
+
+<!-- ================= TESTIMONIALS ================= -->
+
+<section class="testimonial-section">
+
+    <div class="section-title">
+
+        <h2>
+            Trusted By Investors Worldwide
+        </h2>
+
+    </div>
+
+    <div class="testimonial-grid">
+
+        <!-- TESTIMONIAL -->
+
+        <div class="testimonial-card reveal">
+
+            <div class="stars">
+                ⭐⭐⭐⭐⭐
             </div>
 
             <p>
-                {{ latest_villa.location }}
+                “Property-X completely changed
+                the way I discover investment
+                opportunities in real estate.”
             </p>
 
-            <div class="live-badge">
-                👁 Live Views Increasing
-            </div>
+            <h4>
+                — Arjun Mehta
+            </h4>
 
         </div>
 
-    </a>
+        <!-- TESTIMONIAL -->
 
-    {% endif %}
+        <div class="testimonial-card reveal">
 
-</section>
-
-<!-- FEATURED -->
-
-<section>
-
-    <div class="section-title">
-
-        <h2>
-            Featured Properties
-        </h2>
-
-        <p>
-            Explore elite homes and investments tailored
-            for luxury lifestyles and future-ready living.
-        </p>
-
-    </div>
-
-    <div class="property-grid">
-
-        {% for property in featured_rentals %}
-
-        <div class="property-card reveal">
-
-            <div class="trending">
-                🔥 Trending
+            <div class="stars">
+                ⭐⭐⭐⭐⭐
             </div>
 
-            <img src="{{ property.image.url }}"
-                 alt="{{ property.title }}">
+            <p>
+                “The smooth experience,
+                animations, and luxury design
+                feel world-class.”
+            </p>
 
-            <div class="property-content">
-
-                <div class="property-type">
-                    {{ property.property_type }}
-                </div>
-
-                <h3>
-                    {{ property.title }}
-                </h3>
-
-                <div class="property-location">
-                    📍 {{ property.location }}
-                </div>
-
-                <div class="property-meta">
-
-                    <span>
-                        🛏 {{ property.bedrooms }}
-                    </span>
-
-                    <span>
-                        🛁 {{ property.bathrooms }}
-                    </span>
-
-                    <span>
-                        📐 {{ property.sqft }} sqft
-                    </span>
-
-                </div>
-
-                <div class="property-footer">
-
-                    <div class="property-price">
-                        ₹{{ property.price }}
-                    </div>
-
-                    <a href="{% url 'rental_detail' property.slug %}"
-                       class="view-btn">
-
-                        View
-
-                    </a>
-
-                </div>
-
-            </div>
+            <h4>
+                — Sarah Williams
+            </h4>
 
         </div>
 
-        {% endfor %}
+        <!-- TESTIMONIAL -->
+
+        <div class="testimonial-card reveal">
+
+            <div class="stars">
+                ⭐⭐⭐⭐⭐
+            </div>
+
+            <p>
+                “An elite platform that feels
+                more like Apple than traditional
+                real estate websites.”
+            </p>
+
+            <h4>
+                — Rohan Kapoor
+            </h4>
+
+        </div>
 
     </div>
 
 </section>
 
-<!-- CATEGORY SECTION -->
+<!-- ================= ADD THESE CSS ================= -->
 
-<section>
+<style>
 
-    <div class="section-title">
+.features-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(260px,1fr));
+    gap:30px;
+}
 
-        <h2>
-            Explore By Category
-        </h2>
+.feature-card{
+    background:rgba(255,255,255,0.05);
+    padding:40px;
+    border-radius:28px;
+    border:1px solid rgba(255,255,255,0.08);
+    transition:.5s;
+}
 
-    </div>
+.feature-card:hover{
+    transform:translateY(-12px);
+    background:rgba(255,255,255,0.08);
+}
 
-    <div class="masonry">
+.feature-icon{
+    font-size:42px;
+    margin-bottom:20px;
+}
 
-        {% if latest_villa %}
-        <a href="{% url 'rental_detail' latest_villa.slug %}"
-           class="masonry-card large reveal">
+.feature-card h3{
+    font-size:26px;
+    margin-bottom:16px;
+}
 
-            <img src="{{ latest_villa.image.url }}">
+.feature-card p{
+    color:#cbd5e1;
+    line-height:1.8;
+}
 
-            <div class="overlay">
-                <h3>Luxury Villas</h3>
-            </div>
+.immersive-section{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:60px;
+    align-items:center;
+}
 
-        </a>
-        {% endif %}
+.mini-tag{
+    display:inline-block;
+    padding:10px 18px;
+    background:#1e293b;
+    border-radius:999px;
+    color:#93c5fd;
+    margin-bottom:25px;
+}
 
-        {% if latest_flat %}
-        <a href="{% url 'rental_detail' latest_flat.slug %}"
-           class="masonry-card reveal">
+.immersive-left h2{
+    font-size:58px;
+    line-height:1.1;
+    margin-bottom:25px;
+}
 
-            <img src="{{ latest_flat.image.url }}">
+.immersive-left p{
+    color:#cbd5e1;
+    line-height:1.8;
+    margin-bottom:35px;
+}
 
-            <div class="overlay">
-                <h3>Apartments</h3>
-            </div>
+.benefits{
+    display:flex;
+    flex-direction:column;
+    gap:18px;
+}
 
-        </a>
-        {% endif %}
+.benefit-item{
+    padding:18px 22px;
+    background:rgba(255,255,255,0.05);
+    border-radius:18px;
+    border:1px solid rgba(255,255,255,0.08);
+}
 
-        {% if latest_pg %}
-        <a href="{% url 'rental_detail' latest_pg.slug %}"
-           class="masonry-card reveal">
+.immersive-right img{
+    border-radius:34px;
+    height:650px;
+    object-fit:cover;
+}
 
-            <img src="{{ latest_pg.image.url }}">
+.showcase-grid{
+    display:grid;
+    grid-template-columns:2fr 1fr 1fr;
+    gap:24px;
+}
 
-            <div class="overlay">
-                <h3>PG Spaces</h3>
-            </div>
+.showcase-card{
+    position:relative;
+    overflow:hidden;
+    border-radius:30px;
+    min-height:320px;
+}
 
-        </a>
-        {% endif %}
+.large-card{
+    min-height:650px;
+}
 
-    </div>
+.showcase-card img{
+    width:100%;
+    height:100%;
+    object-fit:cover;
+    transition:.8s;
+}
 
-</section>
+.showcase-card:hover img{
+    transform:scale(1.08);
+}
 
-<!-- CTA -->
+.showcase-overlay{
+    position:absolute;
+    inset:0;
+    background:linear-gradient(to top,rgba(0,0,0,0.8),transparent);
+    display:flex;
+    flex-direction:column;
+    justify-content:flex-end;
+    padding:30px;
+}
 
-<section>
+.showcase-overlay h3{
+    font-size:34px;
+    margin-bottom:10px;
+}
 
-    <div class="cta">
+.showcase-overlay p{
+    color:#dbeafe;
+}
 
-        <h2>
-            Find Your Dream Property
-        </h2>
+.testimonial-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(320px,1fr));
+    gap:30px;
+}
 
-        <p>
-            Join thousands of buyers and investors
-            discovering future-ready real estate
-            with Property-X.
-        </p>
+.testimonial-card{
+    background:rgba(255,255,255,0.05);
+    border-radius:30px;
+    padding:40px;
+    border:1px solid rgba(255,255,255,0.08);
+    transition:.5s;
+}
 
-        <a href="{% url 'rental_list' %}"
-           class="btn btn-primary">
+.testimonial-card:hover{
+    transform:translateY(-10px);
+}
 
-            Browse Listings
+.stars{
+    font-size:24px;
+    margin-bottom:20px;
+}
 
-        </a>
+.testimonial-card p{
+    color:#cbd5e1;
+    line-height:1.8;
+    margin-bottom:20px;
+}
 
-    </div>
+@media(max-width:1000px){
 
-</section>
+    .immersive-section{
+        grid-template-columns:1fr;
+    }
 
-<!-- FOOTER -->
+    .showcase-grid{
+        grid-template-columns:1fr;
+    }
 
-<footer>
+    .large-card{
+        min-height:350px;
+    }
 
-    © 2026 Property-X — Luxury Real Estate Platform
+    .immersive-left h2{
+        font-size:42px;
+    }
 
-</footer>
+}
 
-<!-- GSAP -->
+</style>
+
+<!-- ================= EXTRA GSAP ANIMATIONS ================= -->
 
 <script>
 
-    gsap.registerPlugin(ScrollTrigger);
-
-    // SMOOTH SCROLL
-
-    const lenis = new Lenis({
-        duration: 1.2
-    });
-
-    function raf(time) {
-        lenis.raf(time);
-        requestAnimationFrame(raf);
-    }
-
-    requestAnimationFrame(raf);
-
-    // HERO
-
-    gsap.from(".hero-content h1",{
+    gsap.from(".feature-card",{
+        scrollTrigger:{
+            trigger:".features-section",
+            start:"top 80%"
+        },
         y:80,
         opacity:0,
-        duration:1
-    });
-
-    gsap.from(".hero-content p",{
-        y:40,
-        opacity:0,
         duration:1,
-        delay:.3
+        stagger:.2
     });
 
-    gsap.from(".hero-buttons",{
-        y:40,
+    gsap.from(".immersive-left",{
+        scrollTrigger:{
+            trigger:".immersive-section",
+            start:"top 75%"
+        },
+        x:-100,
         opacity:0,
-        duration:1,
-        delay:.5
+        duration:1.2
     });
 
-    gsap.from(".hero-card",{
+    gsap.from(".immersive-right",{
+        scrollTrigger:{
+            trigger:".immersive-section",
+            start:"top 75%"
+        },
         x:100,
         opacity:0,
         duration:1.2
     });
 
-    // COUNTER
-
-    const counters = document.querySelectorAll('.counter');
-
-    counters.forEach(counter => {
-
-        const updateCounter = () => {
-
-            const target = +counter.dataset.target;
-            const count = +counter.innerText;
-
-            const increment = target / 100;
-
-            if(count < target){
-                counter.innerText = Math.ceil(count + increment);
-                setTimeout(updateCounter,20);
-            }else{
-                counter.innerText = target.toLocaleString();
-            }
-        }
-
-        updateCounter();
-
+    gsap.from(".showcase-card",{
+        scrollTrigger:{
+            trigger:".showcase-section",
+            start:"top 80%"
+        },
+        y:100,
+        opacity:0,
+        duration:1.2,
+        stagger:.2
     });
 
-    // SCROLL REVEAL
-
-    gsap.utils.toArray(".reveal").forEach((el)=>{
-
-        gsap.from(el,{
-            scrollTrigger:{
-                trigger:el,
-                start:"top 85%",
-            },
-            y:80,
-            opacity:0,
-            duration:1,
-            ease:"power4.out"
-        });
-
+    gsap.from(".testimonial-card",{
+        scrollTrigger:{
+            trigger:".testimonial-section",
+            start:"top 80%"
+        },
+        scale:.8,
+        opacity:0,
+        duration:1,
+        stagger:.2
     });
 
 </script>
-
-</body>
-</html>
