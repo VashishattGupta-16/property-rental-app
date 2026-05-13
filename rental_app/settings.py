@@ -192,6 +192,10 @@ AUTHENTICATION_BACKENDS = [
 # DJANGO ALLAUTH CONFIGURATION
 # =========================================================
 
+ACCOUNT_AUTHENTICATION_METHOD = "email"
+
+ACCOUNT_USERNAME_REQUIRED = False
+
 ACCOUNT_LOGIN_METHODS = {
     "email",
 }
