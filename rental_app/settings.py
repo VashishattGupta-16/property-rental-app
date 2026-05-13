@@ -10,52 +10,67 @@ from dotenv import load_dotenv
 # =========================================================
 
 BASE_DIR = Path(__file__).resolve().parent.parent
+
 load_dotenv()
 
 
 def env_bool(name: str, default: bool = False) -> bool:
-    raw = os.getenv(name)
-    if raw is None:
+    value = os.getenv(name)
+
+    if value is None:
         return default
-    return raw.strip().lower() in {"1", "true", "yes", "on"}
+
+    return value.strip().lower() in {
+        "1",
+        "true",
+        "yes",
+        "on",
+    }
 
 
 # =========================================================
 # SECURITY
 # =========================================================
 
-SECRET_KEY = os.getenv("SECRET_KEY", "django-insecure-dev-key")
+SECRET_KEY = os.getenv(
+    "SECRET_KEY",
+    "django-insecure-dev-key",
+)
+
 DEBUG = env_bool("DJANGO_DEBUG", default=True)
 
-allowed_hosts = os.getenv("DJANGO_ALLOWED_HOSTS")
-if allowed_hosts:
-    ALLOWED_HOSTS = [h.strip() for h in allowed_hosts.split(",") if h.strip()]
-else:
-    ALLOWED_HOSTS = [
-        "127.0.0.1",
-        "localhost",
-        "rentalpro-web.onrender.com",
-        ".onrender.com",
-    ]
+ALLOWED_HOSTS = [
+    host.strip()
+    for host in os.getenv(
+        "DJANGO_ALLOWED_HOSTS",
+        "127.0.0.1,localhost,rentalpro-web.onrender.com,.onrender.com",
+    ).split(",")
+    if host.strip()
+]
 
 CSRF_TRUSTED_ORIGINS = [
-    o.strip()
-    for o in os.getenv(
+    origin.strip()
+    for origin in os.getenv(
         "DJANGO_CSRF_TRUSTED_ORIGINS",
         "https://rentalpro-web.onrender.com",
     ).split(",")
-    if o.strip()
+    if origin.strip()
 ]
 
 SESSION_COOKIE_SECURE = not DEBUG
 CSRF_COOKIE_SECURE = not DEBUG
-SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+
+SECURE_PROXY_SSL_HEADER = (
+    "HTTP_X_FORWARDED_PROTO",
+    "https",
+)
 
 # =========================================================
-# APPS
+# APPLICATIONS
 # =========================================================
 
 INSTALLED_APPS = [
+    # Django Apps
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
@@ -65,15 +80,17 @@ INSTALLED_APPS = [
     "django.contrib.humanize",
     "django.contrib.sites",
 
-    "cloudinary_storage",
+    # Third Party Apps
     "cloudinary",
-
-    "tweet.apps.TweetConfig",
+    "cloudinary_storage",
 
     "allauth",
     "allauth.account",
     "allauth.socialaccount",
     "allauth.socialaccount.providers.google",
+
+    # Local Apps
+    "tweet.apps.TweetConfig",
 ]
 
 # =========================================================
@@ -82,6 +99,8 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
+
+    # WhiteNoise
     "whitenoise.middleware.WhiteNoiseMiddleware",
 
     "django.contrib.sessions.middleware.SessionMiddleware",
@@ -91,17 +110,21 @@ MIDDLEWARE = [
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 
+    # Allauth
     "allauth.account.middleware.AccountMiddleware",
-    # Ensures new users are redirected to complete their profile
-    "tweet.middleware.ProfileCompletionMiddleware",
+
+    # TEMPORARILY DISABLED FOR DEBUGGING
+    # "tweet.middleware.ProfileCompletionMiddleware",
 ]
 
 # =========================================================
-# URLS
+# URLS / WSGI
 # =========================================================
 
 ROOT_URLCONF = "rental_app.urls"
+
 WSGI_APPLICATION = "rental_app.wsgi.application"
+
 SITE_ID = 1
 
 # =========================================================
@@ -111,7 +134,9 @@ SITE_ID = 1
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": [BASE_DIR / "rental_app" / "templates"],
+        "DIRS": [
+            BASE_DIR / "rental_app" / "templates",
+        ],
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [
@@ -129,10 +154,11 @@ TEMPLATES = [
 # =========================================================
 
 DATABASE_URL = os.getenv("DATABASE_URL")
+
 if DATABASE_URL:
     DATABASES = {
-        "default": dj_database_url.config(
-            default=DATABASE_URL,
+        "default": dj_database_url.parse(
+            DATABASE_URL,
             conn_max_age=600,
             ssl_require=not DEBUG,
         )
@@ -146,7 +172,7 @@ else:
     }
 
 # =========================================================
-# AUTH
+# AUTHENTICATION
 # =========================================================
 
 AUTH_USER_MODEL = "tweet.CustomUser"
@@ -156,48 +182,87 @@ AUTHENTICATION_BACKENDS = [
     "allauth.account.auth_backends.AuthenticationBackend",
 ]
 
-ACCOUNT_AUTHENTICATION_METHOD = "email"
+# =========================================================
+# DJANGO-ALLAUTH
+# =========================================================
+
 ACCOUNT_LOGIN_METHODS = {"email"}
+
+ACCOUNT_SIGNUP_FIELDS = [
+    "email*",
+    "password1*",
+    "password2*",
+]
+
 ACCOUNT_EMAIL_REQUIRED = True
+
 ACCOUNT_UNIQUE_EMAIL = True
+
 ACCOUNT_USERNAME_REQUIRED = False
+
 ACCOUNT_USER_MODEL_USERNAME_FIELD = None
+
 ACCOUNT_USER_MODEL_EMAIL_FIELD = "email"
-ACCOUNT_SIGNUP_FIELDS = ["email*", "password1*", "password2*"]
+
 ACCOUNT_EMAIL_VERIFICATION = "none"
 
 LOGIN_URL = "/accounts/login/"
+
 LOGIN_REDIRECT_URL = "/rentals/"
+
 LOGOUT_REDIRECT_URL = "/"
 
+# =========================================================
+# GOOGLE AUTH
+# =========================================================
+
 SOCIALACCOUNT_QUERY_EMAIL = True
+
 SOCIALACCOUNT_AUTO_SIGNUP = True
+
 SOCIALACCOUNT_EMAIL_REQUIRED = True
+
 SOCIALACCOUNT_EMAIL_VERIFICATION = "none"
+
 SOCIALACCOUNT_LOGIN_ON_GET = True
+
 SOCIALACCOUNT_EMAIL_AUTHENTICATION = True
+
 SOCIALACCOUNT_EMAIL_AUTHENTICATION_AUTO_CONNECT = True
+
 SOCIALACCOUNT_STORE_TOKENS = False
+
 SOCIALACCOUNT_PROVIDERS = {
     "google": {
         "EMAIL_AUTHENTICATION": True,
         "EMAIL_AUTHENTICATION_AUTO_CONNECT": True,
         "VERIFIED_EMAIL": True,
+        "SCOPE": [
+            "profile",
+            "email",
+        ],
+        "AUTH_PARAMS": {
+            "access_type": "online",
+        },
+        "OAUTH_PKCE_ENABLED": True,
         "APPS": [
             {
-                "client_id": os.getenv("GOOGLE_CLIENT_ID", ""),
-                "secret": os.getenv("GOOGLE_CLIENT_SECRET", ""),
+                "client_id": os.getenv(
+                    "GOOGLE_CLIENT_ID",
+                    "",
+                ),
+                "secret": os.getenv(
+                    "GOOGLE_CLIENT_SECRET",
+                    "",
+                ),
                 "key": "",
             }
         ],
-        "SCOPE": ["profile", "email"],
-        "AUTH_PARAMS": {"access_type": "online"},
-        "OAUTH_PKCE_ENABLED": True,
     }
 }
 
 # =========================================================
-# CLOUDINARY (MEDIA ONLY)
+# CLOUDINARY
 # =========================================================
 
 CLOUDINARY_STORAGE = {
@@ -215,31 +280,39 @@ cloudinary.config(
 )
 
 # =========================================================
-# STATIC (WHITENOISE ONLY)
+# STATIC FILES
 # =========================================================
 
 STATIC_URL = "/static/"
-STATIC_ROOT = BASE_DIR / "staticfiles"
-STATICFILES_DIRS = [BASE_DIR / "static"]
 
-# WhiteNoise recommends CompressedManifestStaticFilesStorage for production
-# caching + compression.
+STATIC_ROOT = BASE_DIR / "staticfiles"
+
+STATICFILES_DIRS = [
+    BASE_DIR / "static",
+]
+
 STORAGES = {
-    # User uploads (MEDIA) -> Cloudinary
+    # Media uploads -> Cloudinary
     "default": {
-        "BACKEND": "cloudinary_storage.storage.MediaCloudinaryStorage",
+        "BACKEND": (
+            "cloudinary_storage.storage.MediaCloudinaryStorage"
+        ),
     },
-    # Collected static files (STATIC) -> WhiteNoise (local filesystem)
+
+    # Static files -> WhiteNoise
     "staticfiles": {
-        "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
+        "BACKEND": (
+            "whitenoise.storage.CompressedManifestStaticFilesStorage"
+        ),
     },
 }
 
 # =========================================================
-# MEDIA (PREFIX ONLY; FILES STORED IN CLOUDINARY)
+# MEDIA
 # =========================================================
 
 MEDIA_URL = "/media/"
+
 MEDIA_ROOT = BASE_DIR / "media"
 
 # =========================================================
@@ -247,12 +320,35 @@ MEDIA_ROOT = BASE_DIR / "media"
 # =========================================================
 
 LANGUAGE_CODE = "en-us"
+
 TIME_ZONE = "Asia/Kolkata"
+
 USE_I18N = True
+
 USE_TZ = True
 
 # =========================================================
-# DEFAULT AUTO FIELD
+# DEFAULT PRIMARY KEY FIELD TYPE
 # =========================================================
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+# =========================================================
+# LOGGING (FOR RENDER DEBUGGING)
+# =========================================================
+
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+
+    "handlers": {
+        "console": {
+            "class": "logging.StreamHandler",
+        },
+    },
+
+    "root": {
+        "handlers": ["console"],
+        "level": "DEBUG",
+    },
+}
