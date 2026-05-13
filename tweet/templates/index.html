@@ -2,128 +2,155 @@
 {% load static %}
 
 {% block content %}
-<!-- GSAP & ScrollTrigger -->
+
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
 
-<div class="bg-black text-white selection:bg-white selection:text-black">
+<div class="bg-black text-white overflow-hidden">
 
-    <!-- 1. HERO SECTION -->
-    <section class="relative h-screen flex items-center justify-center overflow-hidden px-6">
-        <!-- Background Typography -->
-        <div class="hero-bg-text absolute inset-0 flex items-center justify-center opacity-[0.03] select-none pointer-events-none">
-            <h1 class="text-[30vw] font-black uppercase italic">ELITE</h1>
-        </div>
+<!-- ================= HERO ================= -->
+<section class="relative min-h-screen flex items-center px-6">
 
-        <div class="relative z-10 text-center space-y-8">
-            <div class="hero-reveal overflow-hidden">
-                <h1 class="hero-main-title text-6xl md:text-[120px] font-black leading-[0.85] tracking-tighter uppercase italic">
-                    Architecting <br> <span class="text-white/20">Lifestyles.</span>
-                </h1>
-            </div>
-            
-            <p class="hero-sub opacity-0 text-slate-400 font-medium tracking-widest uppercase text-xs md:text-sm">
-                Curated Spaces • No Brokers • Industrial Comfort
+    <!-- Background Glow -->
+    <div class="absolute inset-0">
+        <div class="absolute w-[600px] h-[600px] bg-sky-500/20 blur-[120px] top-[-200px] left-[-200px]"></div>
+        <div class="absolute w-[500px] h-[500px] bg-purple-500/10 blur-[120px] bottom-[-200px] right-[-200px]"></div>
+    </div>
+
+    <div class="max-w-7xl mx-auto grid md:grid-cols-2 gap-16 items-center relative z-10">
+
+        <!-- LEFT TEXT -->
+        <div class="space-y-8">
+
+            <p class="hero-tag opacity-0 text-xs tracking-[0.4em] uppercase text-sky-400">
+                Premium Rentals • Tricity • Verified Spaces
             </p>
 
-            <div class="hero-cta opacity-0 pt-6">
-                <a href="{% url 'rental_list' %}" class="inline-block border border-white px-12 py-5 text-xs font-black uppercase tracking-[0.3em] hover:bg-white hover:text-black transition-all duration-500">
-                    Enter the Marketplace
+            <h1 class="hero-title text-5xl md:text-7xl font-black leading-[0.9]">
+                Find Your <span class="text-sky-400">Perfect</span><br>
+                Living Space
+            </h1>
+
+            <p class="hero-sub opacity-0 text-slate-400 max-w-md">
+                Discover curated apartments, PGs, villas, and commercial spaces with zero brokerage and full transparency.
+            </p>
+
+            <div class="hero-btn opacity-0">
+                <a href="{% url 'rental_list' %}"
+                   class="inline-block bg-sky-500 hover:bg-sky-600 px-8 py-4 rounded-xl font-bold transition">
+                    Explore Listings
                 </a>
             </div>
-        </div>
-    </section>
 
-    <!-- 2. THE PHILOSOPHY (Commercial Detail) -->
-    <section class="philosophy-section py-40 border-t border-white/5">
-        <div class="max-w-7xl mx-auto px-6">
-            <div class="grid md:grid-cols-2 gap-20 items-center">
-                <div class="phil-image relative h-[600px] overflow-hidden rounded-2xl grayscale hover:grayscale-0 transition-all duration-1000">
-                    <img src="https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&q=80" class="w-full h-full object-cover scale-125">
-                </div>
-                <div class="space-y-10">
-                    <h2 class="phil-title text-5xl font-black uppercase italic tracking-tighter">The <span class="text-white/30">RentalPro</span> <br> Standard</h2>
-                    <div class="space-y-6 text-slate-400 font-medium leading-relaxed">
-                        <p class="phil-text opacity-0">We operate at the intersection of modern engineering and residential comfort. Every space listed is vetted for structural integrity and aesthetic alignment.</p>
-                        <ul class="phil-list space-y-4 text-white text-xs font-black uppercase tracking-widest">
-                            <li class="flex items-center gap-4 opacity-0"><span class="w-8 h-[1px] bg-white"></span> 100% Direct Owner Listings</li>
-                            <li class="flex items-center gap-4 opacity-0"><span class="w-8 h-[1px] bg-white"></span> Verified Security Protocols</li>
-                            <li class="flex items-center gap-4 opacity-0"><span class="w-8 h-[1px] bg-white"></span> Industrial Design Aesthetics</li>
-                        </ul>
-                    </div>
-                </div>
+        </div>
+
+        <!-- RIGHT IMAGE -->
+        <div class="hero-img opacity-0 relative">
+
+            {% if hero_rental and hero_rental.image %}
+                <img src="{{ hero_rental.image.url }}"
+                     class="rounded-3xl w-full h-[500px] object-cover shadow-2xl">
+            {% else %}
+                <img src="https://images.unsplash.com/photo-1502672260266-1c1ef2d93688"
+                     class="rounded-3xl w-full h-[500px] object-cover shadow-2xl">
+            {% endif %}
+
+            <div class="absolute bottom-4 left-4 bg-black/60 px-4 py-2 rounded-lg text-sm">
+                Verified Listing
             </div>
-        </div>
-    </section>
 
-    <!-- 3. MARQUEE SECTION (Commercial Polish) -->
-    <section class="py-20 border-y border-white/5 bg-[#050505] overflow-hidden">
-        <div class="marquee flex whitespace-nowrap gap-20 items-center opacity-30">
-            {% for i in "123456" %}
-            <span class="text-6xl font-black italic uppercase">Tricity Elite</span>
-            <span class="w-4 h-4 rounded-full bg-white"></span>
-            <span class="text-6xl font-black italic uppercase">Verified Comfort</span>
-            <span class="w-4 h-4 rounded-full bg-white"></span>
-            {% endfor %}
         </div>
-    </section>
+
+    </div>
+</section>
+
+
+<!-- ================= FEATURES ================= -->
+<section class="py-24 px-6 border-t border-white/10">
+
+    <div class="max-w-7xl mx-auto text-center space-y-4 mb-16">
+        <h2 class="text-3xl md:text-5xl font-black">Why Choose Us</h2>
+        <p class="text-slate-400">A smarter way to find your next home</p>
+    </div>
+
+    <div class="max-w-7xl mx-auto grid md:grid-cols-3 gap-8">
+
+        <div class="feature p-6 bg-white/5 rounded-2xl">
+            <img src="https://images.unsplash.com/photo-1600585154340-be6161a56a0c"
+                 class="rounded-xl h-48 w-full object-cover mb-4">
+            <h3 class="font-bold text-xl">Verified Properties</h3>
+            <p class="text-slate-400 text-sm">Every listing is manually checked before publishing.</p>
+        </div>
+
+        <div class="feature p-6 bg-white/5 rounded-2xl">
+            <img src="https://images.unsplash.com/photo-1560448204-603b3fc33ddc"
+                 class="rounded-xl h-48 w-full object-cover mb-4">
+            <h3 class="font-bold text-xl">Zero Brokerage</h3>
+            <p class="text-slate-400 text-sm">Connect directly with owners without middlemen.</p>
+        </div>
+
+        <div class="feature p-6 bg-white/5 rounded-2xl">
+            <img src="https://images.unsplash.com/photo-1522708323590-d24dbb6b0267"
+                 class="rounded-xl h-48 w-full object-cover mb-4">
+            <h3 class="font-bold text-xl">Instant Booking</h3>
+            <p class="text-slate-400 text-sm">Book your property in minutes with secure flow.</p>
+        </div>
+
+    </div>
+
+</section>
+
+
+<!-- ================= CTA ================= -->
+<section class="py-28 px-6 text-center relative">
+
+    <div class="absolute inset-0 bg-gradient-to-r from-sky-500/10 to-purple-500/10 blur-3xl"></div>
+
+    <div class="relative z-10 space-y-6">
+        <h2 class="text-4xl md:text-6xl font-black">
+            Ready to Move In?
+        </h2>
+        <p class="text-slate-400">Start exploring premium rentals today</p>
+
+        <a href="{% url 'rental_list' %}"
+           class="inline-block mt-4 px-10 py-4 bg-white text-black font-bold rounded-xl hover:scale-105 transition">
+            Browse Now
+        </a>
+    </div>
+
+</section>
 
 </div>
 
+
+<!-- ================= ANIMATIONS ================= -->
 <script>
-    gsap.registerPlugin(ScrollTrigger);
+gsap.registerPlugin(ScrollTrigger);
 
-    // 1. Hero Animations
-    const tl = gsap.timeline();
-    tl.from(".hero-main-title", {
-        y: 200,
-        skewY: 10,
-        duration: 1.5,
-        ease: "power4.out",
-        stagger: 0.2
-    })
-    .to(".hero-sub", { opacity: 1, duration: 1 }, "-=0.5")
-    .to(".hero-cta", { opacity: 1, duration: 1 }, "-=0.8");
+// HERO
+gsap.to(".hero-tag", {opacity:1, duration:1, delay:0.2});
+gsap.from(".hero-title", {y:80, opacity:0, duration:1});
+gsap.to(".hero-sub", {opacity:1, duration:1, delay:0.5});
+gsap.to(".hero-btn", {opacity:1, duration:1, delay:0.7});
+gsap.to(".hero-img", {opacity:1, x:40, duration:1});
 
-    // 2. Philosophy Scroll Reveal
-    gsap.from(".phil-image img", {
-        scale: 1.5,
-        scrollTrigger: {
-            trigger: ".philosophy-section",
-            start: "top bottom",
-            end: "bottom top",
-            scrub: true
-        }
-    });
-
-    gsap.to(".phil-text, .phil-list li", {
-        opacity: 1,
-        y: -20,
-        stagger: 0.2,
-        duration: 1,
-        scrollTrigger: {
-            trigger: ".phil-title",
-            start: "top 80%"
-        }
-    });
-
-    // 3. Marquee Infinite Animation
-    gsap.to(".marquee", {
-        xPercent: -50,
-        repeat: -1,
-        duration: 20,
-        ease: "linear"
-    });
+// FEATURES
+gsap.from(".feature", {
+    scrollTrigger:{
+        trigger: ".feature",
+        start: "top 85%"
+    },
+    y:50,
+    opacity:0,
+    stagger:0.2,
+    duration:1
+});
 </script>
 
 <style>
-    /* Surgical Scrollbar */
-    ::-webkit-scrollbar { width: 4px; }
-    ::-webkit-scrollbar-track { background: #000; }
-    ::-webkit-scrollbar-thumb { background: #333; }
-    ::-webkit-scrollbar-thumb:hover { background: #fff; }
-
-    body { background-color: #000; }
-    .hero-reveal { clip-path: polygon(0 0, 100% 0, 100% 100%, 0% 100%); }
+body { background:#000; }
+.feature { transition: transform 0.3s ease; }
+.feature:hover { transform: translateY(-8px); }
 </style>
+
 {% endblock %}
