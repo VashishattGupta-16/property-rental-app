@@ -9,41 +9,33 @@ from .models import Rental, Wishlist
 from .forms import RentalForm, GalleryFormSet, ProfileSetupForm
 
 
-# ================= INDEX / ELITE HOME =================
+# ================= INDEX / ELITE BRAND ENTRY =================
 def index(request):
     """
-    Renders the elite landing page with dynamic category filters.
+    Renders the commercial-standard brand landing page.
+    Property queries are removed to maintain a clean, GSAP-driven entry.
     """
-    # Fetching latest rentals for the 'Live Market' section
-    featured_rentals = Rental.objects.all().order_by('-created_at')[:6]
-    
-    # Specific category items for the grid
-    latest_villa = Rental.objects.filter(property_type='VILLA').first()
-    latest_flat = Rental.objects.filter(property_type='APARTMENT').first()
-    latest_pg = Rental.objects.filter(property_type='PG').first()
-
     return render(request, 'index.html', {
-        'featured_rentals': featured_rentals,
-        'latest_villa': latest_villa,
-        'latest_flat': latest_flat,
-        'latest_pg': latest_pg,
         'hide_navbar': False,
-        'hide_sidebar': True
+        'hide_sidebar': True,
+        'is_hero_active': True
     })
 
 
-# ================= RENTAL LIST + SEARCH =================
+# ================= RENTAL MARKETPLACE (LIST + SEARCH) =================
 def rental_list(request):
     """
-    Handles property browsing with advanced filtering for locations and pricing.
+    The main industrial engine for property discovery and filtering.
     """
     rentals = Rental.objects.select_related('user').all().order_by('-created_at')
 
+    # Extraction of specialized search parameters
     location_query = request.GET.get('location', '').strip()
     type_query = request.GET.get('type', '').strip()
     price_query = request.GET.get('max_price', '').strip()
     owner_query = request.GET.get('owner', '').strip()
 
+    # Advanced Filter Logic
     if location_query:
         rentals = rentals.filter(
             Q(location__icontains=location_query) |
@@ -63,7 +55,7 @@ def rental_list(request):
         except ValueError:
             pass
 
-    # Wishlist integration for UI heart icons
+    # UI State: Identifying items already in user's wishlist
     wishlisted_rental_ids = set()
     if request.user.is_authenticated:
         wishlisted_rental_ids = set(
@@ -77,11 +69,11 @@ def rental_list(request):
     })
 
 
-# ================= CREATE RENTAL =================
+# ================= PROPERTY MANAGEMENT (C.U.D.) =================
 @login_required
 def rental_create(request):
     """
-    Enterprise-level form handling for new property listings.
+    Handles industrial-grade property ingestion with image formsets.
     """
     if request.method == "POST":
         form = RentalForm(request.POST, request.FILES)
@@ -106,12 +98,11 @@ def rental_create(request):
     })
 
 
-# ================= EDIT RENTAL =================
 @login_required
 def rental_edit(request, rental_id):
     rental = get_object_or_404(Rental, pk=rental_id)
 
-    # Security: Ensure only the owner or staff can edit
+    # Security Protocol: Validation of ownership
     if rental.user != request.user and not request.user.is_staff:
         return redirect('index')
 
@@ -134,24 +125,23 @@ def rental_edit(request, rental_id):
     })
 
 
-# ================= DELETE RENTAL =================
 @login_required
 @require_POST
 def rental_delete(request, rental_id):
     rental = get_object_or_404(Rental, pk=rental_id)
 
     if rental.user != request.user and not request.user.is_staff:
-        return HttpResponse('Forbidden', status=403)
+        return HttpResponse('Unauthorized access attempt detected.', status=403)
 
     rental.delete()
     return redirect('rental_list')
 
 
-# ================= CONTACT RENTAL =================
+# ================= ENGAGEMENT & PROFILES =================
 @login_required
 def rental_contact(request, rental_id):
     """
-    Industrial contact page. Returns a success flag for the UI on POST.
+    Monochrome contact portal. Triggers success state on POST.
     """
     rental = get_object_or_404(Rental, pk=rental_id)
 
@@ -164,27 +154,31 @@ def rental_contact(request, rental_id):
     return render(request, 'rental_contact.html', {'rental': rental})
 
 
-# ================= DETAIL & PROFILE =================
 def room_describe(request, rental_id):
+    """
+    Surgical detail view for individual listings.
+    """
     rental = get_object_or_404(Rental, pk=rental_id)
     return render(request, 'room_describe.html', {'rental': rental})
 
 
 @login_required
 def profile(request):
+    """
+    User command center for listings and analytics.
+    """
     user = request.user
     listings = Rental.objects.filter(user=user).order_by('-created_at')
-    wishlist_count = user.wishlist_items.count()
-
+    
     return render(request, 'profile.html', {
         'user': user,
         'listings': listings,
         'listings_count': listings.count(),
-        'wishlist_count': wishlist_count,
+        'wishlist_count': user.wishlist_items.count(),
     })
 
 
-# ================= WISHLIST LOGIC =================
+# ================= WISHLIST PROTOCOL =================
 @login_required
 def wishlist(request):
     wishlist_items = request.user.wishlist_items.select_related('rental').all()
@@ -204,7 +198,6 @@ def toggle_wishlist(request, rental_id):
     else:
         Wishlist.objects.create(user=request.user, rental=rental)
 
-    # Redirect back to the page the user was on
     referer = request.META.get("HTTP_REFERER", "")
     if referer and url_has_allowed_host_and_scheme(
         url=referer,
@@ -216,7 +209,7 @@ def toggle_wishlist(request, rental_id):
     return redirect("rental_list")
 
 
-# ================= ONBOARDING =================
+# ================= UTILITY & ONBOARDING =================
 @login_required
 def profile_setup(request):
     if request.user.profile_is_complete():
@@ -233,9 +226,8 @@ def profile_setup(request):
     return render(request, 'profile_setup.html', {'form': form})
 
 
-# ================= UTILITY =================
 def ping_view(request):
-    return HttpResponse("pong", content_type="text/plain")
+    return HttpResponse("System Operational", content_type="text/plain")
 
 
 def about(request):
