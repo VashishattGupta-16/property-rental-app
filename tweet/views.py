@@ -9,47 +9,34 @@ from .models import Rental, Wishlist
 from .forms import RentalForm, GalleryFormSet, ProfileSetupForm
 
 
-# =========================================================
-# HOME PAGE (FIXED - THIS WAS YOUR MAIN ISSUE)
-# =========================================================
+# ================= INDEX / ELITE HOME =================
 def index(request):
-    hero_rental = Rental.objects.filter(image__isnull=False).first()
+    """
+    Renders the elite landing page with dynamic category filters.
+    """
+    # Fetching latest rentals for the 'Live Market' section
+    featured_rentals = Rental.objects.all().order_by('-created_at')[:6]
+    
+    # Specific category items for the grid
+    latest_villa = Rental.objects.filter(property_type='VILLA').first()
+    latest_flat = Rental.objects.filter(property_type='APARTMENT').first()
+    latest_pg = Rental.objects.filter(property_type='PG').first()
 
-    latest_villa = Rental.objects.filter(
-        property_type="VILLA",
-        image__isnull=False
-    ).order_by("-created_at").first()
-
-    latest_flat = Rental.objects.filter(
-        property_type="2BHK",
-        image__isnull=False
-    ).order_by("-created_at").first()
-
-    latest_pg = Rental.objects.filter(
-        property_type="PG",
-        image__isnull=False
-    ).order_by("-created_at").first()
-
-    latest_showroom = Rental.objects.filter(
-        property_type="SHOWROOM",
-        image__isnull=False
-    ).order_by("-created_at").first()
-
-    return render(request, "index.html", {
-        "hero_rental": hero_rental,
-        "latest_villa": latest_villa,
-        "latest_flat": latest_flat,
-        "latest_pg": latest_pg,
-        "latest_showroom": latest_showroom,
-        "hide_navbar": False,
-        "hide_sidebar": True,
+    return render(request, 'index.html', {
+        'featured_rentals': featured_rentals,
+        'latest_villa': latest_villa,
+        'latest_flat': latest_flat,
+        'latest_pg': latest_pg,
+        'hide_navbar': False,
+        'hide_sidebar': True
     })
 
 
-# =========================================================
-# RENTAL LIST + SEARCH
-# =========================================================
+# ================= RENTAL LIST + SEARCH =================
 def rental_list(request):
+    """
+    Handles property browsing with advanced filtering for locations and pricing.
+    """
     rentals = Rental.objects.select_related('user').all().order_by('-created_at')
 
     location_query = request.GET.get('location', '').strip()
@@ -76,24 +63,26 @@ def rental_list(request):
         except ValueError:
             pass
 
-    wishlisted_ids = set()
+    # Wishlist integration for UI heart icons
+    wishlisted_rental_ids = set()
     if request.user.is_authenticated:
-        wishlisted_ids = set(
+        wishlisted_rental_ids = set(
             request.user.wishlist_items.values_list("rental_id", flat=True)
         )
 
     return render(request, 'rentalList.html', {
-        "rentals": rentals,
-        "wishlisted_rental_ids": wishlisted_ids,
-        "search_params": request.GET,
+        'rentals': rentals,
+        'wishlisted_rental_ids': wishlisted_rental_ids,
+        'search_params': request.GET
     })
 
 
-# =========================================================
-# CREATE RENTAL
-# =========================================================
+# ================= CREATE RENTAL =================
 @login_required
 def rental_create(request):
+    """
+    Enterprise-level form handling for new property listings.
+    """
     if request.method == "POST":
         form = RentalForm(request.POST, request.FILES)
         formset = GalleryFormSet(request.POST, request.FILES, prefix='gallery')
@@ -107,24 +96,22 @@ def rental_create(request):
             formset.save()
 
             return redirect('rental_list')
-
     else:
         form = RentalForm()
         formset = GalleryFormSet(prefix='gallery')
 
-    return render(request, "rental_form.html", {
-        "form": form,
-        "formset": formset,
+    return render(request, 'rental_form.html', {
+        'form': form,
+        'formset': formset
     })
 
 
-# =========================================================
-# EDIT RENTAL
-# =========================================================
+# ================= EDIT RENTAL =================
 @login_required
 def rental_edit(request, rental_id):
     rental = get_object_or_404(Rental, pk=rental_id)
 
+    # Security: Ensure only the owner or staff can edit
     if rental.user != request.user and not request.user.is_staff:
         return redirect('index')
 
@@ -136,82 +123,73 @@ def rental_edit(request, rental_id):
             form.save()
             formset.save()
             return redirect('rental_list')
-
     else:
         form = RentalForm(instance=rental)
         formset = GalleryFormSet(instance=rental, prefix='gallery')
 
-    return render(request, "rental_form.html", {
-        "form": form,
-        "formset": formset,
-        "rental": rental,
+    return render(request, 'rental_form.html', {
+        'form': form,
+        'formset': formset,
+        'rental': rental
     })
 
 
-# =========================================================
-# DELETE RENTAL
-# =========================================================
+# ================= DELETE RENTAL =================
 @login_required
 @require_POST
 def rental_delete(request, rental_id):
     rental = get_object_or_404(Rental, pk=rental_id)
 
     if rental.user != request.user and not request.user.is_staff:
-        return HttpResponse("Forbidden", status=403)
+        return HttpResponse('Forbidden', status=403)
 
     rental.delete()
     return redirect('rental_list')
 
 
-# =========================================================
-# DETAIL PAGE
-# =========================================================
-def room_describe(request, rental_id):
-    rental = get_object_or_404(Rental, pk=rental_id)
-    return render(request, "room_describe.html", {"rental": rental})
-
-
-# =========================================================
-# CONTACT
-# =========================================================
+# ================= CONTACT RENTAL =================
 @login_required
 def rental_contact(request, rental_id):
+    """
+    Industrial contact page. Returns a success flag for the UI on POST.
+    """
     rental = get_object_or_404(Rental, pk=rental_id)
 
     if request.method == "POST":
-        return render(request, "rental_contact.html", {
-            "rental": rental,
-            "success": True
+        return render(request, 'rental_contact.html', {
+            'rental': rental,
+            'success': True
         })
 
-    return render(request, "rental_contact.html", {"rental": rental})
+    return render(request, 'rental_contact.html', {'rental': rental})
 
 
-# =========================================================
-# PROFILE
-# =========================================================
+# ================= DETAIL & PROFILE =================
+def room_describe(request, rental_id):
+    rental = get_object_or_404(Rental, pk=rental_id)
+    return render(request, 'room_describe.html', {'rental': rental})
+
+
 @login_required
 def profile(request):
     user = request.user
     listings = Rental.objects.filter(user=user).order_by('-created_at')
+    wishlist_count = user.wishlist_items.count()
 
-    return render(request, "profile.html", {
-        "user": user,
-        "listings": listings,
-        "listings_count": listings.count(),
-        "wishlist_count": user.wishlist_items.count(),
+    return render(request, 'profile.html', {
+        'user': user,
+        'listings': listings,
+        'listings_count': listings.count(),
+        'wishlist_count': wishlist_count,
     })
 
 
-# =========================================================
-# WISHLIST
-# =========================================================
+# ================= WISHLIST LOGIC =================
 @login_required
 def wishlist(request):
     wishlist_items = request.user.wishlist_items.select_related('rental').all()
-
-    return render(request, "wishlist.html", {
-        "wishlist": wishlist_items
+    return render(request, 'wishlist.html', {
+        'wishlist': wishlist_items
     })
 
 
@@ -219,18 +197,17 @@ def wishlist(request):
 @require_POST
 def toggle_wishlist(request, rental_id):
     rental = get_object_or_404(Rental, pk=rental_id)
-
-    obj = Wishlist.objects.filter(user=request.user, rental=rental)
-
-    if obj.exists():
-        obj.delete()
+    existing = Wishlist.objects.filter(user=request.user, rental=rental)
+    
+    if existing.exists():
+        existing.delete()
     else:
         Wishlist.objects.create(user=request.user, rental=rental)
 
+    # Redirect back to the page the user was on
     referer = request.META.get("HTTP_REFERER", "")
-
     if referer and url_has_allowed_host_and_scheme(
-        referer,
+        url=referer,
         allowed_hosts={request.get_host()},
         require_https=request.is_secure(),
     ):
@@ -239,33 +216,27 @@ def toggle_wishlist(request, rental_id):
     return redirect("rental_list")
 
 
-# =========================================================
-# PROFILE SETUP
-# =========================================================
+# ================= ONBOARDING =================
 @login_required
 def profile_setup(request):
     if request.user.profile_is_complete():
-        return redirect("index")
+        return redirect('index')
 
     if request.method == "POST":
         form = ProfileSetupForm(request.POST, instance=request.user)
         if form.is_valid():
             form.save()
-            return redirect("index")
+            return redirect('index')
     else:
         form = ProfileSetupForm(instance=request.user)
 
-    return render(request, "profile_setup.html", {
-        "form": form
-    })
+    return render(request, 'profile_setup.html', {'form': form})
 
 
-# =========================================================
-# UTILS
-# =========================================================
+# ================= UTILITY =================
 def ping_view(request):
     return HttpResponse("pong", content_type="text/plain")
 
 
 def about(request):
-    return render(request, "about.html")
+    return render(request, 'about.html')
