@@ -28,7 +28,11 @@
             <div class="hero-visual relative">
                 <div class="hero-image-wrap relative z-20 transform rotate-2 glass-card !p-4 shadow-2xl">
                     <div class="responsive-media-frame w-full relative rounded-2xl overflow-hidden">
-                        <img src="https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?auto=format&fit=crop&q=80" class="w-full h-full object-cover" alt="Luxury Room">
+                        {% if hero_rental.image %}
+                            <img src="{{ hero_rental.image|optimized_cloudinary_url:'f_auto,q_auto,c_fill,w_800,h_600' }}" class="w-full h-full object-cover" alt="Luxury Room">
+                        {% else %}
+                            <img src="https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?auto=format&fit=crop&q=80" class="w-full h-full object-cover" alt="Luxury Room">
+                        {% endif %}
                     </div>
                 </div>
                 <div class="info-card absolute -bottom-10 -left-12 z-30 glass-card p-6 flex items-center gap-5 shadow-2xl animate-bounce-slow">
@@ -58,7 +62,11 @@
     <div class="grid grid-cols-1 md:grid-cols-3 gap-6 h-[600px] category-grid">
         <!-- Luxury Villas -->
         <a href="{% url 'rental_list' %}?type=VILLA" class="group relative overflow-hidden rounded-[2.5rem] md:row-span-2 glass-card">
-            <img src="https://images.unsplash.com/photo-1613490493576-7fde63acd811?auto=format&fit=crop&q=80" class="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110 grayscale-[50%] group-hover:grayscale-0">
+            {% if latest_villa.image %}
+                <img src="{{ latest_villa.image|optimized_cloudinary_url:'f_auto,q_auto,c_fill,w_600,h_800' }}" class="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110 grayscale-[50%] group-hover:grayscale-0">
+            {% else %}
+                <img src="https://images.unsplash.com/photo-1613490493576-7fde63acd811?auto=format&fit=crop&q=80" class="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110 grayscale-[50%] group-hover:grayscale-0">
+            {% endif %}
             <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent opacity-80"></div>
             <div class="absolute bottom-8 left-8">
                 <span class="text-xs font-black text-sky-400 uppercase tracking-widest">Premium</span>
@@ -67,17 +75,29 @@
         </a>
         <!-- Modern Flats -->
         <a href="{% url 'rental_list' %}?type=2BHK" class="group relative overflow-hidden rounded-[2.5rem] glass-card">
-            <img src="https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?auto=format&fit=crop&q=80" class="absolute inset-0 w-full h-full object-cover grayscale-[50%] group-hover:grayscale-0 transition-all">
+            {% if latest_flat.image %}
+                <img src="{{ latest_flat.image|optimized_cloudinary_url:'f_auto,q_auto,c_fill,w_800,h_600' }}" class="absolute inset-0 w-full h-full object-cover grayscale-[50%] group-hover:grayscale-0 transition-all">
+            {% else %}
+                <img src="https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?auto=format&fit=crop&q=80" class="absolute inset-0 w-full h-full object-cover grayscale-[50%] group-hover:grayscale-0 transition-all">
+            {% endif %}
             <div class="absolute bottom-8 left-8"><h3 class="text-xl font-black text-white">Modern Flats</h3></div>
         </a>
         <!-- Shared Spaces -->
         <a href="{% url 'rental_list' %}?type=PG" class="group relative overflow-hidden rounded-[2.5rem] glass-card">
-            <img src="https://images.unsplash.com/photo-1554995207-c18c203602cb?auto=format&fit=crop&q=80" class="absolute inset-0 w-full h-full object-cover grayscale-[50%] group-hover:grayscale-0 transition-all">
+            {% if latest_pg.image %}
+                <img src="{{ latest_pg.image|optimized_cloudinary_url:'f_auto,q_auto,c_fill,w_800,h_600' }}" class="absolute inset-0 w-full h-full object-cover grayscale-[50%] group-hover:grayscale-0 transition-all">
+            {% else %}
+                <img src="https://images.unsplash.com/photo-1554995207-c18c203602cb?auto=format&fit=crop&q=80" class="absolute inset-0 w-full h-full object-cover grayscale-[50%] group-hover:grayscale-0 transition-all">
+            {% endif %}
             <div class="absolute bottom-8 left-8"><h3 class="text-xl font-black text-white">Shared PGs</h3></div>
         </a>
         <!-- Commercial Plots -->
         <a href="{% url 'rental_list' %}?type=SHOWROOM" class="group relative overflow-hidden rounded-[2.5rem] md:col-span-2 glass-card">
-            <img src="https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&q=80" class="absolute inset-0 w-full h-full object-cover grayscale-[50%] group-hover:grayscale-0 transition-all">
+            {% if latest_showroom.image %}
+                <img src="{{ latest_showroom.image|optimized_cloudinary_url:'f_auto,q_auto,c_fill,w_1200,h_600' }}" class="absolute inset-0 w-full h-full object-cover grayscale-[50%] group-hover:grayscale-0 transition-all">
+            {% else %}
+                <img src="https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&q=80" class="absolute inset-0 w-full h-full object-cover grayscale-[50%] group-hover:grayscale-0 transition-all">
+            {% endif %}
             <div class="absolute bottom-8 left-8"><h3 class="text-xl font-black text-white">Showrooms & Offices</h3></div>
         </a>
     </div>
