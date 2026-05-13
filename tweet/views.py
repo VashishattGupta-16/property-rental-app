@@ -1,97 +1,231 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
-from django.db.models import Q
-from django.http import HttpResponse
 from django.views.decorators.http import require_POST
+from django.http import HttpResponse
+from django.db.models import Q
 from django.utils.http import url_has_allowed_host_and_scheme
 
 from .models import Rental, Wishlist
-from .forms import RentalForm, GalleryFormSet, ProfileSetupForm
+from .forms import (
+    RentalForm,
+    GalleryFormSet,
+    ProfileSetupForm
+)
 
 
-# ================= INDEX / ELITE BRAND ENTRY =================
-# ================= INDEX / ELITE BRAND ENTRY =================
+# =========================================================
+# HOME / ELITE LANDING PAGE
+# =========================================================
+
 def index(request):
-    """
-    Renders the elite landing page. 
-    Queries are restored to prevent 500 errors in the template sections.
-    """
-    # Fetch data required by the template
-    featured_rentals = Rental.objects.all().order_by('-created_at')[:6]
-    latest_villa = Rental.objects.filter(property_type='VILLA').first()
-    latest_flat = Rental.objects.filter(property_type='APARTMENT').first()
-    latest_pg = Rental.objects.filter(property_type='PG').first()
-    # Added showroom to match your masonry grid
-    latest_showroom = Rental.objects.filter(property_type='SHOWROOM').first()
 
-    return render(request, 'index.html', {
+    featured_rentals = (
+        Rental.objects
+        .filter(is_available=True)
+        .select_related('user')
+        .order_by('-created_at')[:6]
+    )
+
+    latest_villa = (
+        Rental.objects
+        .filter(
+            property_type='VILLA',
+            is_available=True
+        )
+        .order_by('-created_at')
+        .first()
+    )
+
+    latest_flat = (
+        Rental.objects
+        .filter(
+            property_type='APARTMENT',
+            is_available=True
+        )
+        .order_by('-created_at')
+        .first()
+    )
+
+    latest_pg = (
+        Rental.objects
+        .filter(
+            property_type='PG',
+            is_available=True
+        )
+        .order_by('-created_at')
+        .first()
+    )
+
+    latest_showroom = (
+        Rental.objects
+        .filter(
+            property_type='SHOWROOM',
+            is_available=True
+        )
+        .order_by('-created_at')
+        .first()
+    )
+
+    premium_properties = (
+        Rental.objects
+        .filter(
+            price__gte=5000000,
+            is_available=True
+        )
+        .order_by('-created_at')[:4]
+    )
+
+    context = {
         'featured_rentals': featured_rentals,
         'latest_villa': latest_villa,
         'latest_flat': latest_flat,
         'latest_pg': latest_pg,
         'latest_showroom': latest_showroom,
-        'hide_navbar': False,
-        'hide_sidebar': True,
-        'is_hero_active': True
-    })
-# ================= RENTAL MARKETPLACE (LIST + SEARCH) =================
-def rental_list(request):
-    """
-    The main industrial engine for property discovery and filtering.
-    """
-    rentals = Rental.objects.select_related('user').all().order_by('-created_at')
+        'premium_properties': premium_properties,
+    }
 
-    # Extraction of specialized search parameters
+    return render(request, 'index.html', context)
+
+
+# =========================================================
+# RENTAL LIST + SEARCH ENGINE
+# =========================================================
+
+def rental_list(request):
+
+    rentals = (
+        Rental.objects
+        .select_related('user')
+        .prefetch_related('gallery')
+        .filter(is_available=True)
+        .order_by('-created_at')
+    )
+
+    search_query = request.GET.get('q', '').strip()
     location_query = request.GET.get('location', '').strip()
-    type_query = request.GET.get('type', '').strip()
-    price_query = request.GET.get('max_price', '').strip()
+    property_type = request.GET.get('type', '').strip()
+    max_price = request.GET.get('max_price', '').strip()
     owner_query = request.GET.get('owner', '').strip()
 
-    # Advanced Filter Logic
-    if location_query:
+    # SMART SEARCH
+    if search_query:
         rentals = rentals.filter(
-            Q(location__icontains=location_query) |
-            Q(title__icontains=location_query) |
-            Q(description__icontains=location_query)
+            Q(title__icontains=search_query) |
+            Q(description__icontains=search_query) |
+            Q(location__icontains=search_query)
         )
 
-    if owner_query == 'me' and request.user.is_authenticated:
-        rentals = rentals.filter(user=request.user)
+    # LOCATION FILTER
+    if location_query:
+        rentals = rentals.filter(
+            location__icontains=location_query
+        )
 
-    if type_query:
-        rentals = rentals.filter(property_type=type_query)
+    # PROPERTY TYPE FILTER
+    if property_type:
+        rentals = rentals.filter(
+            property_type=property_type
+        )
 
-    if price_query:
+    # MAX PRICE FILTER
+    if max_price:
         try:
-            rentals = rentals.filter(price__lte=float(price_query))
+            rentals = rentals.filter(
+                price__lte=float(max_price)
+            )
         except ValueError:
             pass
 
-    # UI State: Identifying items already in user's wishlist
-    wishlisted_rental_ids = set()
-    if request.user.is_authenticated:
-        wishlisted_rental_ids = set(
-            request.user.wishlist_items.values_list("rental_id", flat=True)
+    # OWNER FILTER
+    if (
+        owner_query == 'me' and
+        request.user.is_authenticated
+    ):
+        rentals = rentals.filter(
+            user=request.user
         )
 
-    return render(request, 'rentalList.html', {
+    # USER WISHLIST IDS
+    wishlisted_rental_ids = set()
+
+    if request.user.is_authenticated:
+        wishlisted_rental_ids = set(
+            request.user
+            .wishlist_items
+            .values_list('rental_id', flat=True)
+        )
+
+    context = {
         'rentals': rentals,
         'wishlisted_rental_ids': wishlisted_rental_ids,
-        'search_params': request.GET
-    })
+        'search_params': request.GET,
+    }
+
+    return render(request, 'rental_list.html', context)
 
 
-# ================= PROPERTY MANAGEMENT (C.U.D.) =================
+# =========================================================
+# RENTAL DETAIL PAGE
+# =========================================================
+
+def rental_detail(request, slug):
+
+    rental = get_object_or_404(
+        Rental.objects
+        .select_related('user')
+        .prefetch_related('gallery'),
+        slug=slug
+    )
+
+    related_properties = (
+        Rental.objects
+        .filter(
+            property_type=rental.property_type,
+            is_available=True
+        )
+        .exclude(id=rental.id)
+        .order_by('-created_at')[:4]
+    )
+
+    is_wishlisted = False
+
+    if request.user.is_authenticated:
+        is_wishlisted = Wishlist.objects.filter(
+            user=request.user,
+            rental=rental
+        ).exists()
+
+    context = {
+        'rental': rental,
+        'related_properties': related_properties,
+        'is_wishlisted': is_wishlisted,
+    }
+
+    return render(request, 'rental_detail.html', context)
+
+
+# =========================================================
+# CREATE PROPERTY
+# =========================================================
+
 @login_required
 def rental_create(request):
-    """
-    Handles industrial-grade property ingestion with image formsets.
-    """
-    if request.method == "POST":
-        form = RentalForm(request.POST, request.FILES)
-        formset = GalleryFormSet(request.POST, request.FILES, prefix='gallery')
+
+    if request.method == 'POST':
+
+        form = RentalForm(
+            request.POST,
+            request.FILES
+        )
+
+        formset = GalleryFormSet(
+            request.POST,
+            request.FILES,
+            prefix='gallery'
+        )
 
         if form.is_valid() and formset.is_valid():
+
             rental = form.save(commit=False)
             rental.user = request.user
             rental.save()
@@ -99,148 +233,287 @@ def rental_create(request):
             formset.instance = rental
             formset.save()
 
-            return redirect('rental_list')
+            return redirect(
+                'rental_detail',
+                slug=rental.slug
+            )
+
     else:
+
         form = RentalForm()
-        formset = GalleryFormSet(prefix='gallery')
 
-    return render(request, 'rental_form.html', {
-        'form': form,
-        'formset': formset
-    })
+        formset = GalleryFormSet(
+            prefix='gallery'
+        )
 
-
-@login_required
-def rental_edit(request, rental_id):
-    rental = get_object_or_404(Rental, pk=rental_id)
-
-    # Security Protocol: Validation of ownership
-    if rental.user != request.user and not request.user.is_staff:
-        return redirect('index')
-
-    if request.method == "POST":
-        form = RentalForm(request.POST, request.FILES, instance=rental)
-        formset = GalleryFormSet(request.POST, request.FILES, instance=rental, prefix='gallery')
-
-        if form.is_valid() and formset.is_valid():
-            form.save()
-            formset.save()
-            return redirect('rental_list')
-    else:
-        form = RentalForm(instance=rental)
-        formset = GalleryFormSet(instance=rental, prefix='gallery')
-
-    return render(request, 'rental_form.html', {
+    context = {
         'form': form,
         'formset': formset,
-        'rental': rental
-    })
+    }
 
+    return render(request, 'rental_form.html', context)
+
+
+# =========================================================
+# EDIT PROPERTY
+# =========================================================
+
+@login_required
+def rental_edit(request, slug):
+
+    rental = get_object_or_404(
+        Rental,
+        slug=slug
+    )
+
+    # SECURITY LAYER
+    if (
+        rental.user != request.user and
+        not request.user.is_staff
+    ):
+        return redirect('home')
+
+    if request.method == 'POST':
+
+        form = RentalForm(
+            request.POST,
+            request.FILES,
+            instance=rental
+        )
+
+        formset = GalleryFormSet(
+            request.POST,
+            request.FILES,
+            instance=rental,
+            prefix='gallery'
+        )
+
+        if form.is_valid() and formset.is_valid():
+
+            form.save()
+            formset.save()
+
+            return redirect(
+                'rental_detail',
+                slug=rental.slug
+            )
+
+    else:
+
+        form = RentalForm(instance=rental)
+
+        formset = GalleryFormSet(
+            instance=rental,
+            prefix='gallery'
+        )
+
+    context = {
+        'form': form,
+        'formset': formset,
+        'rental': rental,
+    }
+
+    return render(request, 'rental_form.html', context)
+
+
+# =========================================================
+# DELETE PROPERTY
+# =========================================================
 
 @login_required
 @require_POST
-def rental_delete(request, rental_id):
-    rental = get_object_or_404(Rental, pk=rental_id)
+def rental_delete(request, slug):
 
-    if rental.user != request.user and not request.user.is_staff:
-        return HttpResponse('Unauthorized access attempt detected.', status=403)
+    rental = get_object_or_404(
+        Rental,
+        slug=slug
+    )
+
+    if (
+        rental.user != request.user and
+        not request.user.is_staff
+    ):
+        return HttpResponse(
+            'Unauthorized Access',
+            status=403
+        )
 
     rental.delete()
+
     return redirect('rental_list')
 
 
-# ================= ENGAGEMENT & PROFILES =================
+# =========================================================
+# CONTACT PROPERTY OWNER
+# =========================================================
+
 @login_required
-def rental_contact(request, rental_id):
-    """
-    Monochrome contact portal. Triggers success state on POST.
-    """
-    rental = get_object_or_404(Rental, pk=rental_id)
+def rental_contact(request, slug):
 
-    if request.method == "POST":
-        return render(request, 'rental_contact.html', {
-            'rental': rental,
-            'success': True
-        })
+    rental = get_object_or_404(
+        Rental,
+        slug=slug
+    )
 
-    return render(request, 'rental_contact.html', {'rental': rental})
+    if request.method == 'POST':
+
+        return render(
+            request,
+            'rental_contact.html',
+            {
+                'rental': rental,
+                'success': True
+            }
+        )
+
+    return render(
+        request,
+        'rental_contact.html',
+        {
+            'rental': rental
+        }
+    )
 
 
-def room_describe(request, rental_id):
-    """
-    Surgical detail view for individual listings.
-    """
-    rental = get_object_or_404(Rental, pk=rental_id)
-    return render(request, 'room_describe.html', {'rental': rental})
-
+# =========================================================
+# USER PROFILE DASHBOARD
+# =========================================================
 
 @login_required
 def profile(request):
-    """
-    User command center for listings and analytics.
-    """
-    user = request.user
-    listings = Rental.objects.filter(user=user).order_by('-created_at')
-    
-    return render(request, 'profile.html', {
-        'user': user,
+
+    listings = (
+        Rental.objects
+        .filter(user=request.user)
+        .order_by('-created_at')
+    )
+
+    context = {
+        'user': request.user,
         'listings': listings,
         'listings_count': listings.count(),
-        'wishlist_count': user.wishlist_items.count(),
-    })
+        'wishlist_count': request.user.wishlist_items.count(),
+    }
+
+    return render(request, 'profile.html', context)
 
 
-# ================= WISHLIST PROTOCOL =================
+# =========================================================
+# PROFILE SETUP
+# =========================================================
+
+@login_required
+def profile_setup(request):
+
+    if request.user.profile_is_complete():
+        return redirect('home')
+
+    if request.method == 'POST':
+
+        form = ProfileSetupForm(
+            request.POST,
+            instance=request.user
+        )
+
+        if form.is_valid():
+            form.save()
+            return redirect('home')
+
+    else:
+
+        form = ProfileSetupForm(
+            instance=request.user
+        )
+
+    return render(
+        request,
+        'profile_setup.html',
+        {
+            'form': form
+        }
+    )
+
+
+# =========================================================
+# WISHLIST
+# =========================================================
+
 @login_required
 def wishlist(request):
-    wishlist_items = request.user.wishlist_items.select_related('rental').all()
-    return render(request, 'wishlist.html', {
-        'wishlist': wishlist_items
-    })
 
+    wishlist_items = (
+        request.user
+        .wishlist_items
+        .select_related('rental')
+        .all()
+    )
+
+    return render(
+        request,
+        'wishlist.html',
+        {
+            'wishlist_items': wishlist_items
+        }
+    )
+
+
+# =========================================================
+# TOGGLE WISHLIST
+# =========================================================
 
 @login_required
 @require_POST
-def toggle_wishlist(request, rental_id):
-    rental = get_object_or_404(Rental, pk=rental_id)
-    existing = Wishlist.objects.filter(user=request.user, rental=rental)
-    
-    if existing.exists():
-        existing.delete()
-    else:
-        Wishlist.objects.create(user=request.user, rental=rental)
+def toggle_wishlist(request, slug):
 
-    referer = request.META.get("HTTP_REFERER", "")
+    rental = get_object_or_404(
+        Rental,
+        slug=slug
+    )
+
+    wishlist_item = Wishlist.objects.filter(
+        user=request.user,
+        rental=rental
+    )
+
+    if wishlist_item.exists():
+        wishlist_item.delete()
+    else:
+        Wishlist.objects.create(
+            user=request.user,
+            rental=rental
+        )
+
+    referer = request.META.get('HTTP_REFERER')
+
     if referer and url_has_allowed_host_and_scheme(
         url=referer,
         allowed_hosts={request.get_host()},
-        require_https=request.is_secure(),
+        require_https=request.is_secure()
     ):
         return redirect(referer)
 
-    return redirect("rental_list")
+    return redirect('rental_detail', slug=slug)
 
 
-# ================= UTILITY & ONBOARDING =================
-@login_required
-def profile_setup(request):
-    if request.user.profile_is_complete():
-        return redirect('index')
-
-    if request.method == "POST":
-        form = ProfileSetupForm(request.POST, instance=request.user)
-        if form.is_valid():
-            form.save()
-            return redirect('index')
-    else:
-        form = ProfileSetupForm(instance=request.user)
-
-    return render(request, 'profile_setup.html', {'form': form})
-
-
-def ping_view(request):
-    return HttpResponse("System Operational", content_type="text/plain")
-
+# =========================================================
+# ABOUT PAGE
+# =========================================================
 
 def about(request):
-    return render(request, 'about.html')
+
+    return render(
+        request,
+        'about.html'
+    )
+
+
+# =========================================================
+# SYSTEM HEALTH CHECK
+# =========================================================
+
+def ping_view(request):
+
+    return HttpResponse(
+        "System Operational",
+        content_type="text/plain"
+    )

@@ -1,622 +1,974 @@
+{% load static %}
+
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Property-X</title>
-
-  <!-- Google Fonts -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@500;600;700;800&display=swap" rel="stylesheet">
-
-  <!-- GSAP -->
-  <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
-
-  <style>
-    *{
-      margin:0;
-      padding:0;
-      box-sizing:border-box;
-      scroll-behavior:smooth;
-    }
-
-    body{
-      font-family:'Inter',sans-serif;
-      background:#081120;
-      color:white;
-      overflow-x:hidden;
-    }
-
-    h1,h2,h3{
-      font-family:'Poppins',sans-serif;
-    }
-
-    section{
-      padding:100px 8%;
-      position:relative;
-    }
-
-    /* NAVBAR */
-
-    nav{
-      position:fixed;
-      width:100%;
-      top:0;
-      z-index:999;
-      display:flex;
-      justify-content:space-between;
-      align-items:center;
-      padding:20px 8%;
-      backdrop-filter:blur(14px);
-      background:rgba(255,255,255,0.05);
-      border-bottom:1px solid rgba(255,255,255,0.08);
-    }
-
-    .logo{
-      font-size:28px;
-      font-weight:800;
-      color:#3b82f6;
-    }
-
-    .nav-links{
-      display:flex;
-      gap:30px;
-    }
-
-    .nav-links a{
-      color:white;
-      text-decoration:none;
-      font-weight:500;
-      transition:.3s;
-    }
-
-    .nav-links a:hover{
-      color:#3b82f6;
-    }
-
-    /* HERO */
-
-    .hero{
-      min-height:100vh;
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:50px;
-      position:relative;
-      overflow:hidden;
-    }
-
-    .hero::before{
-      content:"";
-      position:absolute;
-      width:600px;
-      height:600px;
-      background:radial-gradient(circle,#2563eb55,transparent 70%);
-      top:-150px;
-      right:-100px;
-      animation:float 6s ease-in-out infinite;
-    }
-
-    .hero-content{
-      max-width:600px;
-      z-index:2;
-    }
-
-    .hero h1{
-      font-size:70px;
-      line-height:1.1;
-      margin-bottom:20px;
-    }
-
-    .hero h1 span{
-      color:#3b82f6;
-    }
-
-    .hero p{
-      font-size:18px;
-      color:#cbd5e1;
-      margin-bottom:35px;
-      line-height:1.7;
-    }
-
-    .hero-buttons{
-      display:flex;
-      gap:20px;
-    }
-
-    .btn{
-      padding:15px 28px;
-      border:none;
-      border-radius:14px;
-      font-weight:600;
-      cursor:pointer;
-      transition:.4s;
-      font-size:15px;
-    }
-
-    .btn-primary{
-      background:#3b82f6;
-      color:white;
-      box-shadow:0 10px 30px #3b82f655;
-    }
-
-    .btn-primary:hover{
-      transform:translateY(-5px);
-      background:#2563eb;
-    }
-
-    .btn-secondary{
-      background:rgba(255,255,255,0.08);
-      color:white;
-      border:1px solid rgba(255,255,255,0.1);
-    }
-
-    .btn-secondary:hover{
-      transform:translateY(-5px);
-      background:rgba(255,255,255,0.12);
-    }
-
-    /* FLOATING CARD */
-
-    .floating-card{
-      width:380px;
-      background:rgba(255,255,255,0.06);
-      border:1px solid rgba(255,255,255,0.08);
-      backdrop-filter:blur(20px);
-      border-radius:30px;
-      overflow:hidden;
-      box-shadow:0 20px 50px rgba(0,0,0,0.4);
-      animation:cardFloat 5s ease-in-out infinite;
-      z-index:2;
-    }
-
-    .floating-card img{
-      width:100%;
-      height:260px;
-      object-fit:cover;
-    }
-
-    .card-content{
-      padding:25px;
-    }
-
-    .price{
-      color:#3b82f6;
-      font-size:26px;
-      font-weight:700;
-      margin:12px 0;
-    }
-
-    .views{
-      margin-top:15px;
-      color:#94a3b8;
-    }
-
-    /* STATS */
-
-    .stats{
-      display:grid;
-      grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
-      gap:25px;
-      margin-top:50px;
-    }
-
-    .stat-box{
-      background:rgba(255,255,255,0.05);
-      padding:35px;
-      border-radius:24px;
-      text-align:center;
-      border:1px solid rgba(255,255,255,0.08);
-      transition:.4s;
-    }
-
-    .stat-box:hover{
-      transform:translateY(-8px);
-      background:rgba(255,255,255,0.08);
-    }
-
-    .stat-box h2{
-      font-size:42px;
-      color:#3b82f6;
-    }
-
-    .stat-box p{
-      margin-top:10px;
-      color:#cbd5e1;
-    }
-
-    /* PROPERTY SECTION */
-
-    .section-title{
-      text-align:center;
-      margin-bottom:60px;
-    }
-
-    .section-title h2{
-      font-size:48px;
-      margin-bottom:15px;
-    }
-
-    .section-title p{
-      color:#94a3b8;
-    }
-
-    .property-grid{
-      display:grid;
-      grid-template-columns:repeat(auto-fit,minmax(320px,1fr));
-      gap:35px;
-    }
-
-    .property-card{
-      background:rgba(255,255,255,0.05);
-      border-radius:28px;
-      overflow:hidden;
-      transition:.5s;
-      border:1px solid rgba(255,255,255,0.08);
-      position:relative;
-    }
-
-    .property-card:hover{
-      transform:translateY(-12px) scale(1.02);
-      box-shadow:0 25px 50px rgba(0,0,0,0.5);
-    }
-
-    .property-card img{
-      width:100%;
-      height:240px;
-      object-fit:cover;
-      transition:.6s;
-    }
-
-    .property-card:hover img{
-      transform:scale(1.08);
-    }
-
-    .property-info{
-      padding:24px;
-    }
-
-    .property-info h3{
-      margin-bottom:12px;
-      font-size:24px;
-    }
-
-    .property-info p{
-      color:#94a3b8;
-      margin-bottom:15px;
-    }
-
-    .property-price{
-      color:#3b82f6;
-      font-size:24px;
-      font-weight:700;
-    }
-
-    .live-view{
-      position:absolute;
-      top:18px;
-      right:18px;
-      background:#0f172acc;
-      padding:10px 16px;
-      border-radius:999px;
-      font-size:14px;
-      backdrop-filter:blur(10px);
-      animation:pulse 2s infinite;
-    }
-
-    /* CTA */
-
-    .cta{
-      text-align:center;
-      background:linear-gradient(135deg,#2563eb,#0f172a);
-      border-radius:40px;
-      overflow:hidden;
-    }
-
-    .cta h2{
-      font-size:54px;
-      margin-bottom:20px;
-    }
-
-    .cta p{
-      max-width:700px;
-      margin:auto;
-      color:#dbeafe;
-      margin-bottom:40px;
-      line-height:1.7;
-    }
-
-    footer{
-      padding:40px;
-      text-align:center;
-      color:#94a3b8;
-    }
-
-    /* ANIMATIONS */
-
-    @keyframes float{
-      0%,100%{
-        transform:translateY(0px);
-      }
-      50%{
-        transform:translateY(30px);
-      }
-    }
-
-    @keyframes cardFloat{
-      0%,100%{
-        transform:translateY(0px);
-      }
-      50%{
-        transform:translateY(-20px);
-      }
-    }
-
-    @keyframes pulse{
-      0%{
-        box-shadow:0 0 0 0 rgba(59,130,246,0.7);
-      }
-      70%{
-        box-shadow:0 0 0 15px rgba(59,130,246,0);
-      }
-      100%{
-        box-shadow:0 0 0 0 rgba(59,130,246,0);
-      }
-    }
-
-    /* RESPONSIVE */
-
-    @media(max-width:900px){
-
-      .hero{
-        flex-direction:column;
-        text-align:center;
-        padding-top:120px;
-      }
-
-      .hero h1{
-        font-size:52px;
-      }
-
-      .hero-buttons{
-        justify-content:center;
-      }
-
-      .floating-card{
-        width:100%;
-        max-width:420px;
-      }
-
-      nav{
-        flex-direction:column;
-        gap:15px;
-      }
-    }
-
-  </style>
+
+    <meta charset="UTF-8" />
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0" />
+
+    <title>
+        Property-X | Luxury Real Estate Platform
+    </title>
+
+    <!-- SEO -->
+    <meta name="description"
+          content="Discover luxury apartments, villas, PGs, and commercial spaces with Property-X.">
+
+    <!-- FONTS -->
+    <link rel="preconnect"
+          href="https://fonts.googleapis.com">
+
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Poppins:wght@500;600;700;800&display=swap"
+          rel="stylesheet">
+
+    <!-- GSAP -->
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
+
+    <!-- SCROLL TRIGGER -->
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollTrigger.min.js"></script>
+
+    <!-- LENIS SMOOTH SCROLL -->
+    <script src="https://cdn.jsdelivr.net/npm/@studio-freight/lenis@1.0.42/bundled/lenis.min.js"></script>
+
+    <style>
+
+        *{
+            margin:0;
+            padding:0;
+            box-sizing:border-box;
+        }
+
+        html{
+            scroll-behavior:smooth;
+        }
+
+        body{
+            font-family:'Inter',sans-serif;
+            background:#07111f;
+            color:white;
+            overflow-x:hidden;
+        }
+
+        a{
+            text-decoration:none;
+            color:inherit;
+        }
+
+        img{
+            width:100%;
+            display:block;
+        }
+
+        section{
+            padding:120px 8%;
+            position:relative;
+        }
+
+        h1,h2,h3{
+            font-family:'Poppins',sans-serif;
+        }
+
+        /* ================= NAVBAR ================= */
+
+        nav{
+            position:fixed;
+            top:0;
+            left:0;
+            width:100%;
+            z-index:999;
+            display:flex;
+            justify-content:space-between;
+            align-items:center;
+            padding:20px 8%;
+            backdrop-filter:blur(16px);
+            background:rgba(255,255,255,0.04);
+            border-bottom:1px solid rgba(255,255,255,0.08);
+        }
+
+        .logo{
+            font-size:32px;
+            font-weight:800;
+            color:#3b82f6;
+        }
+
+        .nav-links{
+            display:flex;
+            align-items:center;
+            gap:35px;
+        }
+
+        .nav-links a{
+            color:#fff;
+            font-weight:500;
+            position:relative;
+        }
+
+        .nav-links a::after{
+            content:"";
+            position:absolute;
+            left:0;
+            bottom:-8px;
+            width:0%;
+            height:2px;
+            background:#3b82f6;
+            transition:.4s;
+        }
+
+        .nav-links a:hover::after{
+            width:100%;
+        }
+
+        .nav-btn{
+            background:#3b82f6;
+            padding:12px 22px;
+            border-radius:14px;
+            font-weight:600;
+            transition:.4s;
+        }
+
+        .nav-btn:hover{
+            transform:translateY(-4px);
+        }
+
+        /* ================= HERO ================= */
+
+        .hero{
+            min-height:100vh;
+            display:flex;
+            align-items:center;
+            justify-content:space-between;
+            gap:60px;
+            overflow:hidden;
+        }
+
+        .hero::before{
+            content:"";
+            position:absolute;
+            width:700px;
+            height:700px;
+            background:radial-gradient(circle,#2563eb55,transparent 70%);
+            top:-250px;
+            right:-100px;
+            animation:float 7s ease-in-out infinite;
+        }
+
+        .hero-content{
+            max-width:650px;
+            z-index:2;
+        }
+
+        .hero-subtitle{
+            display:inline-block;
+            padding:10px 18px;
+            background:rgba(59,130,246,0.12);
+            border:1px solid rgba(59,130,246,0.3);
+            border-radius:999px;
+            color:#93c5fd;
+            margin-bottom:25px;
+        }
+
+        .hero h1{
+            font-size:78px;
+            line-height:1.05;
+            margin-bottom:25px;
+        }
+
+        .hero h1 span{
+            color:#3b82f6;
+        }
+
+        .hero p{
+            font-size:18px;
+            line-height:1.8;
+            color:#cbd5e1;
+            margin-bottom:40px;
+        }
+
+        .hero-buttons{
+            display:flex;
+            gap:20px;
+            margin-bottom:60px;
+        }
+
+        .btn{
+            padding:16px 30px;
+            border-radius:16px;
+            font-weight:600;
+            transition:.4s;
+            display:inline-flex;
+            align-items:center;
+            gap:10px;
+        }
+
+        .btn-primary{
+            background:#3b82f6;
+            color:white;
+            box-shadow:0 10px 40px rgba(59,130,246,0.4);
+        }
+
+        .btn-primary:hover{
+            transform:translateY(-5px);
+        }
+
+        .btn-secondary{
+            border:1px solid rgba(255,255,255,0.1);
+            background:rgba(255,255,255,0.05);
+        }
+
+        .btn-secondary:hover{
+            transform:translateY(-5px);
+            background:rgba(255,255,255,0.08);
+        }
+
+        /* ================= FLOAT CARD ================= */
+
+        .hero-card{
+            width:420px;
+            border-radius:34px;
+            overflow:hidden;
+            background:rgba(255,255,255,0.05);
+            border:1px solid rgba(255,255,255,0.08);
+            backdrop-filter:blur(20px);
+            box-shadow:0 20px 60px rgba(0,0,0,0.45);
+            animation:cardFloat 6s ease-in-out infinite;
+            z-index:2;
+        }
+
+        .hero-card img{
+            height:280px;
+            object-fit:cover;
+        }
+
+        .hero-card-content{
+            padding:28px;
+        }
+
+        .hero-price{
+            font-size:34px;
+            color:#3b82f6;
+            margin:15px 0;
+            font-weight:800;
+        }
+
+        .hero-card p{
+            color:#cbd5e1;
+        }
+
+        .live-badge{
+            margin-top:20px;
+            display:inline-block;
+            background:#0f172a;
+            padding:10px 18px;
+            border-radius:999px;
+            animation:pulse 2s infinite;
+        }
+
+        /* ================= STATS ================= */
+
+        .stats{
+            display:grid;
+            grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+            gap:25px;
+            margin-top:80px;
+        }
+
+        .stat-box{
+            padding:35px;
+            border-radius:24px;
+            background:rgba(255,255,255,0.05);
+            border:1px solid rgba(255,255,255,0.08);
+            transition:.4s;
+        }
+
+        .stat-box:hover{
+            transform:translateY(-10px);
+        }
+
+        .stat-box h2{
+            font-size:52px;
+            color:#3b82f6;
+        }
+
+        .stat-box p{
+            margin-top:12px;
+            color:#cbd5e1;
+        }
+
+        /* ================= SECTION TITLE ================= */
+
+        .section-title{
+            text-align:center;
+            margin-bottom:70px;
+        }
+
+        .section-title h2{
+            font-size:58px;
+            margin-bottom:18px;
+        }
+
+        .section-title p{
+            color:#94a3b8;
+            max-width:700px;
+            margin:auto;
+        }
+
+        /* ================= PROPERTY GRID ================= */
+
+        .property-grid{
+            display:grid;
+            grid-template-columns:repeat(auto-fit,minmax(340px,1fr));
+            gap:35px;
+        }
+
+        .property-card{
+            background:rgba(255,255,255,0.05);
+            border-radius:30px;
+            overflow:hidden;
+            border:1px solid rgba(255,255,255,0.08);
+            transition:.5s;
+            position:relative;
+        }
+
+        .property-card:hover{
+            transform:translateY(-12px);
+            box-shadow:0 30px 60px rgba(0,0,0,0.5);
+        }
+
+        .property-card img{
+            height:260px;
+            object-fit:cover;
+            transition:.7s;
+        }
+
+        .property-card:hover img{
+            transform:scale(1.08);
+        }
+
+        .property-content{
+            padding:28px;
+        }
+
+        .property-type{
+            display:inline-block;
+            background:#1e293b;
+            color:#93c5fd;
+            padding:8px 14px;
+            border-radius:999px;
+            margin-bottom:18px;
+            font-size:14px;
+        }
+
+        .property-content h3{
+            font-size:28px;
+            margin-bottom:12px;
+        }
+
+        .property-location{
+            color:#94a3b8;
+            margin-bottom:18px;
+        }
+
+        .property-meta{
+            display:flex;
+            gap:18px;
+            margin-bottom:20px;
+            color:#cbd5e1;
+        }
+
+        .property-footer{
+            display:flex;
+            justify-content:space-between;
+            align-items:center;
+        }
+
+        .property-price{
+            color:#3b82f6;
+            font-size:28px;
+            font-weight:700;
+        }
+
+        .view-btn{
+            background:#3b82f6;
+            padding:12px 20px;
+            border-radius:14px;
+            transition:.4s;
+        }
+
+        .view-btn:hover{
+            transform:translateY(-4px);
+        }
+
+        .trending{
+            position:absolute;
+            top:18px;
+            right:18px;
+            background:#0f172acc;
+            padding:10px 18px;
+            border-radius:999px;
+            backdrop-filter:blur(10px);
+        }
+
+        /* ================= CATEGORY GRID ================= */
+
+        .masonry{
+            display:grid;
+            grid-template-columns:2fr 1fr 1fr;
+            gap:24px;
+        }
+
+        .masonry-card{
+            position:relative;
+            border-radius:30px;
+            overflow:hidden;
+            min-height:300px;
+        }
+
+        .masonry-card.large{
+            min-height:620px;
+        }
+
+        .masonry-card img{
+            height:100%;
+            object-fit:cover;
+            transition:.8s;
+        }
+
+        .masonry-card:hover img{
+            transform:scale(1.08);
+        }
+
+        .overlay{
+            position:absolute;
+            inset:0;
+            background:linear-gradient(to top,rgba(0,0,0,0.8),transparent);
+            display:flex;
+            align-items:flex-end;
+            padding:30px;
+        }
+
+        .overlay h3{
+            font-size:32px;
+        }
+
+        /* ================= CTA ================= */
+
+        .cta{
+            background:linear-gradient(135deg,#2563eb,#0f172a);
+            border-radius:40px;
+            text-align:center;
+            overflow:hidden;
+        }
+
+        .cta h2{
+            font-size:60px;
+            margin-bottom:20px;
+        }
+
+        .cta p{
+            max-width:700px;
+            margin:auto;
+            line-height:1.8;
+            color:#dbeafe;
+            margin-bottom:40px;
+        }
+
+        /* ================= FOOTER ================= */
+
+        footer{
+            padding:50px;
+            text-align:center;
+            color:#94a3b8;
+        }
+
+        /* ================= ANIMATIONS ================= */
+
+        @keyframes float{
+            0%,100%{
+                transform:translateY(0px);
+            }
+            50%{
+                transform:translateY(30px);
+            }
+        }
+
+        @keyframes cardFloat{
+            0%,100%{
+                transform:translateY(0px);
+            }
+            50%{
+                transform:translateY(-20px);
+            }
+        }
+
+        @keyframes pulse{
+            0%{
+                box-shadow:0 0 0 0 rgba(59,130,246,0.7);
+            }
+            70%{
+                box-shadow:0 0 0 15px rgba(59,130,246,0);
+            }
+            100%{
+                box-shadow:0 0 0 0 rgba(59,130,246,0);
+            }
+        }
+
+        /* ================= RESPONSIVE ================= */
+
+        @media(max-width:1000px){
+
+            .hero{
+                flex-direction:column;
+                text-align:center;
+                padding-top:150px;
+            }
+
+            .hero-buttons{
+                justify-content:center;
+            }
+
+            .hero h1{
+                font-size:56px;
+            }
+
+            .masonry{
+                grid-template-columns:1fr;
+            }
+
+            .masonry-card.large{
+                min-height:350px;
+            }
+
+            nav{
+                flex-direction:column;
+                gap:20px;
+            }
+        }
+
+    </style>
+
 </head>
+
 <body>
 
-  <!-- NAVBAR -->
-  <nav>
-    <div class="logo">Property-X</div>
+<!-- NAVBAR -->
+
+<nav>
+
+    <a href="{% url 'home' %}"
+       class="logo">
+
+        Property-X
+
+    </a>
 
     <div class="nav-links">
-      <a href="#">Home</a>
-      <a href="#">Properties</a>
-      <a href="#">Agents</a>
-      <a href="#">Contact</a>
-    </div>
-  </nav>
 
-  <!-- HERO -->
-  <section class="hero">
+        <a href="{% url 'home' %}">
+            Home
+        </a>
+
+        <a href="{% url 'rental_list' %}">
+            Properties
+        </a>
+
+        <a href="{% url 'wishlist' %}">
+            Wishlist
+        </a>
+
+        <a href="{% url 'profile' %}">
+            Dashboard
+        </a>
+
+        <a href="{% url 'about' %}">
+            About
+        </a>
+
+    </div>
+
+    <a href="{% url 'rental_create' %}"
+       class="nav-btn">
+
+        List Property
+
+    </a>
+
+</nav>
+
+<!-- HERO -->
+
+<section class="hero">
 
     <div class="hero-content">
-      <h1>
-        Discover Luxury Living With
-        <span>Property-X</span>
-      </h1>
 
-      <p>
-        Buy, sell, and invest in premium properties with
-        immersive experiences and commercial-grade real estate technology.
-      </p>
-
-      <div class="hero-buttons">
-        <button class="btn btn-primary">Explore Properties</button>
-        <button class="btn btn-secondary">Book Demo</button>
-      </div>
-
-      <div class="stats">
-
-        <div class="stat-box">
-          <h2 class="counter" data-target="25000">0</h2>
-          <p>Properties Listed</p>
+        <div class="hero-subtitle">
+            #1 Luxury Real Estate Platform
         </div>
 
-        <div class="stat-box">
-          <h2 class="counter" data-target="12000">0</h2>
-          <p>Happy Buyers</p>
+        <h1>
+            Discover Elite
+            <span>Luxury Living</span>
+        </h1>
+
+        <p>
+            Property-X helps buyers, renters, and investors
+            discover premium homes, villas, apartments,
+            and commercial properties with immersive experiences.
+        </p>
+
+        <div class="hero-buttons">
+
+            <a href="{% url 'rental_list' %}"
+               class="btn btn-primary">
+
+                Explore Properties
+
+            </a>
+
+            <a href="{% url 'rental_create' %}"
+               class="btn btn-secondary">
+
+                Add Listing
+
+            </a>
+
         </div>
 
-        <div class="stat-box">
-          <h2 class="counter" data-target="500">0</h2>
-          <p>Cr+ Transactions</p>
-        </div>
+        <!-- STATS -->
 
-      </div>
+        <div class="stats">
+
+            <div class="stat-box">
+                <h2 class="counter"
+                    data-target="25000">0</h2>
+
+                <p>Properties Listed</p>
+            </div>
+
+            <div class="stat-box">
+                <h2 class="counter"
+                    data-target="12000">0</h2>
+
+                <p>Happy Buyers</p>
+            </div>
+
+            <div class="stat-box">
+                <h2 class="counter"
+                    data-target="500">0</h2>
+
+                <p>Cr+ Transactions</p>
+            </div>
+
+        </div>
 
     </div>
 
-    <!-- FLOATING PROPERTY CARD -->
+    <!-- HERO PROPERTY CARD -->
 
-    <div class="floating-card">
-      <img src="https://images.unsplash.com/photo-1600585154526-990dced4db0d?q=80&w=1200&auto=format&fit=crop" alt="Property">
+    {% if latest_villa %}
 
-      <div class="card-content">
-        <h2>Luxury Villa</h2>
+    <a href="{% url 'rental_detail' latest_villa.slug %}"
+       class="hero-card">
 
-        <div class="price">₹4.5 Cr</div>
+        <img src="{{ latest_villa.image.url }}"
+             alt="{{ latest_villa.title }}">
 
-        <p>4 Beds • Pool • Smart Home • Gurgaon</p>
+        <div class="hero-card-content">
 
-        <div class="views">
-          👁 12.5K Live Views
+            <h2>
+                {{ latest_villa.title }}
+            </h2>
+
+            <div class="hero-price">
+                ₹{{ latest_villa.price }}
+            </div>
+
+            <p>
+                {{ latest_villa.location }}
+            </p>
+
+            <div class="live-badge">
+                👁 Live Views Increasing
+            </div>
+
         </div>
-      </div>
-    </div>
 
-  </section>
+    </a>
 
-  <!-- FEATURED PROPERTIES -->
+    {% endif %}
 
-  <section>
+</section>
+
+<!-- FEATURED -->
+
+<section>
 
     <div class="section-title">
-      <h2>Featured Properties</h2>
-      <p>Explore premium listings with immersive experiences.</p>
+
+        <h2>
+            Featured Properties
+        </h2>
+
+        <p>
+            Explore elite homes and investments tailored
+            for luxury lifestyles and future-ready living.
+        </p>
+
     </div>
 
     <div class="property-grid">
 
-      <!-- CARD -->
+        {% for property in featured_rentals %}
 
-      <div class="property-card">
-        <div class="live-view">🔥 Trending</div>
+        <div class="property-card reveal">
 
-        <img src="https://images.unsplash.com/photo-1512917774080-9991f1c4c750?q=80&w=1200&auto=format&fit=crop">
+            <div class="trending">
+                🔥 Trending
+            </div>
 
-        <div class="property-info">
-          <h3>Modern Penthouse</h3>
-          <p>Mumbai • 5 Beds • Skyline View</p>
-          <div class="property-price">₹8.9 Cr</div>
+            <img src="{{ property.image.url }}"
+                 alt="{{ property.title }}">
+
+            <div class="property-content">
+
+                <div class="property-type">
+                    {{ property.property_type }}
+                </div>
+
+                <h3>
+                    {{ property.title }}
+                </h3>
+
+                <div class="property-location">
+                    📍 {{ property.location }}
+                </div>
+
+                <div class="property-meta">
+
+                    <span>
+                        🛏 {{ property.bedrooms }}
+                    </span>
+
+                    <span>
+                        🛁 {{ property.bathrooms }}
+                    </span>
+
+                    <span>
+                        📐 {{ property.sqft }} sqft
+                    </span>
+
+                </div>
+
+                <div class="property-footer">
+
+                    <div class="property-price">
+                        ₹{{ property.price }}
+                    </div>
+
+                    <a href="{% url 'rental_detail' property.slug %}"
+                       class="view-btn">
+
+                        View
+
+                    </a>
+
+                </div>
+
+            </div>
+
         </div>
-      </div>
 
-      <!-- CARD -->
-
-      <div class="property-card">
-        <div class="live-view">👁 8.4K Views</div>
-
-        <img src="https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?q=80&w=1200&auto=format&fit=crop">
-
-        <div class="property-info">
-          <h3>Luxury Smart Villa</h3>
-          <p>Delhi • Smart Automation • Pool</p>
-          <div class="property-price">₹6.2 Cr</div>
-        </div>
-      </div>
-
-      <!-- CARD -->
-
-      <div class="property-card">
-        <div class="live-view">⭐ Premium</div>
-
-        <img src="https://images.unsplash.com/photo-1600047509807-ba8f99d2cdde?q=80&w=1200&auto=format&fit=crop">
-
-        <div class="property-info">
-          <h3>Beachside Residence</h3>
-          <p>Goa • Ocean View • 4 Beds</p>
-          <div class="property-price">₹7.8 Cr</div>
-        </div>
-      </div>
+        {% endfor %}
 
     </div>
 
-  </section>
+</section>
 
-  <!-- CTA -->
+<!-- CATEGORY SECTION -->
 
-  <section>
+<section>
+
+    <div class="section-title">
+
+        <h2>
+            Explore By Category
+        </h2>
+
+    </div>
+
+    <div class="masonry">
+
+        {% if latest_villa %}
+        <a href="{% url 'rental_detail' latest_villa.slug %}"
+           class="masonry-card large reveal">
+
+            <img src="{{ latest_villa.image.url }}">
+
+            <div class="overlay">
+                <h3>Luxury Villas</h3>
+            </div>
+
+        </a>
+        {% endif %}
+
+        {% if latest_flat %}
+        <a href="{% url 'rental_detail' latest_flat.slug %}"
+           class="masonry-card reveal">
+
+            <img src="{{ latest_flat.image.url }}">
+
+            <div class="overlay">
+                <h3>Apartments</h3>
+            </div>
+
+        </a>
+        {% endif %}
+
+        {% if latest_pg %}
+        <a href="{% url 'rental_detail' latest_pg.slug %}"
+           class="masonry-card reveal">
+
+            <img src="{{ latest_pg.image.url }}">
+
+            <div class="overlay">
+                <h3>PG Spaces</h3>
+            </div>
+
+        </a>
+        {% endif %}
+
+    </div>
+
+</section>
+
+<!-- CTA -->
+
+<section>
 
     <div class="cta">
-      <h2>Ready To Find Your Dream Property?</h2>
 
-      <p>
-        Join thousands of investors and homeowners using Property-X
-        to discover premium real estate opportunities.
-      </p>
+        <h2>
+            Find Your Dream Property
+        </h2>
 
-      <button class="btn btn-primary">
-        Get Started Now
-      </button>
+        <p>
+            Join thousands of buyers and investors
+            discovering future-ready real estate
+            with Property-X.
+        </p>
+
+        <a href="{% url 'rental_list' %}"
+           class="btn btn-primary">
+
+            Browse Listings
+
+        </a>
+
     </div>
 
-  </section>
+</section>
 
-  <!-- FOOTER -->
+<!-- FOOTER -->
 
-  <footer>
-    © 2026 Property-X. All Rights Reserved.
-  </footer>
+<footer>
 
-  <!-- GSAP ANIMATIONS -->
+    © 2026 Property-X — Luxury Real Estate Platform
 
-  <script>
+</footer>
 
-    // HERO ANIMATION
+<!-- GSAP -->
+
+<script>
+
+    gsap.registerPlugin(ScrollTrigger);
+
+    // SMOOTH SCROLL
+
+    const lenis = new Lenis({
+        duration: 1.2
+    });
+
+    function raf(time) {
+        lenis.raf(time);
+        requestAnimationFrame(raf);
+    }
+
+    requestAnimationFrame(raf);
+
+    // HERO
 
     gsap.from(".hero-content h1",{
-      y:80,
-      opacity:0,
-      duration:1,
+        y:80,
+        opacity:0,
+        duration:1
     });
 
     gsap.from(".hero-content p",{
-      y:50,
-      opacity:0,
-      duration:1,
-      delay:.3
+        y:40,
+        opacity:0,
+        duration:1,
+        delay:.3
     });
 
     gsap.from(".hero-buttons",{
-      y:50,
-      opacity:0,
-      duration:1,
-      delay:.5
+        y:40,
+        opacity:0,
+        duration:1,
+        delay:.5
     });
 
-    gsap.from(".floating-card",{
-      x:100,
-      opacity:0,
-      duration:1.2,
-      delay:.4
+    gsap.from(".hero-card",{
+        x:100,
+        opacity:0,
+        duration:1.2
     });
 
-    gsap.from(".stat-box",{
-      y:60,
-      opacity:0,
-      duration:1,
-      stagger:.2,
-      delay:.7
-    });
-
-    // COUNTER ANIMATION
+    // COUNTER
 
     const counters = document.querySelectorAll('.counter');
 
     counters.forEach(counter => {
 
-      const updateCounter = () => {
+        const updateCounter = () => {
 
-        const target = +counter.getAttribute('data-target');
-        const count = +counter.innerText;
+            const target = +counter.dataset.target;
+            const count = +counter.innerText;
 
-        const increment = target / 100;
+            const increment = target / 100;
 
-        if(count < target){
-          counter.innerText = Math.ceil(count + increment);
-          setTimeout(updateCounter,20);
-        }else{
-          counter.innerText = target.toLocaleString();
+            if(count < target){
+                counter.innerText = Math.ceil(count + increment);
+                setTimeout(updateCounter,20);
+            }else{
+                counter.innerText = target.toLocaleString();
+            }
         }
-      }
 
-      updateCounter();
+        updateCounter();
+
     });
 
-  </script>
+    // SCROLL REVEAL
+
+    gsap.utils.toArray(".reveal").forEach((el)=>{
+
+        gsap.from(el,{
+            scrollTrigger:{
+                trigger:el,
+                start:"top 85%",
+            },
+            y:80,
+            opacity:0,
+            duration:1,
+            ease:"power4.out"
+        });
+
+    });
+
+</script>
 
 </body>
 </html>
