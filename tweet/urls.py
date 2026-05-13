@@ -4,10 +4,11 @@ from . import views
 urlpatterns = [
 
     # ================= HOME =================
-    path('', views.index, name='home'),
+    path('', views.index, name='index'),
 
     # ================= RENTALS =================
     path('rentals/', views.rental_list, name='rental_list'),
+    path('rentals/<int:rental_id>/', views.room_describe, name='room_describe'),
 
     # ================= PROPERTY DETAIL =================
     path('property/<slug:slug>/', views.rental_detail, name='rental_detail'),
@@ -18,7 +19,7 @@ urlpatterns = [
     path('property/<slug:slug>/delete/', views.rental_delete, name='rental_delete'),
 
     # ================= CONTACT =================
-    path('property/<slug:slug>/contact/', views.rental_contact, name='rental_contact'),
+    path('rentals/<int:rental_id>/contact/', views.rental_contact, name='rental_contact'),
 
     # ================= USER =================
     path('profile/', views.profile, name='profile'),
@@ -26,7 +27,7 @@ urlpatterns = [
 
     # ================= WISHLIST =================
     path('wishlist/', views.wishlist, name='wishlist'),
-    path('wishlist/toggle/<slug:slug>/', views.toggle_wishlist, name='toggle_wishlist'),
+    path('wishlist/toggle/<int:rental_id>/', views.toggle_wishlist, name='toggle_wishlist'),
 
     # ================= ABOUT =================
     path('about/', views.about, name='about'),

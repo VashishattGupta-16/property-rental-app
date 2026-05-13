@@ -161,7 +161,7 @@ def rental_list(request):
         'search_params': request.GET,
     }
 
-    return render(request, 'rental_list.html', context)
+    return render(request, 'rentalList.html', context)
 
 
 # =========================================================
@@ -177,31 +177,31 @@ def rental_detail(request, slug):
         slug=slug
     )
 
-    related_properties = (
-        Rental.objects
-        .filter(
-            property_type=rental.property_type,
-            is_available=True
-        )
-        .exclude(id=rental.id)
-        .order_by('-created_at')[:4]
+    return render(
+        request,
+        'room_describe.html',
+        {
+            'rental': rental,
+        }
     )
 
-    is_wishlisted = False
 
-    if request.user.is_authenticated:
-        is_wishlisted = Wishlist.objects.filter(
-            user=request.user,
-            rental=rental
-        ).exists()
+def room_describe(request, rental_id):
 
-    context = {
-        'rental': rental,
-        'related_properties': related_properties,
-        'is_wishlisted': is_wishlisted,
-    }
+    rental = get_object_or_404(
+        Rental.objects
+        .select_related('user')
+        .prefetch_related('gallery'),
+        pk=rental_id
+    )
 
-    return render(request, 'rental_detail.html', context)
+    return render(
+        request,
+        'room_describe.html',
+        {
+            'rental': rental,
+        }
+    )
 
 
 # =========================================================
@@ -271,7 +271,7 @@ def rental_edit(request, slug):
         rental.user != request.user and
         not request.user.is_staff
     ):
-        return redirect('home')
+        return redirect('index')
 
     if request.method == 'POST':
 
@@ -348,11 +348,11 @@ def rental_delete(request, slug):
 # =========================================================
 
 @login_required
-def rental_contact(request, slug):
+def rental_contact(request, rental_id):
 
     rental = get_object_or_404(
         Rental,
-        slug=slug
+        pk=rental_id
     )
 
     if request.method == 'POST':
@@ -406,7 +406,7 @@ def profile(request):
 def profile_setup(request):
 
     if request.user.profile_is_complete():
-        return redirect('home')
+        return redirect('index')
 
     if request.method == 'POST':
 
@@ -417,7 +417,7 @@ def profile_setup(request):
 
         if form.is_valid():
             form.save()
-            return redirect('home')
+            return redirect('index')
 
     else:
 
@@ -452,7 +452,7 @@ def wishlist(request):
         request,
         'wishlist.html',
         {
-            'wishlist_items': wishlist_items
+            'wishlist': wishlist_items
         }
     )
 
@@ -463,11 +463,11 @@ def wishlist(request):
 
 @login_required
 @require_POST
-def toggle_wishlist(request, slug):
+def toggle_wishlist(request, rental_id):
 
     rental = get_object_or_404(
         Rental,
-        slug=slug
+        pk=rental_id
     )
 
     wishlist_item = Wishlist.objects.filter(
@@ -492,7 +492,7 @@ def toggle_wishlist(request, slug):
     ):
         return redirect(referer)
 
-    return redirect('rental_detail', slug=slug)
+    return redirect('rental_list')
 
 
 # =========================================================

@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Something went wrong</title>
+    <style>
+      :root {
+        color-scheme: dark;
+        --bg: #020617;
+        --card: rgba(255, 255, 255, 0.04);
+        --border: rgba(255, 255, 255, 0.08);
+        --text: #e2e8f0;
+        --muted: rgba(226, 232, 240, 0.7);
+        --accent: #38bdf8;
+      }
+      body {
+        margin: 0;
+        font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+        background: radial-gradient(1200px 800px at 10% 10%, rgba(56, 189, 248, 0.12), transparent 50%),
+          radial-gradient(1000px 700px at 90% 20%, rgba(37, 99, 235, 0.12), transparent 55%),
+          var(--bg);
+        color: var(--text);
+      }
+      .wrap {
+        min-height: 100vh;
+        display: grid;
+        place-items: center;
+        padding: 2rem 1rem;
+      }
+      .card {
+        width: min(720px, 100%);
+        border: 1px solid var(--border);
+        background: var(--card);
+        border-radius: 1.5rem;
+        padding: 2rem;
+        backdrop-filter: blur(18px);
+      }
+      h1 {
+        margin: 0 0 0.5rem 0;
+        font-size: clamp(1.6rem, 3vw, 2.2rem);
+        letter-spacing: -0.02em;
+      }
+      p {
+        margin: 0.25rem 0 0 0;
+        color: var(--muted);
+        line-height: 1.6;
+      }
+      .actions {
+        margin-top: 1.5rem;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.75rem;
+      }
+      a {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        text-decoration: none;
+        font-weight: 800;
+        border-radius: 1rem;
+        padding: 0.9rem 1.1rem;
+        border: 1px solid var(--border);
+        color: var(--text);
+        background: rgba(255, 255, 255, 0.03);
+      }
+      a.primary {
+        border-color: rgba(56, 189, 248, 0.35);
+        background: rgba(56, 189, 248, 0.14);
+        color: var(--text);
+      }
+      a:hover {
+        border-color: rgba(56, 189, 248, 0.45);
+      }
+      .code {
+        margin-top: 1.25rem;
+        border: 1px dashed rgba(255, 255, 255, 0.14);
+        border-radius: 1rem;
+        padding: 0.9rem 1rem;
+        color: rgba(226, 232, 240, 0.9);
+        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+        font-size: 0.9rem;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <main class="card" role="main" aria-label="Server error">
+        <h1>Something went wrong</h1>
+        <p>We hit an unexpected error while loading this page.</p>
+        <p>Please refresh, or go back to the home page and try again.</p>
+
+        <div class="actions">
+          <a class="primary" href="/">Go to Home</a>
+          <a href="/rentals/">Browse Rentals</a>
+        </div>
+
+        <div class="code">Error: 500 (Internal Server Error)</div>
+      </main>
+    </div>
+  </body>
+</html>
+
