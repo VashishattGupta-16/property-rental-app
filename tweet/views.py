@@ -3,8 +3,10 @@ from django.contrib.auth.decorators import login_required
 from django.db.models import Q
 from django.http import HttpResponse
 from django.views.decorators.http import require_POST
+from django.utils.http import url_has_allowed_host_and_scheme
 
 from .models import Rental
+from .models import Wishlist
 from .forms import RentalForm, GalleryFormSet, ProfileSetupForm
 
 
@@ -46,6 +48,11 @@ def rental_list(request):
 
     return render(request, 'rentalList.html', {
         'rentals': rentals,
+        'wishlisted_rental_ids': set(
+            request.user.wishlist_items.values_list("rental_id", flat=True)
+        )
+        if request.user.is_authenticated
+        else set(),
         'search_params': request.GET
     })
 
@@ -165,6 +172,28 @@ def wishlist(request):
     return render(request, 'wishlist.html', {
         'wishlist': wishlist
     })
+
+
+@login_required
+@require_POST
+def toggle_wishlist(request, rental_id):
+    rental = get_object_or_404(Rental, pk=rental_id)
+
+    existing = Wishlist.objects.filter(user=request.user, rental=rental)
+    if existing.exists():
+        existing.delete()
+    else:
+        Wishlist.objects.create(user=request.user, rental=rental)
+
+    referer = request.META.get("HTTP_REFERER", "")
+    if referer and url_has_allowed_host_and_scheme(
+        url=referer,
+        allowed_hosts={request.get_host()},
+        require_https=request.is_secure(),
+    ):
+        return redirect(referer)
+
+    return redirect("rental_list")
 
 
 @login_required

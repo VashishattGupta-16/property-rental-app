@@ -15,5 +15,6 @@ urlpatterns = [
     path('rentals/<int:rental_id>/contact/', views.rental_contact, name='rental_contact'),
     path('rentals/<int:rental_id>/', views.room_describe, name='room_describe'),
     path('profile/setup/', views.profile_setup, name='profile_setup'),
+    path('wishlist/toggle/<int:rental_id>/', views.toggle_wishlist, name='toggle_wishlist'),
     path('ping/', ping_view, name='ping'),
 ]
