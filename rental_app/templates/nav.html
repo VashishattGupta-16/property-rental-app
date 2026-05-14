@@ -16,13 +16,46 @@
                         <i class="fa-solid fa-bars"></i>
                     </button>
                     <div class="dropdown-menu js-dropdown-menu">
-                        <div class="dropdown-card">
-                            <a href="{% url 'rental_list' %}" class="dropdown-item">Explore Market</a>
-                            <a href="{% url 'rental_list' %}?type=VILLA" class="dropdown-item">Villas & Houses</a>
-                            <a href="{% url 'rental_list' %}?type=APARTMENT" class="dropdown-item">Apartments</a>
-                            <a href="{% url 'rental_list' %}?type=PG" class="dropdown-item">PGs & Co-living</a>
-                            <a href="{% url 'about' %}" class="dropdown-item">About Us</a>
-                        </div>
+                       <div class="dropdown-card">
+    <a href="{% url 'rental_list' %}" class="dropdown-item">Explore Market</a>
+    
+    <hr style="border: 0; border-top: 1px solid var(--nav-border); margin: 0.5rem 0;">
+
+    <!-- ACQUIRE -->
+    <div class="accordion">
+        <button class="accordion-btn" type="button" style="padding: 0.5rem 0.85rem; font-size: 0.95rem; font-weight: 800; color: var(--nav-text);">
+            <span>Acquire</span>
+            <i class="fa-solid fa-chevron-down"></i>
+        </button>
+        <div class="accordion-content">
+            <a href="{% url 'rental_list' %}?type=VILLA" class="dropdown-item">Villas</a>
+            <a href="{% url 'rental_list' %}?type=SHOWROOM" class="dropdown-item">Shops</a>
+            <a href="{% url 'rental_list' %}?type=APARTMENT" class="dropdown-item">Apartments</a>
+            <a href="{% url 'rental_list' %}?type=INDUSTRIAL_PLOT" class="dropdown-item">Plots</a>
+            <a href="{% url 'rental_list' %}?type=HOUSE" class="dropdown-item">Houses</a>
+        </div>
+    </div>
+
+    <hr style="border: 0; border-top: 1px solid var(--nav-border); margin: 0.5rem 0;">
+
+    <!-- RENT -->
+    <div class="accordion">
+        <button class="accordion-btn" type="button" style="padding: 0.5rem 0.85rem; font-size: 0.95rem; font-weight: 800; color: var(--nav-text);">
+            <span>Rent</span>
+            <i class="fa-solid fa-chevron-down"></i>
+        </button>
+        <div class="accordion-content">
+            <a href="{% url 'rental_list' %}?type=1BHK" class="dropdown-item">1 BHK</a>
+            <a href="{% url 'rental_list' %}?type=2BHK" class="dropdown-item">2 BHK</a>
+            <a href="{% url 'rental_list' %}?type=3BHK" class="dropdown-item">3 BHK</a>
+            <a href="{% url 'rental_list' %}?type=PG" class="dropdown-item">PGs</a>
+        </div>
+    </div>
+
+    <hr style="border: 0; border-top: 1px solid var(--nav-border); margin: 0.5rem 0;">
+    
+    <a href="{% url 'about' %}" class="dropdown-item">About Us</a>
+</div>
                     </div>
                 </div>
 
