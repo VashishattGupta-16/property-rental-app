@@ -131,6 +131,7 @@
   z-index: 60;
 }
 
+/* JS toggles this class for clicks */
 .dropdown-menu.show-dropdown {
   display: block;
 }
@@ -202,7 +203,7 @@
     left: 0;
   }
 
-  /* Desktop dropdowns should work on hover + keyboard focus too */
+  /* Desktop dropdowns hover logic */
   .desktop-dropdown:hover .desktop-dropdown-menu,
   .desktop-dropdown:focus-within .desktop-dropdown-menu {
     display: block;

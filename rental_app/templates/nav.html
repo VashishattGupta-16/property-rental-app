@@ -1,451 +1,156 @@
 {% load static %}
-
 <link rel="stylesheet" href="{% static 'css/navbar.css' %}">
 
-<!-- Defensive CSS for Accordion & Dropdown behavior -->
-<style>
-    .accordion-content {
-        max-height: 0;
-        overflow: hidden;
-        transition: max-height 0.3s ease-out;
-    }
-    .accordion-btn {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        width: 100%;
-        cursor: pointer;
-    }
-    .accordion.active .fa-chevron-down,
-    .desktop-dropdown.active .fa-chevron-down {
-        transform: rotate(180deg);
-        transition: transform 0.3s ease;
-    }
-    .fa-chevron-down {
-        transition: transform 0.3s ease;
-    }
-</style>
-
 <nav class="navbar-wrapper">
-
     <div class="navbar-shell">
-
         <div class="navbar-grid">
 
             <!-- ======================================
-                 LEFT
+                 LEFT: Mobile Menu & Logo
             ======================================= -->
-
             <div class="navbar-left">
-
-                <!-- MOBILE MENU -->
-                <div class="mobile-dropdown">
-
-                    <button
-                        id="mobileMenuBtn"
-                        class="dropdown-trigger mobile-trigger"
-                        type="button"
-                        aria-label="Open Menu"
-                    >
+                
+                <!-- Mobile Only Menu -->
+                <div class="dropdown-container mobile-dropdown">
+                    <button class="dropdown-trigger js-dropdown-btn" type="button" aria-label="Menu">
                         <i class="fa-solid fa-bars"></i>
                     </button>
-
-                    <div
-                        class="mobile-menu"
-                        id="mobileMenu"
-                    >
-
+                    <div class="dropdown-menu js-dropdown-menu">
                         <div class="dropdown-card">
-
-                            <a
-                                href="{% url 'rental_list' %}"
-                                class="dropdown-item"
-                            >
-                                Explore
-                            </a>
-
-                            <a
-                                href="{% url 'about' %}"
-                                class="dropdown-item"
-                            >
-                                About
-                            </a>
-
-                            <hr class="dropdown-divider">
-
-                            <!-- ACQUIRE -->
-                            <div class="accordion">
-
-                                <button
-                                    class="accordion-btn"
-                                    type="button"
-                                >
-                                    <span>Acquire</span>
-
-                                    <i class="fa-solid fa-chevron-down"></i>
-                                </button>
-
-                                <div class="accordion-content">
-
-                                    <a
-                                        href="{% url 'rental_list' %}?type=VILLA"
-                                        class="dropdown-item"
-                                    >
-                                        Villas
-                                    </a>
-
-                                    <a
-                                        href="{% url 'rental_list' %}?type=SHOWROOM"
-                                        class="dropdown-item"
-                                    >
-                                        Shops
-                                    </a>
-
-                                    <a
-                                        href="{% url 'rental_list' %}?type=APARTMENT"
-                                        class="dropdown-item"
-                                    >
-                                        Apartments
-                                    </a>
-
-                                    <a
-                                        href="{% url 'rental_list' %}?type=INDUSTRIAL_PLOT"
-                                        class="dropdown-item"
-                                    >
-                                        Plots
-                                    </a>
-
-                                    <a
-                                        href="{% url 'rental_list' %}?type=HOUSE"
-                                        class="dropdown-item"
-                                    >
-                                        Houses
-                                    </a>
-
-                                </div>
-
-                            </div>
-
-                            <hr class="dropdown-divider">
-
-                            <!-- RENT -->
-                            <div class="accordion">
-
-                                <button
-                                    class="accordion-btn"
-                                    type="button"
-                                >
-                                    <span>Rent</span>
-
-                                    <i class="fa-solid fa-chevron-down"></i>
-                                </button>
-
-                                <div class="accordion-content">
-
-                                    <a
-                                        href="{% url 'rental_list' %}?type=1BHK"
-                                        class="dropdown-item"
-                                    >
-                                        1 BHK
-                                    </a>
-
-                                    <a
-                                        href="{% url 'rental_list' %}?type=2BHK"
-                                        class="dropdown-item"
-                                    >
-                                        2 BHK
-                                    </a>
-
-                                    <a
-                                        href="{% url 'rental_list' %}?type=3BHK"
-                                        class="dropdown-item"
-                                    >
-                                        3 BHK
-                                    </a>
-
-                                    <a
-                                        href="{% url 'rental_list' %}?type=PG"
-                                        class="dropdown-item"
-                                    >
-                                        PGs
-                                    </a>
-
-                                </div>
-
-                            </div>
-
-                            <hr class="dropdown-divider">
-
-                            {% if user.is_authenticated %}
-
-                                <a
-                                    href="{% url 'profile' %}"
-                                    class="dropdown-item"
-                                >
-                                    Profile
-                                </a>
-
-                                <a
-                                    href="{% url 'wishlist' %}"
-                                    class="dropdown-item"
-                                >
-                                    Wishlist
-                                </a>
-
-                                <a
-                                    href="{% url 'rental_create' %}"
-                                    class="dropdown-item"
-                                >
-                                    List Space
-                                </a>
-
-                                <hr class="dropdown-divider">
-
-                                <form
-                                    method="post"
-                                    action="{% url 'account_logout' %}"
-                                >
-                                    {% csrf_token %}
-
-                                    <button
-                                        type="submit"
-                                        class="dropdown-item logout-btn"
-                                    >
-                                        Logout
-                                    </button>
-                                </form>
-
-                            {% else %}
-
-                                <a
-                                    href="{% url 'account_login' %}"
-                                    class="dropdown-item"
-                                >
-                                    Login
-                                </a>
-
-                            {% endif %}
-
+                            <a href="{% url 'rental_list' %}" class="dropdown-item">Explore Market</a>
+                            <a href="{% url 'rental_list' %}?type=VILLA" class="dropdown-item">Villas & Houses</a>
+                            <a href="{% url 'rental_list' %}?type=APARTMENT" class="dropdown-item">Apartments</a>
+                            <a href="{% url 'rental_list' %}?type=PG" class="dropdown-item">PGs & Co-living</a>
+                            <a href="{% url 'about' %}" class="dropdown-item">About Us</a>
                         </div>
-
                     </div>
-
                 </div>
 
-                <!-- LOGO -->
+                <!-- Logo -->
                 <a href="{% url 'index' %}" class="logo-wrap">
-
-                    <h1 class="logo-text">
-                        Property<span class="logo-highlight">X</span>
-                    </h1>
-
+                    <h1 class="logo-text">Property<span class="logo-highlight">X</span></h1>
                 </a>
-
             </div>
 
             <!-- ======================================
-                 CENTER
+                 CENTER: Desktop Navigation
             ======================================= -->
-
             <div class="navbar-center">
+                
+                <a href="{% url 'rental_list' %}" class="nav-link">Explore</a>
 
-                <!-- DESKTOP ACQUIRE -->
-                <div class="desktop-dropdown">
-
-                    <button
-                        class="dropdown-trigger desktop-btn"
-                        type="button"
-                    >
-                        Acquire
-
-                        <i class="fa-solid fa-chevron-down"></i>
+                <!-- Desktop Acquire Dropdown -->
+                <div class="dropdown-container desktop-dropdown">
+                    <button class="dropdown-trigger" type="button">
+                        Acquire <i class="fa-solid fa-chevron-down dropdown-arrow"></i>
                     </button>
-
-                    <div class="desktop-menu">
-
+                    <div class="dropdown-menu desktop-dropdown-menu">
                         <div class="dropdown-card">
-
-                            <a href="{% url 'rental_list' %}?type=VILLA" class="dropdown-item">
-                                Villas
-                            </a>
-
-                            <a href="{% url 'rental_list' %}?type=SHOWROOM" class="dropdown-item">
-                                Shops
-                            </a>
-
-                            <a href="{% url 'rental_list' %}?type=APARTMENT" class="dropdown-item">
-                                Apartments
-                            </a>
-
-                            <a href="{% url 'rental_list' %}?type=INDUSTRIAL_PLOT" class="dropdown-item">
-                                Plots
-                            </a>
-
-                            <a href="{% url 'rental_list' %}?type=HOUSE" class="dropdown-item">
-                                Houses
-                            </a>
-
+                            <a href="{% url 'rental_list' %}?type=VILLA" class="dropdown-item">Villas</a>
+                            <a href="{% url 'rental_list' %}?type=SHOWROOM" class="dropdown-item">Commercial Shops</a>
+                            <a href="{% url 'rental_list' %}?type=APARTMENT" class="dropdown-item">Apartments</a>
+                            <a href="{% url 'rental_list' %}?type=INDUSTRIAL_PLOT" class="dropdown-item">Plots</a>
                         </div>
-
                     </div>
-
                 </div>
 
-                <!-- DESKTOP RENT -->
-                <div class="desktop-dropdown">
-
-                    <button
-                        class="dropdown-trigger desktop-btn"
-                        type="button"
-                    >
-                        Rent
-
-                        <i class="fa-solid fa-chevron-down"></i>
+                <!-- Desktop Rent Dropdown -->
+                <div class="dropdown-container desktop-dropdown">
+                    <button class="dropdown-trigger" type="button">
+                        Rent <i class="fa-solid fa-chevron-down dropdown-arrow"></i>
                     </button>
-
-                    <div class="desktop-menu">
-
+                    <div class="dropdown-menu desktop-dropdown-menu">
                         <div class="dropdown-card">
-
-                            <a href="{% url 'rental_list' %}?type=1BHK" class="dropdown-item">
-                                1 BHK
-                            </a>
-
-                            <a href="{% url 'rental_list' %}?type=2BHK" class="dropdown-item">
-                                2 BHK
-                            </a>
-
-                            <a href="{% url 'rental_list' %}?type=3BHK" class="dropdown-item">
-                                3 BHK
-                            </a>
-
-                            <a href="{% url 'rental_list' %}?type=PG" class="dropdown-item">
-                                PGs
-                            </a>
-
+                            <a href="{% url 'rental_list' %}?type=1BHK" class="dropdown-item">1 BHK</a>
+                            <a href="{% url 'rental_list' %}?type=2BHK" class="dropdown-item">2 BHK</a>
+                            <a href="{% url 'rental_list' %}?type=PG" class="dropdown-item">PGs</a>
                         </div>
-
                     </div>
-
                 </div>
 
-                <a href="{% url 'about' %}" class="nav-link">
-                    About
-                </a>
+                <a href="{% url 'about' %}" class="nav-link">About</a>
+            </div>
 
+            <!-- ======================================
+                 RIGHT: Auth & Profile
+            ======================================= -->
+            <div class="navbar-right">
+                {% if user.is_authenticated %}
+                    
+                    <!-- Profile Dropdown -->
+                    <div class="dropdown-container">
+                        <button class="dropdown-trigger js-dropdown-btn" style="padding: 0; border: none; background: transparent;">
+                            <div class="profile-avatar">
+                                <!-- Get first letter of username -->
+                                {{ user.username|make_list|first|upper }}
+                            </div>
+                        </button>
+                        
+                        <!-- Added profile-dropdown-menu class for right alignment -->
+                        <div class="dropdown-menu profile-dropdown-menu js-dropdown-menu">
+                            <div class="dropdown-card">
+                                <a href="{% url 'profile' %}" class="dropdown-item">
+                                    <i class="fa-solid fa-user"></i> My Profile
+                                </a>
+                                <a href="{% url 'wishlist' %}" class="dropdown-item">
+                                    <i class="fa-solid fa-heart"></i> Wishlist
+                                </a>
+                                <a href="{% url 'rental_create' %}" class="dropdown-item">
+                                    <i class="fa-solid fa-plus"></i> List Space
+                                </a>
+                                <hr style="border-color: var(--nav-border); margin: 0.5rem 0;">
+                                
+                                <form method="post" action="{% url 'account_logout' %}">
+                                    {% csrf_token %}
+                                    <button type="submit" class="dropdown-item logout-btn">
+                                        <i class="fa-solid fa-right-from-bracket"></i> Logout
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+
+                {% else %}
+                    
+                    <a href="{% url 'account_login' %}" class="login-link">Login</a>
+                    <a href="{% url 'account_signup' %}" class="join-btn">Sign Up</a>
+
+                {% endif %}
             </div>
 
         </div>
-
     </div>
-
 </nav>
 
+<!-- JavaScript to toggle Dropdowns (Mobile menu & Profile menu) -->
 <script>
+document.addEventListener('DOMContentLoaded', () => {
+    const dropdownBtns = document.querySelectorAll('.js-dropdown-btn');
 
-document.addEventListener("DOMContentLoaded", () => {
-
-    // =====================================
-    // MOBILE MENU
-    // =====================================
-
-    const mobileBtn = document.getElementById("mobileMenuBtn");
-    const mobileMenu = document.getElementById("mobileMenu");
-
-    mobileBtn.addEventListener("click", (e) => {
-        e.stopPropagation();
-        mobileMenu.classList.toggle("show-menu");
-    });
-
-    // Prevent the menu from closing when clicking inside of it
-    mobileMenu.addEventListener("click", (e) => {
-        e.stopPropagation();
-    });
-
-    // =====================================
-    // ACCORDIONS (Mobile Dropdowns)
-    // =====================================
-
-    const accordions = document.querySelectorAll(".accordion");
-
-    accordions.forEach((accordion) => {
-        const button = accordion.querySelector(".accordion-btn");
-        const content = accordion.querySelector(".accordion-content");
-
-        button.addEventListener("click", (e) => {
-            e.preventDefault(); // Prevent default button behavior
-            e.stopPropagation();
-
-            const isOpen = accordion.classList.contains("active");
-
-            // CLOSE ALL accordions before opening the clicked one
-            accordions.forEach((item) => {
-                item.classList.remove("active");
-                const itemContent = item.querySelector(".accordion-content");
-                if (itemContent) {
-                    itemContent.style.maxHeight = null;
+    dropdownBtns.forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            e.stopPropagation(); // Stop click from hitting the document
+            
+            // Close all other open dropdowns first
+            document.querySelectorAll('.js-dropdown-menu').forEach(menu => {
+                if (menu !== btn.nextElementSibling) {
+                    menu.classList.remove('show-dropdown');
                 }
             });
 
-            // OPEN CURRENT if it wasn't already open
-            if (!isOpen) {
-                accordion.classList.add("active");
-                content.style.maxHeight = content.scrollHeight + "px";
+            // Toggle the menu right next to this button
+            const menu = btn.nextElementSibling;
+            if (menu) {
+                menu.classList.toggle('show-dropdown');
             }
         });
     });
 
-    // =====================================
-    // DESKTOP DROPDOWNS
-    // =====================================
-
-    const desktopDropdowns = document.querySelectorAll(".desktop-dropdown");
-
-    desktopDropdowns.forEach((dropdown) => {
-        const button = dropdown.querySelector(".desktop-btn");
-        const menu = dropdown.querySelector(".desktop-menu");
-
-        button.addEventListener("click", (e) => {
-            e.preventDefault();
-            e.stopPropagation();
-
-            const isDropdownOpen = dropdown.classList.contains("active");
-
-            // Close all desktop dropdowns first
-            desktopDropdowns.forEach((item) => {
-                item.classList.remove("active");
-            });
-
-            // Toggle the current one
-            if (!isDropdownOpen) {
-                dropdown.classList.add("active");
-            }
-        });
-
-        // Prevent closing when clicking inside the desktop dropdown menu
-        if (menu) {
-            menu.addEventListener("click", (e) => {
-                e.stopPropagation();
-            });
-        }
-    });
-
-    // =====================================
-    // OUTSIDE CLICK (Closes everything)
-    // =====================================
-
-    document.addEventListener("click", () => {
-        // Close Mobile Menu
-        if (mobileMenu) {
-            mobileMenu.classList.remove("show-menu");
-        }
-
-        // Close Desktop Dropdowns
-        desktopDropdowns.forEach((dropdown) => {
-            dropdown.classList.remove("active");
+    // Close dropdowns if clicking anywhere outside
+    document.addEventListener('click', () => {
+        document.querySelectorAll('.js-dropdown-menu').forEach(menu => {
+            menu.classList.remove('show-dropdown');
         });
     });
-
 });
-
 </script>
