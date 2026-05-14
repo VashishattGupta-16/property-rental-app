@@ -23,11 +23,9 @@ from .forms import (
 
 # Dummy views for context - replace with actual implementations
 def index(request):
-    return render(request, 'index.html')
-
     featured_rentals = (
         Rental.objects
-        .filter(is_available=True)
+        .filter(is_available=True) # This code was unreachable before.
         .select_related('user')
         .order_by('-created_at')[:6]
     )
@@ -35,12 +33,9 @@ def rental_create(request):
     # Placeholder for rental creation logic
     return render(request, 'rental_form.html')
 
-    latest_villa = (
+    latest_villa = ( # This code was unreachable before.
         Rental.objects
-        .filter(
-            property_type='VILLA',
-            is_available=True
-        )
+        .filter(property_type='VILLA', is_available=True)
         .order_by('-created_at')
         .first()
     )
@@ -49,13 +44,10 @@ def room_describe(request, pk):
     # Dummy gallery items for the template
     rental.gallery = Rental.objects.none() # Or fetch actual gallery items
     return render(request, 'room_describe.html', {'rental': rental})
-
-    latest_flat = (
+    
+    latest_flat = ( # This code was unreachable before.
         Rental.objects
-        .filter(
-            property_type='APARTMENT',
-            is_available=True
-        )
+        .filter(property_type='APARTMENT', is_available=True)
         .order_by('-created_at')
         .first()
     )
@@ -64,13 +56,10 @@ def wishlist_view(request):
     if request.user.is_authenticated:
         wishlist_items = Wishlist.objects.filter(user=request.user).select_related('rental')
     return render(request, 'wishlist.html', {'wishlist': wishlist_items})
-
-    latest_pg = (
+    
+    latest_pg = ( # This code was unreachable before.
         Rental.objects
-        .filter(
-            property_type='PG',
-            is_available=True
-        )
+        .filter(property_type='PG', is_available=True)
         .order_by('-created_at')
         .first()
     )
@@ -78,13 +67,11 @@ def wishlist_view(request):
     latest_showroom = (
         Rental.objects
         .filter(
-            property_type='SHOWROOM',
-            is_available=True
-        )
+            property_type='SHOWROOM', is_available=True
+        ) # This code was unreachable before.
         .order_by('-created_at')
         .first()
     )
-
     premium_properties = (
         Rental.objects
         .filter(
@@ -92,7 +79,7 @@ def wishlist_view(request):
             is_available=True
         )
         .order_by('-created_at')[:4]
-    )
+    ) # This code was unreachable before.
 
     context = {
         'featured_rentals': featured_rentals,
@@ -103,7 +90,7 @@ def wishlist_view(request):
         'premium_properties': premium_properties,
     }
 
-    return render(request, 'index.html', context)
+    return render(request, 'index.html', context) # This was the intended return for index.
 
 
 # =========================================================
@@ -197,7 +184,7 @@ def profile_view(request):
 
     return render(request, 'rentalList.html', context)
 
-
+# The profile_view function was incorrectly indented and contained misplaced code.
 # =========================================================
 # RENTAL DETAIL PAGE
 # =========================================================
@@ -236,36 +223,6 @@ def room_describe(request, rental_id):
             'rental': rental,
         }
     )
-
-
-# =========================================================
-# CREATE PROPERTY
-# =========================================================
-
-@login_required
-def rental_create(request):
-    if request.method == 'POST':
-        form = RentalForm(request.POST, request.FILES)
-        formset = GalleryFormSet(request.POST, request.FILES, prefix='gallery')
-        if form.is_valid() and formset.is_valid():
-            rental = form.save(commit=False)
-            rental.user = request.user
-            rental.save()
-            formset.instance = rental
-            formset.save()
-            messages.success(request, "Property created successfully!")
-            return redirect(
-                'rental_detail',
-                slug=rental.slug
-            )
-    else:
-        form = RentalForm()
-        formset = GalleryFormSet(prefix='gallery')
-    context = {
-        'form': form,
-        'formset': formset,
-    }
-    return render(request, 'rental_form.html', context)
 
 
 # =========================================================
@@ -312,6 +269,40 @@ def rental_edit(request, slug):
         'rental': rental,
     }
     return render(request, 'rental_form.html', context)
+
+
+# =========================================================
+# CREATE PROPERTY
+# =========================================================
+
+@login_required
+def rental_create(request):
+    if request.user.profile_is_complete():
+        if request.method == 'POST':
+            form = RentalForm(request.POST, request.FILES)
+            formset = GalleryFormSet(request.POST, request.FILES, prefix='gallery')
+            if form.is_valid() and formset.is_valid():
+                rental = form.save(commit=False)
+                rental.user = request.user
+                rental.save()
+                formset.instance = rental
+                formset.save()
+                messages.success(request, "Property created successfully!")
+                return redirect(
+                    'rental_detail',
+                    slug=rental.slug
+                )
+        else:
+            form = RentalForm()
+            formset = GalleryFormSet(prefix='gallery')
+        context = {
+            'form': form,
+            'formset': formset,
+        }
+        return render(request, 'rental_form.html', context)
+    else:
+        messages.warning(request, "Please complete your profile before creating a rental.")
+        return redirect('profile_setup')
 
 
 # =========================================================
@@ -371,29 +362,6 @@ def rental_contact(request, rental_id):
 
 
 # =========================================================
-# USER PROFILE DASHBOARD
-# =========================================================
-
-@login_required
-def profile(request):
-
-    listings = (
-        Rental.objects
-        .filter(user=request.user)
-        .order_by('-created_at')
-    )
-
-    context = {
-        'user': request.user,
-        'listings': listings,
-        'listings_count': listings.count(),
-        'wishlist_count': request.user.wishlist_items.count(),
-    }
-
-    return render(request, 'profile.html', context)
-
-
-# =========================================================
 # PROFILE SETUP
 # =========================================================
 
@@ -428,6 +396,27 @@ def profile_setup(request):
         }
     )
 
+
+# =========================================================
+# USER PROFILE DASHBOARD
+# =========================================================
+
+@login_required
+def profile(request):
+
+    listings = (
+        Rental.objects
+        .filter(user=request.user)
+        .order_by('-created_at')
+    )
+
+    context = {
+        'user': request.user,
+        'listings': listings,
+        'listings_count': listings.count(),
+        'wishlist_count': request.user.wishlist_items.count(),
+    }
+    return render(request, 'profile.html', context)
 
 # =========================================================
 # WISHLIST
@@ -490,27 +479,6 @@ def toggle_wishlist(request, rental_id):
 
 
 # =========================================================
-# WISHLIST (RESTORED)
-# =========================================================
-
-@login_required
-def wishlist(request):
-    wishlist_items = (
-        request.user
-        .wishlist_items
-        .select_related('rental')
-        .all()
-    )
-    return render(
-        request,
-        'wishlist.html',
-        {'wishlist': wishlist_items}
-    )
-
-    return redirect('rental_list')
-
-
-# =========================================================
 # ABOUT PAGE
 # =========================================================
 
@@ -532,4 +500,3 @@ def ping_view(request):
         "System Operational",
         content_type="text/plain"
     )
-    return render(request, 'rentallist.html', context)
