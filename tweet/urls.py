@@ -4,6 +4,7 @@ from . import views
 urlpatterns = [
 
     # ================= HOME =================
+    # Public facing pages
     path('', views.index, name='index'),
 
     # ================= RENTALS =================
@@ -19,6 +20,7 @@ urlpatterns = [
     path('property/<slug:slug>/', views.rental_detail, name='rental_detail'),
 
     # ================= CONTACT =================
+    path('rentals/<int:pk>/', views.room_describe, name='room_describe'),
     path('rentals/<int:rental_id>/contact/', views.rental_contact, name='rental_contact'),
 
     # ================= USER =================

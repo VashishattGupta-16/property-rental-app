@@ -4,6 +4,10 @@ from django.views.decorators.http import require_POST
 from django.http import HttpResponse
 from django.db.models import Q
 from django.utils.http import url_has_allowed_host_and_scheme
+from django.http import HttpResponseRedirect
+from django.urls import reverse
+from django.contrib import messages
+from .models import Rental, Wishlist # Import your models
 
 from .models import Rental, Wishlist
 from .forms import (
@@ -17,7 +21,9 @@ from .forms import (
 # HOME / ELITE LANDING PAGE
 # =========================================================
 
+# Dummy views for context - replace with actual implementations
 def index(request):
+    return render(request, 'index.html')
 
     featured_rentals = (
         Rental.objects
@@ -25,6 +31,9 @@ def index(request):
         .select_related('user')
         .order_by('-created_at')[:6]
     )
+def rental_create(request):
+    # Placeholder for rental creation logic
+    return render(request, 'rental_form.html')
 
     latest_villa = (
         Rental.objects
@@ -35,6 +44,11 @@ def index(request):
         .order_by('-created_at')
         .first()
     )
+def room_describe(request, pk):
+    rental = get_object_or_404(Rental, pk=pk)
+    # Dummy gallery items for the template
+    rental.gallery = Rental.objects.none() # Or fetch actual gallery items
+    return render(request, 'room_describe.html', {'rental': rental})
 
     latest_flat = (
         Rental.objects
@@ -45,6 +59,11 @@ def index(request):
         .order_by('-created_at')
         .first()
     )
+def wishlist_view(request):
+    wishlist_items = []
+    if request.user.is_authenticated:
+        wishlist_items = Wishlist.objects.filter(user=request.user).select_related('rental')
+    return render(request, 'wishlist.html', {'wishlist': wishlist_items})
 
     latest_pg = (
         Rental.objects
@@ -147,12 +166,9 @@ def rental_list(request):
 
     # USER WISHLIST IDS
     wishlisted_rental_ids = set()
-
     if request.user.is_authenticated:
         wishlisted_rental_ids = set(
-            request.user
-            .wishlist_items
-            .values_list('rental_id', flat=True)
+            Wishlist.objects.filter(user=request.user).values_list('rental_id', flat=True)
         )
 
     context = {
@@ -160,7 +176,6 @@ def rental_list(request):
         'wishlisted_rental_ids': wishlisted_rental_ids,
         'search_params': request.GET,
     }
-
     return render(request, 'rentalList.html', context)
 
 
@@ -211,20 +226,33 @@ def room_describe(request, rental_id):
 @login_required
 def rental_create(request):
 
+def rental_contact(request, rental_id):
+    rental = get_object_or_404(Rental, id=rental_id)
+    success = False
     if request.method == 'POST':
+        # Handle contact form submission
+        success = True # Simulate success
+    return render(request, 'rental_contact.html', {'rental': rental, 'success': success})
 
         form = RentalForm(
             request.POST,
             request.FILES
         )
+def profile_setup(request):
+    # Placeholder for profile setup logic
+    return render(request, 'profile_setup.html')
 
         formset = GalleryFormSet(
             request.POST,
             request.FILES,
             prefix='gallery'
         )
+def rental_delete(request, pk):
+    # Placeholder for rental delete logic
+    return render(request, 'rentalDelete.html')
 
         if form.is_valid() and formset.is_valid():
+# --- Core Wishlist Feature Views ---
 
             rental = form.save(commit=False)
             rental.user = request.user
@@ -260,6 +288,8 @@ def rental_create(request):
 
 @login_required
 def rental_edit(request, slug):
+def toggle_wishlist(request, rental_id):
+    rental = get_object_or_404(Rental, id=rental_id)
 
     rental = get_object_or_404(
         Rental,
@@ -274,12 +304,18 @@ def rental_edit(request, slug):
         return redirect('index')
 
     if request.method == 'POST':
+        wishlist_item, created = Wishlist.objects.get_or_create(user=request.user, rental=rental)
 
         form = RentalForm(
             request.POST,
             request.FILES,
             instance=rental
         )
+        if not created:
+            wishlist_item.delete()
+            messages.info(request, f"'{rental.title}' removed from your wishlist.")
+        else:
+            messages.success(request, f"'{rental.title}' added to your wishlist!")
 
         formset = GalleryFormSet(
             request.POST,
@@ -287,11 +323,17 @@ def rental_edit(request, slug):
             instance=rental,
             prefix='gallery'
         )
+    return HttpResponseRedirect(request.META.get('HTTP_REFERER', reverse('rental_list')))
 
         if form.is_valid() and formset.is_valid():
+def rental_list(request):
+    rentals = Rental.objects.all().order_by('-id')
 
             form.save()
             formset.save()
+    wishlisted_rental_ids = []
+    if request.user.is_authenticated:
+        wishlisted_rental_ids = Wishlist.objects.filter(user=request.user).values_list('rental_id', flat=True)
 
             return redirect(
                 'rental_detail',
@@ -311,6 +353,8 @@ def rental_edit(request, slug):
         'form': form,
         'formset': formset,
         'rental': rental,
+        'rentals': rentals,
+        'wishlisted_rental_ids': list(wishlisted_rental_ids)
     }
 
     return render(request, 'rental_form.html', context)
@@ -517,3 +561,4 @@ def ping_view(request):
         "System Operational",
         content_type="text/plain"
     )
+    return render(request, 'rentallist.html', context)
