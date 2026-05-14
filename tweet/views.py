@@ -4,10 +4,8 @@ from django.views.decorators.http import require_POST
 from django.http import HttpResponse
 from django.db.models import Q
 from django.utils.http import url_has_allowed_host_and_scheme
-from django.http import HttpResponseRedirect
 from django.urls import reverse
 from django.contrib import messages
-from .models import Rental, Wishlist # Import your models
 
 from .models import Rental, Wishlist
 from .forms import (
@@ -23,15 +21,6 @@ from .forms import (
 
 # Dummy views for context - replace with actual implementations
 def index(request):
-    featured_rentals = (
-        Rental.objects
-        .filter(is_available=True) # This code was unreachable before.
-        .select_related('user')
-        .order_by('-created_at')[:6]
-    )
-def rental_create(request):
-    # Placeholder for rental creation logic
-    return render(request, 'rental_form.html')
     """Landing page showing featured and categorized properties."""
     featured_rentals = Rental.objects.filter(is_available=True).select_related('user').order_by('-created_at')[:6]
     latest_villa = Rental.objects.filter(property_type='VILLA', is_available=True).order_by('-created_at').first()
@@ -39,54 +28,6 @@ def rental_create(request):
     latest_pg = Rental.objects.filter(property_type='PG', is_available=True).order_by('-created_at').first()
     latest_showroom = Rental.objects.filter(property_type='SHOWROOM', is_available=True).order_by('-created_at').first()
     premium_properties = Rental.objects.filter(price__gte=5000000, is_available=True).order_by('-created_at')[:4]
-
-    latest_villa = ( # This code was unreachable before.
-        Rental.objects
-        .filter(property_type='VILLA', is_available=True)
-        .order_by('-created_at')
-        .first()
-    )
-def room_describe(request, pk):
-    rental = get_object_or_404(Rental, pk=pk)
-    # Dummy gallery items for the template
-    rental.gallery = Rental.objects.none() # Or fetch actual gallery items
-    return render(request, 'room_describe.html', {'rental': rental})
-    
-    latest_flat = ( # This code was unreachable before.
-        Rental.objects
-        .filter(property_type='APARTMENT', is_available=True)
-        .order_by('-created_at')
-        .first()
-    )
-def wishlist_view(request):
-    wishlist_items = []
-    if request.user.is_authenticated:
-        wishlist_items = Wishlist.objects.filter(user=request.user).select_related('rental')
-    return render(request, 'wishlist.html', {'wishlist': wishlist_items})
-    
-    latest_pg = ( # This code was unreachable before.
-        Rental.objects
-        .filter(property_type='PG', is_available=True)
-        .order_by('-created_at')
-        .first()
-    )
-
-    latest_showroom = (
-        Rental.objects
-        .filter(
-            property_type='SHOWROOM', is_available=True
-        ) # This code was unreachable before.
-        .order_by('-created_at')
-        .first()
-    )
-    premium_properties = (
-        Rental.objects
-        .filter(
-            price__gte=5000000,
-            is_available=True
-        )
-        .order_by('-created_at')[:4]
-    ) # This code was unreachable before.
 
     context = {
         'featured_rentals': featured_rentals,
@@ -98,8 +39,6 @@ def wishlist_view(request):
     }
     return render(request, 'index.html', context)
 
-    return render(request, 'index.html', context) # This was the intended return for index.
-
 
 # =========================================================
 # RENTAL LIST + SEARCH ENGINE
@@ -109,14 +48,6 @@ def rental_list(request):
     """Main rental browser with search and filtering logic."""
     rentals = Rental.objects.select_related('user').prefetch_related('gallery').filter(is_available=True).order_by('-created_at')
 
-    rentals = (
-        Rental.objects
-        .select_related('user')
-        .prefetch_related('gallery')
-        .filter(is_available=True)
-        .order_by('-created_at')
-    )
-
     search_query = request.GET.get('q', '').strip()
     location_query = request.GET.get('location', '').strip()
     property_type = request.GET.get('type', '').strip()
@@ -125,84 +56,35 @@ def rental_list(request):
 
     # SMART SEARCH
     if search_query:
-        rentals = rentals.filter(
-            Q(title__icontains=search_query) |
-            Q(description__icontains=search_query) |
-            Q(location__icontains=search_query)
-        )
         rentals = rentals.filter(Q(title__icontains=search_query) | Q(description__icontains=search_query) | Q(location__icontains=search_query))
 
     # LOCATION FILTER
-    if location_query:
-        rentals = rentals.filter(
-            location__icontains=location_query
-        )
     if location_query: rentals = rentals.filter(location__icontains=location_query)
 
     # PROPERTY TYPE FILTER
-    if property_type:
-        rentals = rentals.filter(
-            property_type=property_type
-        )
     if property_type: rentals = rentals.filter(property_type=property_type)
 
     # MAX PRICE FILTER
     if max_price:
-        try:
-            rentals = rentals.filter(
-                price__lte=float(max_price)
-            )
-        except ValueError:
-            pass
         try: rentals = rentals.filter(price__lte=float(max_price))
         except ValueError: pass
 
     # OWNER FILTER
-    if (
-        owner_query == 'me' and
-        request.user.is_authenticated
-    ):
-        rentals = rentals.filter(
-            user=request.user
-        )
     if owner_query == 'me' and request.user.is_authenticated:
         rentals = rentals.filter(user=request.user)
 
     # USER WISHLIST IDS
     wishlisted_rental_ids = set()
-
     if request.user.is_authenticated:
-        wishlisted_rental_ids = set()
         wishlisted_rental_ids = set(request.user.wishlist_items.values_list('rental_id', flat=True))
-
-def profile_view(request):
-    listings_count = 0
-    wishlist_count = 0
-    listings = []
-    if request.user.is_authenticated:
-        wishlisted_rental_ids = set(
-            request.user
-            .wishlist_items
-            .values_list('rental_id', flat=True)
-        )
-        listings = Rental.objects.filter(user=request.user)
-        listings_count = listings.count()
-        wishlist_count = Wishlist.objects.filter(user=request.user).count()
-    return render(request, 'profile.html', {
-        'listings': listings,
-        'listings_count': listings_count,
-        'wishlist_count': wishlist_count
-    })
 
     context = {
         'rentals': rentals,
         'wishlisted_rental_ids': wishlisted_rental_ids,
         'search_params': request.GET,
     }
-
     return render(request, 'rentalList.html', context)
 
-# The profile_view function was incorrectly indented and contained misplaced code.
 # =========================================================
 # RENTAL DETAIL PAGE
 # =========================================================
