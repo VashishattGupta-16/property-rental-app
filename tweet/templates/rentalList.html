@@ -4,16 +4,25 @@
 
 {% block content %}
 
-<!-- HERO SECTION (RESTORED) -->
-<section class="relative fluid-section py-16 px-4">
+<!-- FONT AWESOME (ensure icons work) -->
+<link rel="stylesheet"
+href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 
-    <div class="max-w-7xl mx-auto grid sm:grid-cols-2 gap-10 items-center">
+<!-- HERO SECTION -->
+<section class="relative fluid-section py-16 px-4 overflow-hidden">
+
+    <!-- Background Glow -->
+    <div class="absolute top-0 right-0 w-96 h-96 bg-blue-500/20 blur-3xl rounded-full"></div>
+    <div class="absolute bottom-0 left-0 w-96 h-96 bg-cyan-500/10 blur-3xl rounded-full"></div>
+
+    <div class="relative max-w-7xl mx-auto grid sm:grid-cols-2 gap-10 items-center">
 
         <!-- TEXT -->
         <div class="space-y-6">
 
             <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/10 border border-blue-500/20">
                 <span class="w-2 h-2 rounded-full bg-blue-500 animate-pulse"></span>
+
                 <span class="text-[10px] font-bold tracking-[0.2em] text-blue-400 uppercase">
                     Premium Marketplace
                 </span>
@@ -21,26 +30,50 @@
 
             <h1 class="text-4xl sm:text-6xl font-black text-white leading-tight tracking-tighter">
                 ELEVATED <br>
+
                 <span class="text-blue-500 underline decoration-blue-500/30 underline-offset-8">
                     RENTALS.
                 </span>
             </h1>
 
-            <p class="text-slate-400 text-base sm:text-lg font-medium max-w-lg">
-                Discover curated homes built for modern living. Fast, verified listings with a smooth digital experience.
+            <p class="text-slate-400 text-base sm:text-lg font-medium max-w-lg leading-relaxed">
+                Discover curated homes built for modern living.
+                Fast, verified listings with a premium digital experience.
             </p>
+
+            <!-- BUTTONS -->
+            <div class="flex flex-wrap gap-4 pt-2">
+
+                <a href="{% url 'rental_list' %}"
+                   class="px-6 py-3 rounded-xl bg-blue-600 hover:bg-blue-500 transition-all duration-300 text-white font-bold shadow-lg shadow-blue-500/20">
+
+                    Explore Listings
+
+                </a>
+
+                <a href="{% url 'rental_create' %}"
+                   class="px-6 py-3 rounded-xl border border-white/10 bg-white/5 hover:bg-white/10 transition-all duration-300 text-white font-bold backdrop-blur-md">
+
+                    List Property
+
+                </a>
+
+            </div>
 
         </div>
 
-        <!-- BANNER IMAGE -->
+        <!-- HERO IMAGE -->
         <div class="relative">
 
+            <!-- Glow -->
             <div class="absolute -inset-4 bg-blue-500/20 blur-3xl rounded-full opacity-60"></div>
 
-            <div class="glass-card rounded-[2.5rem] overflow-hidden shadow-2xl">
+            <div class="relative glass-card rounded-[2.5rem] overflow-hidden shadow-2xl border border-white/10">
 
-                <img src="https://res.cloudinary.com/dpm4n4dxy/image/upload/v1778223844/banner_qcytkt.png"
-                     class="w-full h-full object-cover">
+                <img
+                    src="https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=2000&q=80"
+                    class="w-full h-[300px] sm:h-[500px] object-cover"
+                    alt="Luxury Property">
 
             </div>
 
@@ -50,15 +83,18 @@
 
 </section>
 
-
 <!-- LISTINGS -->
 <section class="max-w-7xl mx-auto py-12 px-3 sm:px-4">
 
+    <!-- SECTION TITLE -->
     <div class="flex items-center gap-4 mb-8 sm:mb-10">
+
         <h2 class="text-xl sm:text-2xl font-black text-white uppercase">
             Available Listings
         </h2>
+
         <div class="h-[1px] flex-grow bg-gradient-to-r from-blue-500/50 to-transparent"></div>
+
     </div>
 
     <!-- GRID -->
@@ -66,34 +102,54 @@
 
         {% for rental in rentals %}
 
-        <article class="group glass-card rounded-2xl overflow-hidden border border-white/5 hover:border-blue-500/30 transition-all duration-300 hover:-translate-y-1">
+        <!-- CARD -->
+        <article class="group relative glass-card rounded-2xl overflow-hidden border border-white/5 hover:border-blue-500/30 transition-all duration-300 hover:-translate-y-1">
 
-            <!-- IMAGE -->
+            <!-- IMAGE SECTION -->
             <div class="relative h-32 sm:h-40 lg:h-44 overflow-hidden">
 
                 {% if rental.image %}
-                    <img src="{{ rental.image|optimized_cloudinary_url:'f_auto,q_auto,c_fill,w_600,h_400' }}"
-                         class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
-                         alt="{{ rental.title }}">
+
+                    <img
+                        src="{{ rental.image|optimized_cloudinary_url:'f_auto,q_auto,c_fill,w_600,h_400' }}"
+                        class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+                        alt="{{ rental.title }}">
+
                 {% else %}
+
                     <div class="w-full h-full bg-slate-800 flex items-center justify-center text-slate-500 text-[10px]">
                         No Image
                     </div>
+
                 {% endif %}
 
-                <div class="absolute bottom-2 left-2 bg-blue-600 text-[7px] sm:text-[8px] font-black text-white px-2 py-1 rounded">
+                <!-- Overlay -->
+                <div class="absolute inset-0 bg-gradient-to-t from-slate-950/70 to-transparent pointer-events-none"></div>
+
+                <!-- Property Type -->
+                <div class="absolute bottom-2 left-2 z-20 bg-blue-600 text-[7px] sm:text-[8px] font-black text-white px-2 py-1 rounded">
+
                     {{ rental.property_type|default:"Property" }}
+
                 </div>
 
-                <div class="absolute inset-0 bg-gradient-to-t from-slate-950/70 to-transparent"></div>
-
                 <!-- Wishlist Button -->
-                <form action="{% url 'toggle_wishlist' rental.id %}" method="POST" class="absolute top-3 right-3 z-50">
+                <form
+                    action="{% url 'toggle_wishlist' rental.id %}"
+                    method="POST"
+                    class="absolute top-3 right-3 z-[100]">
+
                     {% csrf_token %}
-                    <button type="submit" class="wishlist-btn w-9 h-9 rounded-full bg-black/40 backdrop-blur-sm flex items-center justify-center text-white hover:bg-red-500/80 transition-colors duration-300 active:scale-90"
-                            aria-label="Add to wishlist">
+
+                    <button
+                        type="submit"
+                        class="wishlist-btn w-9 h-9 rounded-full bg-black/50 backdrop-blur-md border border-white/10 flex items-center justify-center text-white hover:bg-red-500/80 transition-all duration-300 active:scale-90 shadow-lg"
+                        aria-label="Add to wishlist">
+
                         <i class="{% if rental.id in wishlisted_rental_ids %}fa-solid fa-heart text-red-500{% else %}fa-regular fa-heart{% endif %} text-lg"></i>
+
                     </button>
+
                 </form>
 
             </div>
@@ -101,18 +157,28 @@
             <!-- CONTENT -->
             <div class="p-3 sm:p-4 lg:p-5">
 
+                <!-- TITLE -->
                 <h3 class="text-sm sm:text-base font-bold text-white truncate">
+
                     {{ rental.title|default:"Untitled" }}
+
                 </h3>
 
+                <!-- LOCATION -->
                 <p class="text-slate-400 text-[10px] sm:text-[11px] flex items-center gap-1.5 mb-3 truncate">
+
                     <i class="fa-solid fa-location-dot text-blue-500 text-[9px]"></i>
+
                     {{ rental.location|default:"Location not available" }}
+
                 </p>
 
+                <!-- FOOTER -->
                 <div class="flex justify-between items-center border-t border-white/5 pt-3 sm:pt-4">
 
+                    <!-- PRICE -->
                     <div>
+
                         <p class="text-[7px] sm:text-[8px] font-black text-slate-500 uppercase tracking-widest">
                             Monthly
                         </p>
@@ -120,12 +186,15 @@
                         <span class="text-sm sm:text-lg font-black text-white">
                             ₹{{ rental.price|default:"0" }}
                         </span>
+
                     </div>
 
-                    <a href="{% url 'room_describe' rental.id %}"
-                       class="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-white/5 border border-white/10 flex items-center justify-center hover:bg-blue-600 transition active:scale-95">
+                    <!-- VIEW BUTTON -->
+                    <a
+                        href="{% url 'room_describe' rental.id %}"
+                        class="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-white/5 border border-white/10 flex items-center justify-center hover:bg-blue-600 transition-all duration-300 active:scale-95">
 
-                        <i class="fa-solid fa-arrow-right text-[10px] sm:text-xs"></i>
+                        <i class="fa-solid fa-arrow-right text-[10px] sm:text-xs text-white"></i>
 
                     </a>
 
@@ -137,10 +206,13 @@
 
         {% empty %}
 
+        <!-- EMPTY STATE -->
         <div class="col-span-full text-center py-20">
+
             <p class="text-slate-500 font-bold uppercase tracking-widest">
                 No listings available
             </p>
+
         </div>
 
         {% endfor %}
@@ -149,12 +221,40 @@
 
 </section>
 
+<!-- STYLES -->
 <style>
-.glass-card {
-    background: rgba(15, 23, 42, 0.55);
-    backdrop-filter: blur(22px);
-    -webkit-backdrop-filter: blur(22px);
+
+body{
+    background:#020617;
 }
+
+/* GLASS EFFECT */
+.glass-card{
+    background:rgba(15,23,42,0.55);
+    backdrop-filter:blur(22px);
+    -webkit-backdrop-filter:blur(22px);
+}
+
+/* Smooth hover */
+article{
+    transition:all .35s ease;
+}
+
+/* Wishlist */
+.wishlist-btn{
+    cursor:pointer;
+}
+
+/* Mobile optimization */
+@media(max-width:640px){
+
+    .wishlist-btn{
+        width:34px;
+        height:34px;
+    }
+
+}
+
 </style>
 
 {% endblock %}
