@@ -78,6 +78,10 @@ def rental_list(request):
     if request.user.is_authenticated:
         wishlisted_rental_ids = set(request.user.wishlist_items.values_list('rental_id', flat=True))
 
+    # Add an 'is_owner' flag to each rental for template rendering
+    for rental in rentals:
+        rental.is_owner = (request.user.is_authenticated and rental.user == request.user)
+
     context = {
         'rentals': rentals,
         'wishlisted_rental_ids': wishlisted_rental_ids,
