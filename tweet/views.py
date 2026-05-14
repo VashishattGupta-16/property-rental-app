@@ -168,12 +168,26 @@ def rental_list(request):
     wishlisted_rental_ids = set()
 
     if request.user.is_authenticated:
+        wishlisted_rental_ids = set()
+
+def profile_view(request):
+    listings_count = 0
+    wishlist_count = 0
+    listings = []
+    if request.user.is_authenticated:
         wishlisted_rental_ids = set(
             request.user
             .wishlist_items
             .values_list('rental_id', flat=True)
-            Wishlist.objects.filter(user=request.user).values_list('rental_id', flat=True)
         )
+        listings = Rental.objects.filter(user=request.user)
+        listings_count = listings.count()
+        wishlist_count = Wishlist.objects.filter(user=request.user).count()
+    return render(request, 'profile.html', {
+        'listings': listings,
+        'listings_count': listings_count,
+        'wishlist_count': wishlist_count
+    })
 
     context = {
         'rentals': rentals,

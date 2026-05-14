@@ -25,10 +25,12 @@ urlpatterns = [
 
     # ================= USER =================
     path('profile/', views.profile, name='profile'),
+    path('profile/', views.profile_view, name='profile'),
     path('profile/setup/', views.profile_setup, name='profile_setup'),
 
     # ================= WISHLIST =================
     path('wishlist/', views.wishlist, name='wishlist'),
+    path('wishlist/', views.wishlist_view, name='wishlist'),
     path('wishlist/toggle/<int:rental_id>/', views.toggle_wishlist, name='toggle_wishlist'),
 
     # ================= ABOUT =================
