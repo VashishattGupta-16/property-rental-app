@@ -9,7 +9,6 @@ urlpatterns = [
 
     # ================= RENTALS =================
     path('rentals/', views.rental_list, name='rental_list'),
-    path('rentals/<int:rental_id>/', views.room_describe, name='room_describe'),
 
     # ================= PROPERTY CRUD =================
     path('property/create/', views.rental_create, name='rental_create'),
@@ -17,20 +16,16 @@ urlpatterns = [
     path('property/<slug:slug>/delete/', views.rental_delete, name='rental_delete'),
 
     # ================= PROPERTY DETAIL =================
+    path('rentals/<int:rental_id>/', views.room_describe, name='room_describe'), # Moved here for clarity
     path('property/<slug:slug>/', views.rental_detail, name='rental_detail'),
-
-    # ================= CONTACT =================
-    path('rentals/<int:pk>/', views.room_describe, name='room_describe'),
     path('rentals/<int:rental_id>/contact/', views.rental_contact, name='rental_contact'),
 
     # ================= USER =================
-    path('profile/', views.profile, name='profile'),
-    path('profile/', views.profile_view, name='profile'),
+    path('profile/', views.profile, name='profile'), # Consolidated
     path('profile/setup/', views.profile_setup, name='profile_setup'),
 
     # ================= WISHLIST =================
-    path('wishlist/', views.wishlist, name='wishlist'),
-    path('wishlist/', views.wishlist_view, name='wishlist'),
+    path('wishlist/', views.wishlist, name='wishlist'), # Consolidated
     path('wishlist/toggle/<int:rental_id>/', views.toggle_wishlist, name='toggle_wishlist'),
 
     # ================= ABOUT =================
