@@ -166,8 +166,12 @@ def rental_list(request):
 
     # USER WISHLIST IDS
     wishlisted_rental_ids = set()
+
     if request.user.is_authenticated:
         wishlisted_rental_ids = set(
+            request.user
+            .wishlist_items
+            .values_list('rental_id', flat=True)
             Wishlist.objects.filter(user=request.user).values_list('rental_id', flat=True)
         )
 
@@ -176,6 +180,7 @@ def rental_list(request):
         'wishlisted_rental_ids': wishlisted_rental_ids,
         'search_params': request.GET,
     }
+
     return render(request, 'rentalList.html', context)
 
 
