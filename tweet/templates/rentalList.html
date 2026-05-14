@@ -88,7 +88,7 @@
                 <div class="absolute inset-0 bg-gradient-to-t from-slate-950/70 to-transparent"></div>
 
                 <!-- Wishlist Button -->
-                <form action="{% url 'toggle_wishlist' rental.id %}" method="POST" class="absolute top-3 right-3 z-10">
+                <form action="{% url 'toggle_wishlist' rental.id %}" method="POST" class="absolute top-3 right-3 z-50">
                     {% csrf_token %}
                     <button type="submit" class="wishlist-btn w-9 h-9 rounded-full bg-black/40 backdrop-blur-sm flex items-center justify-center text-white hover:bg-red-500/80 transition-colors duration-300 active:scale-90"
                             aria-label="Add to wishlist">
