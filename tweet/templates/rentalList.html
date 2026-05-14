@@ -190,13 +190,37 @@ href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
                     </div>
 
                     <!-- VIEW BUTTON -->
-                    <a
-                        href="{% url 'room_describe' rental.id %}"
-                        class="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-white/5 border border-white/10 flex items-center justify-center hover:bg-blue-600 transition-all duration-300 active:scale-95">
+                    <div class="flex items-center gap-2">
+                        {% if rental.is_owner %}
+                            <!-- EDIT BUTTON -->
+                            <a href="{% url 'rental_edit' rental.slug %}"
+                               title="Edit Listing"
+                               class="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-white/5 border border-white/10 flex items-center justify-center hover:bg-yellow-500/80 transition-all duration-300 active:scale-95">
+                                <i class="fa-solid fa-pencil text-[10px] sm:text-xs text-white"></i>
+                            </a>
 
-                        <i class="fa-solid fa-arrow-right text-[10px] sm:text-xs text-white"></i>
+                            <!-- DELETE BUTTON -->
+                            <form action="{% url 'rental_delete' rental.slug %}" method="POST" class="m-0">
+                                {% csrf_token %}
+                                <button type="submit"
+                                        title="Delete Listing"
+                                        onclick="return confirm('Are you sure you want to delete this listing?');"
+                                        class="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-white/5 border border-white/10 flex items-center justify-center hover:bg-red-600/80 transition-all duration-300 active:scale-95">
+                                    <i class="fa-solid fa-trash text-[10px] sm:text-xs text-white"></i>
+                                </button>
+                            </form>
+                        {% endif %}
 
-                    </a>
+                        <!-- VIEW BUTTON -->
+                        <a
+                            href="{% url 'room_describe' rental.id %}"
+                            title="View Details"
+                            class="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-white/5 border border-white/10 flex items-center justify-center hover:bg-blue-600 transition-all duration-300 active:scale-95">
+
+                            <i class="fa-solid fa-arrow-right text-[10px] sm:text-xs text-white"></i>
+
+                        </a>
+                    </div>
 
                 </div>
 
