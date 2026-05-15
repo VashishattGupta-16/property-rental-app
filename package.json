@@ -1,0 +1,23 @@
+{
+  "devDependencies": {
+    "@fortawesome/fontawesome-free": "^7.2.0",
+    "@tailwindcss/cli": "^4.2.4",
+    "autoprefixer": "^10.5.0",
+    "bootstrap": "^5.3.8",
+    "postcss": "^8.5.10",
+    "tailwindcss": "^4.2.4"
+  },
+  "name": "rental_app",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "build:css": "npx @tailwindcss/cli -i ./assets/css/input.css -o ./static/dist/output.css --minify",
+    "watch:css": "npx @tailwindcss/cli -i ./assets/css/input.css -o ./static/dist/output.css --watch",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": ""
+}
+

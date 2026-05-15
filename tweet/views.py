@@ -23,27 +23,7 @@ from .forms import (
 # Dummy views for context - replace with actual implementations
 def index(request):
     """Landing page showing featured and categorized properties."""
-    featured_rentals = Rental.objects.filter(is_available=True).select_related('user').order_by('-created_at')[:6]
-    latest_villa = Rental.objects.filter(property_type='VILLA', is_available=True).order_by('-created_at').first()
-    latest_flat = Rental.objects.filter(property_type='APARTMENT', is_available=True).order_by('-created_at').first()
-    latest_pg = Rental.objects.filter(property_type='PG', is_available=True).order_by('-created_at').first()
-    latest_showroom = Rental.objects.filter(property_type='SHOWROOM', is_available=True).order_by('-created_at').first()
-    premium_properties = Rental.objects.filter(price__gte=5000000, is_available=True).order_by('-created_at')[:4]
-
-    wishlisted_rental_ids = set()
-    if request.user.is_authenticated:
-        wishlisted_rental_ids = set(request.user.wishlist_items.values_list('rental_id', flat=True))
-
-    context = {
-        'featured_rentals': featured_rentals,
-        'latest_villa': latest_villa,
-        'latest_flat': latest_flat,
-        'latest_pg': latest_pg,
-        'latest_showroom': latest_showroom,
-        'premium_properties': premium_properties,
-        'wishlisted_rental_ids': wishlisted_rental_ids,
-    }
-    return render(request, 'index.html', context)
+    return render(request, 'index.html')
 
 
 def _wants_json(request):

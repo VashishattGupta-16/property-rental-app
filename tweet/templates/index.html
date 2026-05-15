@@ -1,257 +1,335 @@
 {% extends "layout.html" %}
 {% load static %}
-{% load media_urls %}
 
-{% block title %}Property-X | Future of Real Estate{% endblock %}
+{% block title %}PropertyX | Premium Rentals{% endblock %}
 
 {% block content %}
 
+<style>
+  .lp-aurora {
+    background:
+      radial-gradient(600px 280px at 12% 10%, rgba(59,130,246,.18), transparent 60%),
+      radial-gradient(520px 260px at 78% 18%, rgba(168,85,247,.14), transparent 55%),
+      radial-gradient(640px 320px at 55% 78%, rgba(34,211,238,.10), transparent 55%),
+      radial-gradient(420px 260px at 16% 86%, rgba(14,165,233,.10), transparent 55%);
+    filter: blur(18px);
+    opacity: .95;
+  }
+
+  @keyframes lp-float-a { 0% { transform: translate3d(0,0,0) } 50% { transform: translate3d(0,-18px,0) } 100% { transform: translate3d(0,0,0) } }
+  @keyframes lp-float-b { 0% { transform: translate3d(0,0,0) } 50% { transform: translate3d(0,14px,0) } 100% { transform: translate3d(0,0,0) } }
+  @keyframes lp-float-c { 0% { transform: translate3d(0,0,0) } 50% { transform: translate3d(10px,-10px,0) } 100% { transform: translate3d(0,0,0) } }
+
+  .lp-float-a { animation: lp-float-a 10s ease-in-out infinite; will-change: transform; }
+  .lp-float-b { animation: lp-float-b 12s ease-in-out infinite; will-change: transform; }
+  .lp-float-c { animation: lp-float-c 14s ease-in-out infinite; will-change: transform; }
+
+  @keyframes lp-gradient {
+    0% { background-position: 0% 50% }
+    50% { background-position: 100% 50% }
+    100% { background-position: 0% 50% }
+  }
+
+  .lp-gradient-text {
+    background-image: linear-gradient(90deg, #60a5fa, #a78bfa, #22d3ee, #60a5fa);
+    background-size: 300% 300%;
+    animation: lp-gradient 10s ease infinite;
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  .reveal {
+    opacity: 0;
+    transform: translate3d(0, 18px, 0);
+    filter: blur(8px);
+    transition: opacity 700ms ease, transform 700ms ease, filter 700ms ease;
+    will-change: transform, opacity, filter;
+  }
+
+  .reveal.is-inview {
+    opacity: 1;
+    transform: none;
+    filter: none;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .lp-float-a, .lp-float-b, .lp-float-c { animation: none !important; }
+    .lp-gradient-text { animation: none !important; }
+    .reveal { opacity: 1 !important; transform: none !important; filter: none !important; }
+  }
+</style>
+
 <!-- HERO -->
-<section class="relative overflow-hidden pt-24 sm:pt-28 pb-12 sm:pb-16">
+<section class="relative overflow-hidden pt-24 sm:pt-28 pb-14 sm:pb-20">
 
-    <!-- Decorative glows (parallax) -->
-    <div class="absolute -top-40 -right-40 w-[560px] h-[560px] pointer-events-none">
-        <div data-parallax data-speed="0.18" data-max="220" class="w-full h-full rounded-full bg-blue-500/15 blur-3xl"></div>
-    </div>
-    <div class="absolute -bottom-44 -left-44 w-[640px] h-[640px] pointer-events-none">
-        <div data-parallax data-speed="0.26" data-max="260" class="w-full h-full rounded-full bg-fuchsia-500/10 blur-3xl"></div>
-    </div>
+  <div class="absolute inset-0 pointer-events-none">
+    <div class="absolute -top-24 -left-28 w-[560px] h-[560px] rounded-full bg-blue-500/10 blur-3xl lp-float-b"></div>
+    <div class="absolute -bottom-28 -right-28 w-[620px] h-[620px] rounded-full bg-fuchsia-500/10 blur-3xl lp-float-a"></div>
+    <div class="absolute inset-0 lp-aurora"></div>
+  </div>
 
-    <div class="relative max-w-7xl mx-auto px-4 sm:px-6 grid lg:grid-cols-2 gap-10 items-center">
+  <div class="relative max-w-7xl mx-auto px-4 sm:px-6 grid lg:grid-cols-2 gap-12 items-center">
 
-        <!-- COPY -->
-        <div class="space-y-7">
+    <div class="space-y-7">
 
-            <div class="inline-flex items-center gap-3 px-4 py-2 rounded-full bg-white/5 border border-white/10 backdrop-blur-md">
-                <span class="w-2.5 h-2.5 rounded-full bg-blue-500 animate-pulse"></span>
-                <span class="text-[11px] font-extrabold tracking-[0.25em] text-blue-300 uppercase">
-                    Premium rentals, verified owners
-                </span>
-            </div>
+      <div class="inline-flex items-center gap-3 px-4 py-2 rounded-full bg-white/5 border border-white/10 backdrop-blur-md reveal">
+        <span class="w-2.5 h-2.5 rounded-full bg-blue-500 animate-pulse"></span>
+        <span class="text-[11px] font-extrabold tracking-[0.25em] text-slate-200 uppercase">
+          Verified rentals. Modern living.
+        </span>
+      </div>
 
-            <div class="space-y-4">
-                <h1 class="text-4xl sm:text-6xl lg:text-7xl font-black text-white leading-[0.95] tracking-tight">
-                    Discover
-                    <span class="text-blue-500">Luxury Living</span>
-                </h1>
+      <div class="space-y-4">
+        <h1 class="text-4xl sm:text-6xl lg:text-7xl font-black text-white leading-[0.95] tracking-tight reveal">
+          Find your next
+          <span class="lp-gradient-text">space</span>
+        </h1>
 
-                <p class="text-slate-300/80 text-base sm:text-lg leading-relaxed max-w-xl">
-                    Explore curated villas, apartments, PGs, and commercial spaces. Save your favorites to your wishlist and book faster.
-                </p>
-            </div>
+        <p class="text-slate-300/80 text-base sm:text-lg leading-relaxed max-w-xl reveal">
+          PropertyX is built for discovery: clean listings, clear pricing, beautiful galleries, and a faster path from browsing to booking.
+        </p>
+      </div>
 
-            <div class="flex flex-wrap gap-3">
-                <a href="{% url 'rental_list' %}"
-                   class="px-6 py-3 rounded-2xl bg-blue-600 hover:bg-blue-500 text-white font-black transition-colors">
-                    Explore Listings
-                </a>
-                <a href="{% url 'rental_create' %}"
-                   class="px-6 py-3 rounded-2xl bg-white/5 hover:bg-white/10 border border-white/10 text-white font-black transition-colors">
-                    List Your Property
-                </a>
-            </div>
-
-            <!-- Quick category chips -->
-            <div class="flex flex-wrap gap-2 pt-1">
-                <a href="{% url 'rental_list' %}?type=VILLA" class="px-3 py-2 rounded-xl bg-white/5 border border-white/10 text-xs font-black text-slate-200 hover:bg-white/10 transition-colors">
-                    Villas
-                </a>
-                <a href="{% url 'rental_list' %}?type=APARTMENT" class="px-3 py-2 rounded-xl bg-white/5 border border-white/10 text-xs font-black text-slate-200 hover:bg-white/10 transition-colors">
-                    Apartments
-                </a>
-                <a href="{% url 'rental_list' %}?type=PG" class="px-3 py-2 rounded-xl bg-white/5 border border-white/10 text-xs font-black text-slate-200 hover:bg-white/10 transition-colors">
-                    PG
-                </a>
-                <a href="{% url 'rental_list' %}?type=SHOWROOM" class="px-3 py-2 rounded-xl bg-white/5 border border-white/10 text-xs font-black text-slate-200 hover:bg-white/10 transition-colors">
-                    Showrooms
-                </a>
-            </div>
-
-        </div>
-
-        <!-- HERO MEDIA (parallax) -->
-        <div class="relative">
-            <div class="absolute -inset-6 rounded-[40px] bg-gradient-to-tr from-blue-500/10 via-transparent to-fuchsia-500/10 blur-2xl"></div>
-
-            <div class="relative overflow-hidden rounded-3xl border border-white/10 glass-card">
-                <div data-parallax data-speed="0.08" data-max="140" class="h-[340px] sm:h-[440px]">
-                    <img src="https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=2000&q=80"
-                         class="w-full h-full object-cover scale-110"
-                         alt="Luxury property">
-                </div>
-                <div class="absolute inset-0 bg-gradient-to-t from-slate-950/50 to-transparent pointer-events-none"></div>
-            </div>
-        </div>
-
-    </div>
-</section>
-
-
-<!-- FEATURED RENTALS -->
-<section class="max-w-7xl mx-auto px-4 sm:px-6 py-10 sm:py-14">
-
-    <div class="flex items-center gap-4 mb-8 sm:mb-10">
-        <h2 class="text-xl sm:text-2xl font-black text-white uppercase">Featured</h2>
-        <div class="h-[1px] flex-grow bg-gradient-to-r from-blue-500/50 to-transparent"></div>
-        <a href="{% url 'rental_list' %}" class="text-xs font-black text-slate-300 hover:text-white transition-colors">
-            View all →
+      <!-- Only two CTAs -->
+      <div class="flex flex-wrap gap-3 reveal">
+        <a href="{% url 'rental_list' %}"
+           class="px-7 py-3 rounded-2xl bg-blue-600 hover:bg-blue-500 text-white font-black transition-colors">
+          Explore
         </a>
-    </div>
+        <a href="{% url 'rental_list' %}"
+           class="px-7 py-3 rounded-2xl bg-white/5 hover:bg-white/10 border border-white/10 text-white font-black transition-colors">
+          Get Started
+        </a>
+      </div>
 
-    <div class="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-5 lg:gap-6">
-
-        {% for rental in featured_rentals %}
-
-        <article data-rental-card class="group relative glass-card rounded-2xl overflow-hidden border border-white/5 hover:border-blue-500/30 transition-all duration-300 hover:-translate-y-1">
-
-            <div class="relative h-32 sm:h-40 lg:h-44 overflow-hidden">
-
-                {% if rental.image %}
-                    <img
-                        src="{{ rental.image|optimized_cloudinary_url:'f_auto,q_auto,c_fill,w_600,h_400' }}"
-                        class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
-                        alt="{{ rental.title|default:'Property' }}">
-                {% else %}
-                    <div class="w-full h-full bg-slate-800 flex items-center justify-center text-slate-500 text-[10px]">
-                        No Image
-                    </div>
-                {% endif %}
-
-                <div class="absolute inset-0 bg-gradient-to-t from-slate-950/70 to-transparent pointer-events-none"></div>
-
-                <div class="absolute bottom-2 left-2 z-20 bg-blue-600 text-[7px] sm:text-[8px] font-black text-white px-2 py-1 rounded">
-                    {{ rental.property_type|default:"Property" }}
-                </div>
-
-                <div class="absolute top-3 left-3 z-[90]">
-                    <span data-wishlist-badge class="px-2 py-1 rounded-full text-[9px] font-black tracking-wide bg-red-500/20 text-red-200 border border-red-500/30 backdrop-blur-md transition-opacity {% if rental.id in wishlisted_rental_ids %}opacity-100{% else %}opacity-0{% endif %}">
-                        Saved
-                    </span>
-                </div>
-
-                <form action="{% url 'toggle_wishlist' rental.id %}" method="POST" class="js-wishlist-form absolute top-3 right-3 z-[100]">
-                    {% csrf_token %}
-                    <button
-                        type="submit"
-                        data-wishlisted="{% if rental.id in wishlisted_rental_ids %}1{% else %}0{% endif %}"
-                        aria-pressed="{% if rental.id in wishlisted_rental_ids %}true{% else %}false{% endif %}"
-                        class="wishlist-btn w-9 h-9 rounded-full bg-black/50 backdrop-blur-md border border-white/10 flex items-center justify-center text-white hover:bg-red-500/80 transition-all duration-300 active:scale-90 shadow-lg"
-                        aria-label="{% if rental.id in wishlisted_rental_ids %}Remove from wishlist{% else %}Add to wishlist{% endif %}">
-
-                        <i class="{% if rental.id in wishlisted_rental_ids %}fa-solid fa-heart text-red-500{% else %}fa-regular fa-heart{% endif %} text-lg"></i>
-
-                    </button>
-                </form>
-
-            </div>
-
-            <div class="p-3 sm:p-4 lg:p-5">
-                <h3 class="text-sm sm:text-base font-bold text-white truncate">
-                    {{ rental.title|default:"Untitled" }}
-                </h3>
-
-                <p class="text-slate-400 text-[10px] sm:text-[11px] flex items-center gap-1.5 mb-3 truncate">
-                    <i class="fa-solid fa-location-dot text-blue-500 text-[9px]"></i>
-                    {{ rental.location|default:"Location not available" }}
-                </p>
-
-                <div class="flex justify-between items-center border-t border-white/5 pt-3 sm:pt-4">
-                    <div>
-                        <p class="text-[7px] sm:text-[8px] font-black text-slate-500 uppercase tracking-widest">
-                            Monthly
-                        </p>
-                        <span class="text-sm sm:text-lg font-black text-white">
-                            ₹{{ rental.price|default:"0" }}
-                        </span>
-                    </div>
-
-                    <a
-                        href="{% url 'room_describe' rental.id %}"
-                        title="View Details"
-                        class="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-white/5 border border-white/10 flex items-center justify-center hover:bg-blue-600 transition-all duration-300 active:scale-95">
-
-                        <i class="fa-solid fa-arrow-right text-[10px] sm:text-xs text-white"></i>
-                    </a>
-                </div>
-            </div>
-        </article>
-
-        {% empty %}
-        <div class="col-span-full text-center py-16">
-            <p class="text-slate-500 font-bold uppercase tracking-widest">No featured listings yet</p>
+      <!-- Social proof strip (no links/buttons) -->
+      <div class="grid grid-cols-3 gap-3 sm:gap-4 pt-4">
+        <div class="glass-card rounded-2xl border border-white/10 p-4 reveal">
+          <p class="text-[11px] font-black tracking-[0.25em] text-slate-400 uppercase">Curated</p>
+          <p class="mt-2 text-white font-black text-lg">Premium picks</p>
+          <p class="mt-2 text-slate-400 text-xs leading-relaxed">Homes that match modern taste.</p>
         </div>
-        {% endfor %}
+        <div class="glass-card rounded-2xl border border-white/10 p-4 reveal">
+          <p class="text-[11px] font-black tracking-[0.25em] text-slate-400 uppercase">Fast</p>
+          <p class="mt-2 text-white font-black text-lg">Clear details</p>
+          <p class="mt-2 text-slate-400 text-xs leading-relaxed">Less noise, more signal.</p>
+        </div>
+        <div class="glass-card rounded-2xl border border-white/10 p-4 reveal">
+          <p class="text-[11px] font-black tracking-[0.25em] text-slate-400 uppercase">Trusted</p>
+          <p class="mt-2 text-white font-black text-lg">Verified</p>
+          <p class="mt-2 text-slate-400 text-xs leading-relaxed">Owners and listings you can trust.</p>
+        </div>
+      </div>
 
     </div>
 
+    <!-- IMAGE COLLAGE -->
+    <div class="relative">
+      <div class="absolute -inset-6 rounded-[44px] bg-gradient-to-tr from-blue-500/10 via-transparent to-fuchsia-500/10 blur-2xl"></div>
+
+      <div class="relative grid grid-cols-12 gap-4">
+
+        <div class="col-span-12 sm:col-span-7 lg:col-span-7 rounded-3xl overflow-hidden border border-white/10 glass-card lp-float-a reveal">
+          <div data-parallax data-speed="0.09" data-max="120" class="h-[280px] sm:h-[340px] lg:h-[420px]">
+            <img
+              src="https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=2400&q=80"
+              alt="Luxury home"
+              class="w-full h-full object-cover scale-110">
+          </div>
+          <div class="absolute inset-0 bg-gradient-to-t from-slate-950/50 to-transparent pointer-events-none"></div>
+        </div>
+
+        <div class="hidden sm:block sm:col-span-5 lg:col-span-5 space-y-4">
+          <div class="rounded-3xl overflow-hidden border border-white/10 glass-card lp-float-c reveal">
+            <div data-parallax data-speed="0.12" data-max="140" class="h-[160px] lg:h-[200px]">
+              <img
+                src="https://images.unsplash.com/photo-1502005229762-cf1b2da7c5d6?auto=format&fit=crop&w=1800&q=80"
+                alt="Interior design"
+                class="w-full h-full object-cover scale-110">
+            </div>
+            <div class="absolute inset-0 bg-gradient-to-t from-slate-950/40 to-transparent pointer-events-none"></div>
+          </div>
+
+          <div class="rounded-3xl overflow-hidden border border-white/10 glass-card lp-float-b reveal">
+            <div data-parallax data-speed="0.10" data-max="140" class="h-[160px] lg:h-[200px]">
+              <img
+                src="https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?auto=format&fit=crop&w=1800&q=80"
+                alt="Modern apartment"
+                class="w-full h-full object-cover scale-110">
+            </div>
+            <div class="absolute inset-0 bg-gradient-to-t from-slate-950/40 to-transparent pointer-events-none"></div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
 </section>
 
 
-<!-- PARALLAX CALLOUT -->
-<section class="max-w-7xl mx-auto px-4 sm:px-6 pb-12 sm:pb-16">
+<!-- STORY -->
+<section class="max-w-7xl mx-auto px-4 sm:px-6 py-14 sm:py-20">
+  <div class="grid lg:grid-cols-2 gap-10 items-center">
 
-    <div class="relative overflow-hidden rounded-3xl border border-white/10 glass-card">
+    <div class="space-y-5">
+      <h2 class="text-2xl sm:text-4xl font-black text-white leading-tight reveal">
+        Designed for calm, not clutter.
+      </h2>
+      <p class="text-slate-300/80 leading-relaxed reveal">
+        Great listings should feel effortless. We focus on layout, readability, and speed so you can compare spaces without getting lost.
+      </p>
 
-        <div class="absolute inset-0">
-            <div data-parallax data-speed="0.14" data-max="180" class="absolute inset-0">
-                <img src="https://images.unsplash.com/photo-1501183638710-841dd1904471?q=80&w=2000"
-                     class="w-full h-full object-cover scale-110"
-                     alt="Modern home">
-            </div>
-            <div class="absolute inset-0 bg-gradient-to-r from-slate-950/90 via-slate-950/70 to-slate-950/25"></div>
+      <div class="grid sm:grid-cols-2 gap-4 pt-2">
+        <div class="glass-card rounded-2xl border border-white/10 p-6 reveal">
+          <p class="text-xs font-black tracking-[0.25em] text-slate-400 uppercase">Gallery first</p>
+          <p class="mt-2 text-white font-black text-lg">Better photos</p>
+          <p class="mt-2 text-slate-400 text-sm leading-relaxed">Image-led layouts that feel premium.</p>
         </div>
-
-        <div class="relative p-8 sm:p-12">
-            <h2 class="text-3xl sm:text-5xl font-black text-white leading-tight max-w-2xl">
-                Find Homes That Match Your Future
-            </h2>
-            <p class="text-slate-200/80 mt-4 max-w-xl leading-relaxed">
-                Save, compare, and shortlist properties instantly with your wishlist.
-            </p>
-            <div class="mt-7 flex flex-wrap gap-3">
-                <a href="{% url 'rental_list' %}" class="px-6 py-3 rounded-2xl bg-blue-600 hover:bg-blue-500 text-white font-black transition-colors">
-                    Browse Market
-                </a>
-                {% if user.is_authenticated %}
-                <a href="{% url 'wishlist' %}" class="px-6 py-3 rounded-2xl bg-white/5 hover:bg-white/10 border border-white/10 text-white font-black transition-colors">
-                    Open Wishlist
-                </a>
-                {% else %}
-                <a href="{% url 'account_login' %}" class="px-6 py-3 rounded-2xl bg-white/5 hover:bg-white/10 border border-white/10 text-white font-black transition-colors">
-                    Login to Save
-                </a>
-                {% endif %}
-            </div>
+        <div class="glass-card rounded-2xl border border-white/10 p-6 reveal">
+          <p class="text-xs font-black tracking-[0.25em] text-slate-400 uppercase">Details</p>
+          <p class="mt-2 text-white font-black text-lg">Clear specs</p>
+          <p class="mt-2 text-slate-400 text-sm leading-relaxed">Pricing, location, and amenities at a glance.</p>
         </div>
-
+      </div>
     </div>
+
+    <div class="relative overflow-hidden rounded-3xl border border-white/10 glass-card reveal">
+      <div class="absolute inset-0 bg-gradient-to-tr from-blue-500/10 via-transparent to-fuchsia-500/10"></div>
+      <div data-parallax data-speed="0.10" data-max="160" class="relative h-[360px] sm:h-[420px]">
+        <img
+          src="https://images.unsplash.com/photo-1484154218962-a197022b5858?auto=format&fit=crop&w=2400&q=80"
+          alt="Living room"
+          class="w-full h-full object-cover scale-110">
+      </div>
+      <div class="absolute inset-0 bg-gradient-to-t from-slate-950/55 to-transparent pointer-events-none"></div>
+    </div>
+
+  </div>
 </section>
 
 
-<!-- TRUST -->
-<section class="max-w-7xl mx-auto px-4 sm:px-6 pb-16">
-    <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div class="glass-card rounded-2xl border border-white/10 p-6">
-            <p class="text-xs font-black tracking-[0.25em] text-slate-400 uppercase">Smart Search</p>
-            <p class="mt-2 text-white font-black text-lg">Find faster</p>
-            <p class="mt-2 text-slate-400 text-sm leading-relaxed">Filters designed for modern rentals and premium properties.</p>
-        </div>
-        <div class="glass-card rounded-2xl border border-white/10 p-6">
-            <p class="text-xs font-black tracking-[0.25em] text-slate-400 uppercase">Verified</p>
-            <p class="mt-2 text-white font-black text-lg">Trusted owners</p>
-            <p class="mt-2 text-slate-400 text-sm leading-relaxed">Reduced spam with better listing quality and clarity.</p>
-        </div>
-        <div class="glass-card rounded-2xl border border-white/10 p-6">
-            <p class="text-xs font-black tracking-[0.25em] text-slate-400 uppercase">Wishlist</p>
-            <p class="mt-2 text-white font-black text-lg">Save instantly</p>
-            <p class="mt-2 text-slate-400 text-sm leading-relaxed">One click to shortlist — synced to your account.</p>
-        </div>
-        <div class="glass-card rounded-2xl border border-white/10 p-6">
-            <p class="text-xs font-black tracking-[0.25em] text-slate-400 uppercase">Support</p>
-            <p class="mt-2 text-white font-black text-lg">Help anytime</p>
-            <p class="mt-2 text-slate-400 text-sm leading-relaxed">Contact owners and schedule visits with ease.</p>
-        </div>
+<!-- IMAGE MOSAIC -->
+<section class="max-w-7xl mx-auto px-4 sm:px-6 pb-14 sm:pb-20">
+  <div class="flex items-center gap-4 mb-8">
+    <h2 class="text-xl sm:text-2xl font-black text-white uppercase reveal">A look inside</h2>
+    <div class="h-[1px] flex-grow bg-gradient-to-r from-blue-500/50 to-transparent"></div>
+  </div>
+
+  <div class="grid grid-cols-2 lg:grid-cols-12 gap-4">
+
+    <div class="col-span-2 lg:col-span-7 rounded-3xl overflow-hidden border border-white/10 glass-card reveal">
+      <div data-parallax data-speed="0.08" data-max="140" class="h-[220px] sm:h-[280px] lg:h-[380px]">
+        <img
+          src="https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?auto=format&fit=crop&w=2400&q=80"
+          alt="Apartment"
+          class="w-full h-full object-cover scale-110">
+      </div>
     </div>
+
+    <div class="col-span-1 lg:col-span-5 rounded-3xl overflow-hidden border border-white/10 glass-card reveal">
+      <div data-parallax data-speed="0.12" data-max="160" class="h-[220px] sm:h-[280px] lg:h-[380px]">
+        <img
+          src="https://images.unsplash.com/photo-1502672023488-70e25813eb80?auto=format&fit=crop&w=2000&q=80"
+          alt="Kitchen"
+          class="w-full h-full object-cover scale-110">
+      </div>
+    </div>
+
+    <div class="col-span-1 lg:col-span-4 rounded-3xl overflow-hidden border border-white/10 glass-card reveal">
+      <div data-parallax data-speed="0.10" data-max="140" class="h-[220px] sm:h-[260px]">
+        <img
+          src="https://images.unsplash.com/photo-1505693314120-0d443867891c?auto=format&fit=crop&w=2000&q=80"
+          alt="Bedroom"
+          class="w-full h-full object-cover scale-110">
+      </div>
+    </div>
+
+    <div class="col-span-1 lg:col-span-4 rounded-3xl overflow-hidden border border-white/10 glass-card reveal">
+      <div data-parallax data-speed="0.14" data-max="140" class="h-[220px] sm:h-[260px]">
+        <img
+          src="https://images.unsplash.com/photo-1501183638710-841dd1904471?auto=format&fit=crop&w=2000&q=80"
+          alt="House exterior"
+          class="w-full h-full object-cover scale-110">
+      </div>
+    </div>
+
+    <div class="col-span-2 lg:col-span-4 rounded-3xl overflow-hidden border border-white/10 glass-card reveal">
+      <div data-parallax data-speed="0.09" data-max="140" class="h-[220px] sm:h-[260px]">
+        <img
+          src="https://images.unsplash.com/photo-1449844908441-8829872d2607?auto=format&fit=crop&w=2000&q=80"
+          alt="Balcony view"
+          class="w-full h-full object-cover scale-110">
+      </div>
+    </div>
+
+  </div>
+</section>
+
+
+<!-- PROCESS -->
+<section class="max-w-7xl mx-auto px-4 sm:px-6 pb-14 sm:pb-20">
+  <div class="glass-card rounded-3xl border border-white/10 overflow-hidden">
+    <div class="p-8 sm:p-12">
+      <h2 class="text-2xl sm:text-4xl font-black text-white reveal">From browse to move-in</h2>
+      <p class="mt-3 text-slate-300/80 max-w-2xl leading-relaxed reveal">
+        A simple flow that keeps you in control at every step.
+      </p>
+
+      <div class="mt-10 grid lg:grid-cols-3 gap-5">
+        <div class="rounded-2xl border border-white/10 bg-white/5 p-6 reveal">
+          <div class="w-10 h-10 rounded-xl bg-blue-500/15 border border-blue-500/20 flex items-center justify-center font-black text-blue-200">
+            01
+          </div>
+          <p class="mt-4 text-white font-black text-lg">Explore</p>
+          <p class="mt-2 text-slate-400 text-sm leading-relaxed">Filter by location, type, and budget with a clean layout built for speed.</p>
+        </div>
+        <div class="rounded-2xl border border-white/10 bg-white/5 p-6 reveal">
+          <div class="w-10 h-10 rounded-xl bg-fuchsia-500/15 border border-fuchsia-500/20 flex items-center justify-center font-black text-fuchsia-200">
+            02
+          </div>
+          <p class="mt-4 text-white font-black text-lg">Shortlist</p>
+          <p class="mt-2 text-slate-400 text-sm leading-relaxed">Save favorites to your wishlist and compare details without losing context.</p>
+        </div>
+        <div class="rounded-2xl border border-white/10 bg-white/5 p-6 reveal">
+          <div class="w-10 h-10 rounded-xl bg-cyan-500/15 border border-cyan-500/20 flex items-center justify-center font-black text-cyan-200">
+            03
+          </div>
+          <p class="mt-4 text-white font-black text-lg">Connect</p>
+          <p class="mt-2 text-slate-400 text-sm leading-relaxed">Reach out with confidence using verified listings and a modern detail view.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- FINAL CTA -->
+<section class="max-w-7xl mx-auto px-4 sm:px-6 pb-20">
+  <div class="relative overflow-hidden rounded-3xl border border-white/10 glass-card">
+    <div class="absolute inset-0">
+      <div data-parallax data-speed="0.10" data-max="180" class="absolute inset-0">
+        <img
+          src="https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?auto=format&fit=crop&w=2400&q=80"
+          alt="Modern room"
+          class="w-full h-full object-cover scale-110">
+      </div>
+      <div class="absolute inset-0 bg-gradient-to-r from-slate-950/90 via-slate-950/70 to-slate-950/20"></div>
+    </div>
+
+    <div class="relative p-10 sm:p-14">
+      <h2 class="text-3xl sm:text-5xl font-black text-white leading-tight max-w-3xl reveal">
+        Your next home is closer than you think.
+      </h2>
+      <p class="mt-4 text-slate-200/80 max-w-xl leading-relaxed reveal">
+        Start exploring premium spaces in seconds.
+      </p>
+      <p class="mt-7 text-slate-200/80 font-bold reveal">
+        Use the Explore button above to browse listings.
+      </p>
+    </div>
+  </div>
 </section>
 
 {% endblock %}
@@ -259,37 +337,54 @@
 
 {% block extra_scripts %}
 <script>
-    (function () {
-        const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-        if (reduceMotion) return;
+  (function () {
+    const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-        const items = Array.from(document.querySelectorAll("[data-parallax]"));
-        if (!items.length) return;
-
-        let ticking = false;
-
-        function update() {
-            const y = window.scrollY || 0;
-            for (const el of items) {
-                const speed = Number.parseFloat(el.dataset.speed || "0.15");
-                if (Number.isNaN(speed)) continue;
-                const max = Number.parseFloat(el.dataset.max || "200");
-                const raw = y * speed;
-                const clamped = Number.isNaN(max) ? raw : Math.max(-max, Math.min(max, raw));
-                el.style.transform = `translate3d(0, ${Math.round(clamped)}px, 0)`;
-            }
-            ticking = false;
+    // Reveal on scroll
+    const revealEls = Array.from(document.querySelectorAll(".reveal"));
+    if (reduceMotion) {
+      revealEls.forEach(el => el.classList.add("is-inview"));
+    } else if (revealEls.length) {
+      const io = new IntersectionObserver((entries, obs) => {
+        for (const entry of entries) {
+          if (!entry.isIntersecting) continue;
+          entry.target.classList.add("is-inview");
+          obs.unobserve(entry.target);
         }
+      }, { threshold: 0.15, rootMargin: "0px 0px -10% 0px" });
+      revealEls.forEach(el => io.observe(el));
+    }
 
-        function requestTick() {
-            if (ticking) return;
-            ticking = true;
-            window.requestAnimationFrame(update);
-        }
+    // Parallax (subtle)
+    if (reduceMotion) return;
 
-        window.addEventListener("scroll", requestTick, { passive: true });
-        window.addEventListener("resize", requestTick);
-        requestTick();
-    })();
+    const items = Array.from(document.querySelectorAll("[data-parallax]"));
+    if (!items.length) return;
+
+    let ticking = false;
+
+    function update() {
+      const y = window.scrollY || 0;
+      for (const el of items) {
+        const speed = Number.parseFloat(el.dataset.speed || "0.10");
+        if (Number.isNaN(speed)) continue;
+        const max = Number.parseFloat(el.dataset.max || "160");
+        const raw = y * speed;
+        const clamped = Number.isNaN(max) ? raw : Math.max(-max, Math.min(max, raw));
+        el.style.transform = `translate3d(0, ${Math.round(clamped)}px, 0)`;
+      }
+      ticking = false;
+    }
+
+    function requestTick() {
+      if (ticking) return;
+      ticking = true;
+      window.requestAnimationFrame(update);
+    }
+
+    window.addEventListener("scroll", requestTick, { passive: true });
+    window.addEventListener("resize", requestTick);
+    requestTick();
+  })();
 </script>
 {% endblock %}
