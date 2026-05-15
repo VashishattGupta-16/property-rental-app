@@ -1,7 +1,8 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.views import redirect_to_login
 from django.views.decorators.http import require_POST
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
 from django.db.models import Q
 from django.utils.http import url_has_allowed_host_and_scheme
 from django.urls import reverse
@@ -29,6 +30,10 @@ def index(request):
     latest_showroom = Rental.objects.filter(property_type='SHOWROOM', is_available=True).order_by('-created_at').first()
     premium_properties = Rental.objects.filter(price__gte=5000000, is_available=True).order_by('-created_at')[:4]
 
+    wishlisted_rental_ids = set()
+    if request.user.is_authenticated:
+        wishlisted_rental_ids = set(request.user.wishlist_items.values_list('rental_id', flat=True))
+
     context = {
         'featured_rentals': featured_rentals,
         'latest_villa': latest_villa,
@@ -36,8 +41,17 @@ def index(request):
         'latest_pg': latest_pg,
         'latest_showroom': latest_showroom,
         'premium_properties': premium_properties,
+        'wishlisted_rental_ids': wishlisted_rental_ids,
     }
     return render(request, 'index.html', context)
+
+
+def _wants_json(request):
+    accept = (request.headers.get("accept") or "").lower()
+    return (
+        request.headers.get("x-requested-with") == "XMLHttpRequest"
+        or "application/json" in accept
+    )
 
 
 # =========================================================
@@ -349,26 +363,49 @@ def wishlist(request):
 # TOGGLE WISHLIST
 # =========================================================
 
-@login_required
 @require_POST
 def toggle_wishlist(request, rental_id):
+
+    wants_json = _wants_json(request)
+
+    if not request.user.is_authenticated:
+        next_url = request.META.get('HTTP_REFERER') or request.get_full_path()
+        if wants_json:
+            return JsonResponse(
+                {
+                    "ok": False,
+                    "login_required": True,
+                    "login_url": reverse("account_login"),
+                    "next": next_url,
+                },
+                status=401,
+            )
+        return redirect_to_login(next_url, login_url=reverse("account_login"))
 
     rental = get_object_or_404(
         Rental,
         pk=rental_id
     )
 
-    wishlist_item = Wishlist.objects.filter(
+    wishlist_item, created = Wishlist.objects.get_or_create(
         user=request.user,
         rental=rental
     )
 
-    if wishlist_item.exists():
-        wishlist_item.delete()
+    if created:
+        wishlisted = True
     else:
-        Wishlist.objects.create(
-            user=request.user,
-            rental=rental
+        wishlist_item.delete()
+        wishlisted = False
+
+    if wants_json:
+        return JsonResponse(
+            {
+                "ok": True,
+                "rental_id": rental_id,
+                "wishlisted": wishlisted,
+                "wishlist_count": request.user.wishlist_items.count(),
+            }
         )
 
     referer = request.META.get('HTTP_REFERER')

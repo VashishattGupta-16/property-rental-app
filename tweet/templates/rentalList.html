@@ -169,7 +169,7 @@ href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
         {% for rental in rentals %}
 
         <!-- CARD -->
-        <article class="group relative glass-card rounded-2xl overflow-hidden border border-white/5 hover:border-blue-500/30 transition-all duration-300 hover:-translate-y-1">
+        <article data-rental-card class="group relative glass-card rounded-2xl overflow-hidden border border-white/5 hover:border-blue-500/30 transition-all duration-300 hover:-translate-y-1">
 
             <!-- IMAGE SECTION -->
             <div class="relative h-32 sm:h-40 lg:h-44 overflow-hidden">
@@ -199,18 +199,27 @@ href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
 
                 </div>
 
+                <!-- Saved Badge -->
+                <div class="absolute top-3 left-3 z-[90]">
+                    <span data-wishlist-badge class="px-2 py-1 rounded-full text-[9px] font-black tracking-wide bg-red-500/20 text-red-200 border border-red-500/30 backdrop-blur-md transition-opacity {% if rental.id in wishlisted_rental_ids %}opacity-100{% else %}opacity-0{% endif %}">
+                        Saved
+                    </span>
+                </div>
+
                 <!-- Wishlist Button -->
                 <form
                     action="{% url 'toggle_wishlist' rental.id %}"
                     method="POST"
-                    class="absolute top-3 right-3 z-[100]">
+                    class="js-wishlist-form absolute top-3 right-3 z-[100]">
 
                     {% csrf_token %}
 
                     <button
                         type="submit"
+                        data-wishlisted="{% if rental.id in wishlisted_rental_ids %}1{% else %}0{% endif %}"
+                        aria-pressed="{% if rental.id in wishlisted_rental_ids %}true{% else %}false{% endif %}"
                         class="wishlist-btn w-9 h-9 rounded-full bg-black/50 backdrop-blur-md border border-white/10 flex items-center justify-center text-white hover:bg-red-500/80 transition-all duration-300 active:scale-90 shadow-lg"
-                        aria-label="Add to wishlist">
+                        aria-label="{% if rental.id in wishlisted_rental_ids %}Remove from wishlist{% else %}Add to wishlist{% endif %}">
 
                         <i class="{% if rental.id in wishlisted_rental_ids %}fa-solid fa-heart text-red-500{% else %}fa-regular fa-heart{% endif %} text-lg"></i>
 

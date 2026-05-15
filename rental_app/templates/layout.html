@@ -74,6 +74,94 @@
     {% endif %}
     <main>{% block content %}{% endblock %}</main>
     {% include "footer.html" %}
+
+    <script>
+        (function () {
+            function getCookie(name) {
+                const cookieValue = document.cookie
+                    .split(";")
+                    .map(v => v.trim())
+                    .find(v => v.startsWith(name + "="));
+                return cookieValue ? decodeURIComponent(cookieValue.split("=")[1]) : null;
+            }
+
+            function setWishlisted(form, wishlisted) {
+                const button = form.querySelector("button");
+                const icon = form.querySelector("i");
+                const badge = form.closest("[data-rental-card]")?.querySelector("[data-wishlist-badge]");
+
+                if (button) {
+                    button.setAttribute("aria-pressed", wishlisted ? "true" : "false");
+                    button.setAttribute("aria-label", wishlisted ? "Remove from wishlist" : "Add to wishlist");
+                    button.dataset.wishlisted = wishlisted ? "1" : "0";
+                }
+
+                if (icon) {
+                    icon.classList.toggle("fa-solid", wishlisted);
+                    icon.classList.toggle("fa-regular", !wishlisted);
+                    icon.classList.toggle("text-red-500", wishlisted);
+                }
+
+                if (badge) {
+                    badge.classList.toggle("opacity-0", !wishlisted);
+                    badge.classList.toggle("opacity-100", wishlisted);
+                }
+            }
+
+            async function onWishlistSubmit(e) {
+                const form = e.target;
+                if (!(form instanceof HTMLFormElement)) return;
+                if (!form.classList.contains("js-wishlist-form")) return;
+
+                e.preventDefault();
+
+                const button = form.querySelector("button");
+                if (button) button.disabled = true;
+
+                try {
+                    const csrfToken = getCookie("csrftoken");
+                    const headers = {
+                        "X-Requested-With": "XMLHttpRequest",
+                        "Accept": "application/json",
+                    };
+                    if (csrfToken) headers["X-CSRFToken"] = csrfToken;
+
+                    const resp = await fetch(form.action, {
+                        method: "POST",
+                        body: new FormData(form),
+                        credentials: "same-origin",
+                        headers,
+                    });
+
+                    if (resp.status === 401) {
+                        const data = await resp.json().catch(() => null);
+                        const loginUrl = data?.login_url || "{% url 'account_login' %}";
+                        const next = encodeURIComponent(window.location.href);
+                        window.location.href = `${loginUrl}?next=${next}`;
+                        return;
+                    }
+
+                    const data = await resp.json().catch(() => null);
+                    if (!data || data.ok !== true) return;
+
+                    setWishlisted(form, !!data.wishlisted);
+
+                    if (!data.wishlisted && form.dataset.removeOnUnwish === "1") {
+                        const card = form.closest("[data-rental-card]");
+                        if (card) card.remove();
+                    }
+                } catch (err) {
+                    // fall back to normal submit behavior on network errors
+                    form.submit();
+                } finally {
+                    if (button) button.disabled = false;
+                }
+            }
+
+            document.addEventListener("submit", onWishlistSubmit, true);
+        })();
+    </script>
+
     {% block extra_scripts %}{% endblock %}
 </body>
 
