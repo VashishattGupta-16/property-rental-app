@@ -64,11 +64,11 @@ class CustomUser(AbstractUser):
     last_name = models.CharField(max_length=150, blank=True)
 
     phone_number = models.CharField(
-        max_length=15,
-        unique=True,
-        validators=[phone_validator],
-        blank=True,
-        null=True
+        max_length=10,      
+        unique=True,        
+        validators=[phone_validator], 
+        blank=True, 
+        null=True 
     )
 
     user_type = models.CharField(

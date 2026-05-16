@@ -5,8 +5,7 @@
 {% block content %}
 
 <!-- FONT AWESOME (ensure icons work) -->
-<link rel="stylesheet"
-href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 
 <!-- HERO SECTION -->
 <section class="relative fluid-section py-16 px-4 overflow-hidden">
@@ -18,115 +17,107 @@ href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
     <div class="relative max-w-7xl mx-auto grid sm:grid-cols-2 gap-10 items-center">
 
         <!-- TEXT -->
-      <!-- HERO CONTENT -->
-<div class="space-y-8">
+        <!-- HERO CONTENT -->
+        <div class="space-y-8">
 
-    <!-- TAG -->
-    <div class="inline-flex items-center gap-3 px-4 py-2 rounded-full bg-blue-500/10 border border-blue-500/20 backdrop-blur-md">
+            <!-- TAG -->
+            <div
+                class="inline-flex items-center gap-3 px-4 py-2 rounded-full bg-blue-500/10 border border-blue-500/20 backdrop-blur-md">
 
-        <span class="w-2.5 h-2.5 rounded-full bg-blue-500 animate-pulse"></span>
+                <span class="w-2.5 h-2.5 rounded-full bg-blue-500 animate-pulse"></span>
 
-        <span class="text-[11px] font-extrabold tracking-[0.25em] text-blue-400 uppercase">
-            Trusted Real Estate Platform
-        </span>
-
-    </div>
-
-    <!-- HEADING -->
-    <div class="space-y-3">
-
-        <h1 class="text-4xl sm:text-6xl lg:text-7xl font-black text-white leading-[0.95] tracking-tight">
-
-            Discover Your <br>
-
-            <span class="text-blue-500">
-                Perfect Space
-            </span>
-
-        </h1>
-
-        <p class="text-slate-400 text-base sm:text-lg lg:text-xl max-w-2xl leading-relaxed font-medium">
-
-            Find verified apartments, villas, PGs, commercial spaces,
-            and premium rental properties tailored for modern lifestyles.
-            Experience seamless property discovery with smart search,
-            curated listings, and trusted owners.
-
-        </p>
-
-    </div>
-
-    <!-- STATS -->
-    <div class="flex flex-wrap gap-6 sm:gap-10 pt-2">
-
-        <div>
-            <h3 class="text-2xl sm:text-3xl font-black text-white">
-                10K+
-            </h3>
-
-            <p class="text-slate-500 text-sm font-semibold uppercase tracking-wider">
-                Active Listings
-            </p>
-        </div>
-
-        <div>
-            <h3 class="text-2xl sm:text-3xl font-black text-white">
-                5K+
-            </h3>
-
-            <p class="text-slate-500 text-sm font-semibold uppercase tracking-wider">
-                Happy Clients
-            </p>
-        </div>
-
-        <div>
-            <h3 class="text-2xl sm:text-3xl font-black text-white">
-                99%
-            </h3>
-
-            <p class="text-slate-500 text-sm font-semibold uppercase tracking-wider">
-                Verified Properties
-            </p>
-        </div>
-
-    </div>
-
-    <!-- SEARCH BAR -->
-    <div class="relative max-w-2xl">
-
-        <form
-            action="{% url 'rental_list' %}"
-            method="GET"
-            class="flex items-center gap-2 p-2 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-xl shadow-2xl"
-        >
-
-            <div class="flex items-center gap-3 flex-1 px-4">
-
-                <i class="fa-solid fa-location-dot text-blue-500"></i>
-
-                <input
-                    type="text"
-                    name="q"
-                    placeholder="Search by city, locality, or property type..."
-                    class="w-full bg-transparent outline-none border-none text-white placeholder:text-slate-500 text-sm sm:text-base"
-                >
+                <span class="text-[11px] font-extrabold tracking-[0.25em] text-blue-400 uppercase">
+                    Trusted Real Estate Platform
+                </span>
 
             </div>
 
-            <button
-                type="submit"
-                class="px-5 sm:px-7 py-3 rounded-xl bg-blue-600 hover:bg-blue-500 transition-all duration-300 text-white font-bold shadow-lg shadow-blue-500/20"
-            >
+            <!-- HEADING -->
+            <div class="space-y-3">
 
-                Search
+                <h1 class="text-4xl sm:text-6xl lg:text-7xl font-black text-white leading-[0.95] tracking-tight">
 
-            </button>
+                    Discover Your <br>
 
-        </form>
+                    <span class="text-blue-500">
+                        Perfect Space
+                    </span>
 
-    </div>
+                </h1>
 
-</div>
+                <p class="text-slate-400 text-base sm:text-lg lg:text-xl max-w-2xl leading-relaxed font-medium">
+
+                    Find verified apartments, villas, PGs, commercial spaces,
+                    and premium The Residence Coperties tailored for modern lifestyles.
+                    Experience seamless property discovery with smart search,
+                    curated listings, and trusted owners.
+
+                </p>
+
+            </div>
+
+            <!-- STATS -->
+            <div class="flex flex-wrap gap-6 sm:gap-10 pt-2">
+
+                <div>
+                    <h3 class="text-2xl sm:text-3xl font-black text-white">
+                        10K+
+                    </h3>
+
+                    <p class="text-slate-500 text-sm font-semibold uppercase tracking-wider">
+                        Active Listings
+                    </p>
+                </div>
+
+                <div>
+                    <h3 class="text-2xl sm:text-3xl font-black text-white">
+                        5K+
+                    </h3>
+
+                    <p class="text-slate-500 text-sm font-semibold uppercase tracking-wider">
+                        Happy Clients
+                    </p>
+                </div>
+
+                <div>
+                    <h3 class="text-2xl sm:text-3xl font-black text-white">
+                        99%
+                    </h3>
+
+                    <p class="text-slate-500 text-sm font-semibold uppercase tracking-wider">
+                        Verified Properties
+                    </p>
+                </div>
+
+            </div>
+
+            <!-- SEARCH BAR -->
+            <div class="relative max-w-2xl">
+
+                <form action="{% url 'rental_list' %}" method="GET"
+                    class="flex items-center gap-2 p-2 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-xl shadow-2xl">
+
+                    <div class="flex items-center gap-3 flex-1 px-4">
+
+                        <i class="fa-solid fa-location-dot text-blue-500"></i>
+
+                        <input type="text" name="q" placeholder="Search by city, locality, or property type..."
+                            class="w-full bg-transparent outline-none border-none text-white placeholder:text-slate-500 text-sm sm:text-base">
+
+                    </div>
+
+                    <button type="submit"
+                        class="px-5 sm:px-7 py-3 rounded-xl bg-blue-600 hover:bg-blue-500 transition-all duration-300 text-white font-bold shadow-lg shadow-blue-500/20">
+
+                        Search
+
+                    </button>
+
+                </form>
+
+            </div>
+
+        </div>
 
         <!-- HERO IMAGE -->
         <div class="relative lg:ml-auto w-full max-w-lg">
@@ -136,10 +127,8 @@ href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
 
             <div class="relative glass-card rounded-[2.5rem] overflow-hidden shadow-2xl border border-white/10">
 
-                <img
-                    src="https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=2000&q=80"
-                    class="w-full h-[300px] sm:h-[500px] object-cover"
-                    alt="Luxury Property">
+                <img src="https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=2000&q=80"
+                    class="w-full h-[300px] sm:h-[500px] object-cover" alt="Luxury Property">
 
             </div>
 
@@ -169,31 +158,33 @@ href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
         {% for rental in rentals %}
 
         <!-- CARD -->
-        <article data-rental-card class="group relative glass-card rounded-2xl overflow-hidden border border-white/5 hover:border-blue-500/30 transition-all duration-300 hover:-translate-y-1">
+        <article data-rental-card
+            class="group relative glass-card rounded-2xl overflow-hidden border border-white/5 hover:border-blue-500/30 transition-all duration-300 hover:-translate-y-1">
 
             <!-- IMAGE SECTION -->
             <div class="relative h-32 sm:h-40 lg:h-44 overflow-hidden">
 
                 {% if rental.image %}
 
-                    <img
-                        src="{{ rental.image|optimized_cloudinary_url:'f_auto,q_auto,c_fill,w_600,h_400' }}"
-                        class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
-                        alt="{{ rental.title }}">
+                <img src="{{ rental.image|optimized_cloudinary_url:'f_auto,q_auto,c_fill,w_600,h_400' }}"
+                    class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+                    alt="{{ rental.title }}">
 
                 {% else %}
 
-                    <div class="w-full h-full bg-slate-800 flex items-center justify-center text-slate-500 text-[10px]">
-                        No Image
-                    </div>
+                <div class="w-full h-full bg-slate-800 flex items-center justify-center text-slate-500 text-[10px]">
+                    No Image
+                </div>
 
                 {% endif %}
 
                 <!-- Overlay -->
-                <div class="absolute inset-0 bg-gradient-to-t from-slate-950/70 to-transparent pointer-events-none"></div>
+                <div class="absolute inset-0 bg-gradient-to-t from-slate-950/70 to-transparent pointer-events-none">
+                </div>
 
                 <!-- Property Type -->
-                <div class="absolute bottom-2 left-2 z-20 bg-blue-600 text-[7px] sm:text-[8px] font-black text-white px-2 py-1 rounded">
+                <div
+                    class="absolute bottom-2 left-2 z-20 bg-blue-600 text-[7px] sm:text-[8px] font-black text-white px-2 py-1 rounded">
 
                     {{ rental.property_type|default:"Property" }}
 
@@ -201,27 +192,26 @@ href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
 
                 <!-- Saved Badge -->
                 <div class="absolute top-3 left-3 z-[90]">
-                    <span data-wishlist-badge class="px-2 py-1 rounded-full text-[9px] font-black tracking-wide bg-red-500/20 text-red-200 border border-red-500/30 backdrop-blur-md transition-opacity {% if rental.id in wishlisted_rental_ids %}opacity-100{% else %}opacity-0{% endif %}">
+                    <span data-wishlist-badge
+                        class="px-2 py-1 rounded-full text-[9px] font-black tracking-wide bg-red-500/20 text-red-200 border border-red-500/30 backdrop-blur-md transition-opacity {% if rental.id in wishlisted_rental_ids %}opacity-100{% else %}opacity-0{% endif %}">
                         Saved
                     </span>
                 </div>
 
                 <!-- Wishlist Button -->
-                <form
-                    action="{% url 'toggle_wishlist' rental.id %}"
-                    method="POST"
+                <form action="{% url 'toggle_wishlist' rental.id %}" method="POST"
                     class="js-wishlist-form absolute top-3 right-3 z-[100]">
 
                     {% csrf_token %}
 
-                    <button
-                        type="submit"
+                    <button type="submit"
                         data-wishlisted="{% if rental.id in wishlisted_rental_ids %}1{% else %}0{% endif %}"
                         aria-pressed="{% if rental.id in wishlisted_rental_ids %}true{% else %}false{% endif %}"
                         class="wishlist-btn w-9 h-9 rounded-full bg-black/50 backdrop-blur-md border border-white/10 flex items-center justify-center text-white hover:bg-red-500/80 transition-all duration-300 active:scale-90 shadow-lg"
                         aria-label="{% if rental.id in wishlisted_rental_ids %}Remove from wishlist{% else %}Add to wishlist{% endif %}">
 
-                        <i class="{% if rental.id in wishlisted_rental_ids %}fa-solid fa-heart text-red-500{% else %}fa-regular fa-heart{% endif %} text-lg"></i>
+                        <i
+                            class="{% if rental.id in wishlisted_rental_ids %}fa-solid fa-heart text-red-500{% else %}fa-regular fa-heart{% endif %} text-lg"></i>
 
                     </button>
 
@@ -267,29 +257,25 @@ href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
                     <!-- VIEW BUTTON -->
                     <div class="flex items-center gap-2">
                         {% if rental.is_owner %}
-                            <!-- EDIT BUTTON -->
-                            <a href="{% url 'rental_edit' rental.slug %}"
-                               title="Edit Listing"
-                               class="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-white/5 border border-white/10 flex items-center justify-center hover:bg-yellow-500/80 transition-all duration-300 active:scale-95">
-                                <i class="fa-solid fa-pencil text-[10px] sm:text-xs text-white"></i>
-                            </a>
+                        <!-- EDIT BUTTON -->
+                        <a href="{% url 'rental_edit' rental.slug %}" title="Edit Listing"
+                            class="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-white/5 border border-white/10 flex items-center justify-center hover:bg-yellow-500/80 transition-all duration-300 active:scale-95">
+                            <i class="fa-solid fa-pencil text-[10px] sm:text-xs text-white"></i>
+                        </a>
 
-                            <!-- DELETE BUTTON -->
-                            <form action="{% url 'rental_delete' rental.slug %}" method="POST" class="m-0">
-                                {% csrf_token %}
-                                <button type="submit"
-                                        title="Delete Listing"
-                                        onclick="return confirm('Are you sure you want to delete this listing?');"
-                                        class="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-white/5 border border-white/10 flex items-center justify-center hover:bg-red-600/80 transition-all duration-300 active:scale-95">
-                                    <i class="fa-solid fa-trash text-[10px] sm:text-xs text-white"></i>
-                                </button>
-                            </form>
+                        <!-- DELETE BUTTON -->
+                        <form action="{% url 'rental_delete' rental.slug %}" method="POST" class="m-0">
+                            {% csrf_token %}
+                            <button type="submit" title="Delete Listing"
+                                onclick="return confirm('Are you sure you want to delete this listing?');"
+                                class="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-white/5 border border-white/10 flex items-center justify-center hover:bg-red-600/80 transition-all duration-300 active:scale-95">
+                                <i class="fa-solid fa-trash text-[10px] sm:text-xs text-white"></i>
+                            </button>
+                        </form>
                         {% endif %}
 
                         <!-- VIEW BUTTON -->
-                        <a
-                            href="{% url 'rental_detail' rental.slug %}"
-                            title="View Details"
+                        <a href="{% url 'rental_detail' rental.slug %}" title="View Details"
                             class="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-white/5 border border-white/10 flex items-center justify-center hover:bg-blue-600 transition-all duration-300 active:scale-95">
 
                             <i class="fa-solid fa-arrow-right text-[10px] sm:text-xs text-white"></i>
@@ -322,38 +308,36 @@ href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
 
 <!-- STYLES -->
 <style>
-
-body{
-    background:#020617;
-}
-
-/* GLASS EFFECT */
-.glass-card{
-    background:rgba(15,23,42,0.55);
-    backdrop-filter:blur(22px);
-    -webkit-backdrop-filter:blur(22px);
-}
-
-/* Smooth hover */
-article{
-    transition:all .35s ease;
-}
-
-/* Wishlist */
-.wishlist-btn{
-    cursor:pointer;
-}
-
-/* Mobile optimization */
-@media(max-width:640px){
-
-    .wishlist-btn{
-        width:34px;
-        height:34px;
+    body {
+        background: #020617;
     }
 
-}
+    /* GLASS EFFECT */
+    .glass-card {
+        background: rgba(15, 23, 42, 0.55);
+        backdrop-filter: blur(22px);
+        -webkit-backdrop-filter: blur(22px);
+    }
 
+    /* Smooth hover */
+    article {
+        transition: all .35s ease;
+    }
+
+    /* Wishlist */
+    .wishlist-btn {
+        cursor: pointer;
+    }
+
+    /* Mobile optimization */
+    @media(max-width:640px) {
+
+        .wishlist-btn {
+            width: 34px;
+            height: 34px;
+        }
+
+    }
 </style>
 
 {% endblock %}

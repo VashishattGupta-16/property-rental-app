@@ -3,12 +3,13 @@
 {% block content %}
 <div class="min-h-[80vh] flex items-center justify-center px-4">
     <div class="glass-card max-w-md w-full p-12 text-center shadow-2xl border-white/10 relative overflow-hidden">
-        
+
         <div class="absolute -top-10 -right-10 w-32 h-32 bg-sky-500/10 rounded-full blur-3xl"></div>
-        
+
         <div class="relative mx-auto w-24 h-24 mb-8">
             <div class="absolute inset-0 bg-sky-500/20 rounded-full animate-ping"></div>
-            <div class="relative w-24 h-24 bg-sky-500 rounded-full flex items-center justify-center text-white shadow-lg border-4 border-white/20">
+            <div
+                class="relative w-24 h-24 bg-sky-500 rounded-full flex items-center justify-center text-white shadow-lg border-4 border-white/20">
                 <i class="fa-solid fa-shield-check text-3xl"></i>
             </div>
         </div>
@@ -16,17 +17,20 @@
         <h1 class="text-[2.5rem] font-black tracking-tighter text-[var(--text-main)] leading-tight mb-4">
             Session <br><span class="text-sky-500">Ended Safely</span>
         </h1>
-        
+
         <p class="text-[var(--text-muted)] text-sm font-medium mb-10 leading-relaxed px-4">
-            Your account has been securely signed out. Thank you for using <span class="font-bold text-[var(--text-main)]">RentalPro</span>.
+            Your account has been securely signed out. Thank you for using <span
+                class="font-bold text-[var(--text-main)]">The Residence Co</span>.
         </p>
 
         <div class="flex flex-col gap-4">
-            <a href="{% url 'account_login' %}" class="btn-primary w-full py-4 text-[10px] font-black uppercase tracking-[0.2em] shadow-xl shadow-sky-500/20">
+            <a href="{% url 'account_login' %}"
+                class="btn-primary w-full py-4 text-[10px] font-black uppercase tracking-[0.2em] shadow-xl shadow-sky-500/20">
                 Sign In Again
             </a>
-            
-            <a href="{% url 'rental_list' %}" class="text-[var(--text-main)] text-[10px] font-black uppercase tracking-[0.2em] hover:text-sky-500 transition-all duration-300">
+
+            <a href="{% url 'rental_list' %}"
+                class="text-[var(--text-main)] text-[10px] font-black uppercase tracking-[0.2em] hover:text-sky-500 transition-all duration-300">
                 <i class="fa-solid fa-arrow-left mr-2"></i> Return to Marketplace
             </a>
         </div>

@@ -52,7 +52,7 @@ ALLOWED_HOSTS = [
     host.strip()
     for host in os.getenv(
         "DJANGO_ALLOWED_HOSTS",
-        "127.0.0.1,localhost,rentalpro-web.onrender.com,.onrender.com",
+        "127.0.0.1,localhost,theresidenceco-web.onrender.com,.onrender.com",
     ).split(",")
 ]
 
@@ -60,7 +60,7 @@ CSRF_TRUSTED_ORIGINS = [
     origin.strip()
     for origin in os.getenv(
         "DJANGO_CSRF_TRUSTED_ORIGINS",
-        "https://rentalpro-web.onrender.com",
+        "https://theresidenceco-web.onrender.com",
     ).split(",")
 ]
 
@@ -97,7 +97,7 @@ INSTALLED_APPS = [
     "allauth.socialaccount.providers.google",
 
     # Local Apps
-    "tweet.apps.TweetConfig",
+    "rentals.apps.RentalsConfig",
 ]
 
 # =========================================================
@@ -105,7 +105,7 @@ INSTALLED_APPS = [
 # =========================================================
 
 MIDDLEWARE = [
-    "tweet.middleware.UptimeRobotMiddleware",
+    "rentals.middleware.UptimeRobotMiddleware",
     "django.middleware.security.SecurityMiddleware",
 
     # WhiteNoise
@@ -122,7 +122,7 @@ MIDDLEWARE = [
     "allauth.account.middleware.AccountMiddleware",
 
     # Custom Middleware
-    "tweet.middleware.ProfileCompletionMiddleware",
+    "rentals.middleware.ProfileCompletionMiddleware",
 ]
 
 # =========================================================
@@ -184,7 +184,7 @@ else:
 # CUSTOM USER MODEL
 # =========================================================
 
-AUTH_USER_MODEL = "tweet.CustomUser"
+AUTH_USER_MODEL = "rentals.CustomUser"
 
 # =========================================================
 # AUTHENTICATION BACKENDS

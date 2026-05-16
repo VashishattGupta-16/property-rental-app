@@ -1,13 +1,13 @@
 # 1. Databases are declared in their own top-level list
 databases:
-  - name: rentalpro-db
+  - name: The Residence Co-db
     plan: free
     databaseName: rental_db
     user: rental_admin # 🌟 Changed from "postgres" to a valid custom username
 # 2. Services (Web apps, workers, etc.) are declared here
 services:
   - type: web
-    name: rentalpro-web
+    name: The Residence Co-web
     plan: free
     runtime: python
     buildCommand: |
@@ -26,7 +26,7 @@ services:
       # This links securely to the database block declared above
       - key: DATABASE_URL
         fromDatabase:
-          name: rentalpro-db
+          name: The Residence Co-db
           property: connectionString
 
       # Cloudinary Credentials (values input via Render Dashboard)

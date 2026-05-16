@@ -1,7 +1,7 @@
 {% extends "layout.html" %}
 {% load i18n %}
 
-{% block title %}{% trans "Google Sign-In Failed" %} | RentalPro{% endblock %}
+{% block title %}{% trans "Google Sign-In Failed" %} | The Residence Co{% endblock %}
 
 {% block content %}
 <section class="min-h-screen flex items-center justify-center px-6 py-20">
@@ -17,7 +17,8 @@
             {% trans "We could not complete the login." %}
         </h1>
         <p class="mt-5 text-sm font-medium leading-7 text-slate-400">
-            {% trans "Please try again. If this keeps happening, the Google OAuth client ID and client secret on Render must match the same Web application in Google Cloud Console." %}
+            {% trans "Please try again. If this keeps happening, the Google OAuth client ID and client secret on Render
+            must match the same Web application in Google Cloud Console." %}
         </p>
 
         {% if auth_error %}
@@ -28,10 +29,12 @@
         {% endif %}
 
         <div class="mt-8 flex flex-col gap-3 sm:flex-row">
-            <a href="{% url 'account_login' %}" class="btn-pro flex-1 py-4 text-center text-[0.7rem] font-black uppercase tracking-[0.2em]">
+            <a href="{% url 'account_login' %}"
+                class="btn-pro flex-1 py-4 text-center text-[0.7rem] font-black uppercase tracking-[0.2em]">
                 {% trans "Try Again" %}
             </a>
-            <a href="{% url 'rental_list' %}" class="flex-1 rounded-2xl border border-white/10 px-5 py-4 text-center text-[0.7rem] font-black uppercase tracking-[0.2em] text-slate-300 transition hover:border-sky-400 hover:text-sky-300">
+            <a href="{% url 'rental_list' %}"
+                class="flex-1 rounded-2xl border border-white/10 px-5 py-4 text-center text-[0.7rem] font-black uppercase tracking-[0.2em] text-slate-300 transition hover:border-sky-400 hover:text-sky-300">
                 {% trans "Back to Rentals" %}
             </a>
         </div>

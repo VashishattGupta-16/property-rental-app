@@ -1,10 +1,11 @@
 {% load static %}
 <!DOCTYPE html>
 <html lang="en" class="scroll-smooth">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>RentalPro</title>
+    <title>The Residence Co</title>
 
     <!-- Font Awesome for icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
@@ -15,21 +16,27 @@
 
     <!-- NOTE: {% load tailwind_tags %} and {% tailwind_css %} are NOT used anywhere. -->
 </head>
+
 <body class="bg-slate-50 text-slate-800">
 
     <nav class="bg-white/80 backdrop-blur-lg shadow-sm sticky top-0 z-50">
         <div class="mx-auto max-w-[1400px] px-6">
             <div class="flex justify-between items-center h-16">
                 <a href="{% url 'rental_list' %}" class="text-2xl font-bold text-sky-500">
-                    RentalPro
+                    The Residence Co
                 </a>
                 <div class="flex items-center gap-6">
                     {% if user.is_authenticated %}
-                        <span class="text-sm font-medium hidden sm:block">Welcome, {{ user.first_name|default:user.username }}</span>
-                        <a href="{% url 'account_logout' %}" class="text-sm font-semibold text-slate-600 hover:text-sky-500 transition-colors">Logout</a>
+                    <span class="text-sm font-medium hidden sm:block">Welcome, {{ user.first_name|default:user.username
+                        }}</span>
+                    <a href="{% url 'account_logout' %}"
+                        class="text-sm font-semibold text-slate-600 hover:text-sky-500 transition-colors">Logout</a>
                     {% else %}
-                        <a href="{% url 'account_login' %}" class="text-sm font-semibold text-slate-600 hover:text-sky-500 transition-colors">Login</a>
-                        <a href="{% url 'account_signup' %}" class="px-4 py-2 text-sm bg-sky-500 hover:bg-sky-600 text-white rounded-lg font-semibold transition-colors shadow-md shadow-sky-500/20">Sign Up</a>
+                    <a href="{% url 'account_login' %}"
+                        class="text-sm font-semibold text-slate-600 hover:text-sky-500 transition-colors">Login</a>
+                    <a href="{% url 'account_signup' %}"
+                        class="px-4 py-2 text-sm bg-sky-500 hover:bg-sky-600 text-white rounded-lg font-semibold transition-colors shadow-md shadow-sky-500/20">Sign
+                        Up</a>
                     {% endif %}
                 </div>
             </div>
@@ -43,9 +50,10 @@
 
     <footer class="bg-slate-100 border-t border-slate-200 mt-24">
         <div class="mx-auto max-w-[1400px] px-6 py-8 text-center text-sm text-slate-500">
-            <p>&copy; {% now "Y" %} RentalPro. All rights reserved.</p>
+            <p>&copy; {% now "Y" %} The Residence Co. All rights reserved.</p>
         </div>
     </footer>
 
 </body>
+
 </html>
