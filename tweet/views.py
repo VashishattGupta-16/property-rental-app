@@ -104,25 +104,6 @@ def rental_detail(request, slug):
         }
     )
 
-
-def room_describe(request, rental_id):
-
-    rental = get_object_or_404(
-        Rental.objects
-        .select_related('user')
-        .prefetch_related('gallery'),
-        pk=rental_id
-    )
-
-    return render(
-        request,
-        'room_describe.html',
-        {
-            'rental': rental,
-        }
-    )
-
-
 # =========================================================
 # EDIT PROPERTY
 # =========================================================

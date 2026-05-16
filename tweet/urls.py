@@ -16,7 +16,7 @@ urlpatterns = [
     path('property/<slug:slug>/delete/', views.rental_delete, name='rental_delete'),
 
     # ================= PROPERTY DETAIL =================
-    path('rentals/<int:rental_id>/', views.room_describe, name='room_describe'), # Moved here for clarity
+    # path('rentals/<int:rental_id>/', views.room_describe, name='room_describe'), # Removed redundant URL
     path('property/<slug:slug>/', views.rental_detail, name='rental_detail'),
     path('rentals/<int:rental_id>/contact/', views.rental_contact, name='rental_contact'),
 

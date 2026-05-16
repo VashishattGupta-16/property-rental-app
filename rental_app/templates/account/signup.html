@@ -37,17 +37,16 @@
                 <h1 class="text-3xl font-black tracking-tighter text-[var(--text-main)]">Create Account</h1>
             </header>
 
-          
-                    <a href="{% provider_login_url 'google' %}" class="flex items-center justify-center gap-3 w-full bg-[var(--bg)] border border-[var(--surface-border)] py-4 rounded-2xl text-[0.7rem] font-black hover:bg-[var(--surface-border)] transition-all">
-                        <img src="https://www.gstatic.com/images/branding/product/1x/gsa_512dp.png" class="w-4 h-4" alt="G">
-                        Register with Google
-                    </a>
-                    
-                    <a href="{% url 'account_login' %}" class="block w-full text-center py-2 text-[0.65rem] font-black uppercase tracking-[0.3em] text-[var(--text-muted)] hover:text-[var(--accent)] transition-colors">
-                        Already Registered? <span class="text-[var(--text-main)] ml-1">Sign In</span>
-                    </a>
-                </div>
-            </form>
+            <div> {# Replaced <form> with <div> as it's not a submission form #}
+                <a href="{% provider_login_url 'google' %}" class="flex items-center justify-center gap-3 w-full bg-[var(--bg)] border border-[var(--surface-border)] py-4 rounded-2xl text-[0.7rem] font-black hover:bg-[var(--surface-border)] transition-all">
+                    <img src="https://www.gstatic.com/images/branding/product/1x/gsa_512dp.png" class="w-4 h-4" alt="G">
+                    Register with Google
+                </a>
+                
+                <a href="{% url 'account_login' %}" class="block w-full text-center py-2 text-[0.65rem] font-black uppercase tracking-[0.3em] text-[var(--text-muted)] hover:text-[var(--accent)] transition-colors">
+                    Already Registered? <span class="text-[var(--text-main)] ml-1">Sign In</span>
+                </a>
+            </div>
         </div>
     </div>
 </div>

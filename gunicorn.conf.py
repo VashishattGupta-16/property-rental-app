@@ -14,6 +14,7 @@ class CustomLogger(Logger):
         # Apply the filter to the access logger if it exists
         access_logger = logging.getLogger("gunicorn.access")
         access_logger.addFilter(UptimeRobotFilter())
+        access_logger.propagate = False # Prevent propagation to root logger which might not have the filter
 
 logger_class = CustomLogger
 
@@ -26,4 +27,3 @@ max_requests = 1000
 max_requests_jitter = 50
 timeout = 120
 keepalive = 2
-
