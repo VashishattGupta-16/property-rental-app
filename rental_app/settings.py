@@ -42,6 +42,12 @@ DEBUG = env_bool(
     True,
 )
 
+if not DEBUG and SECRET_KEY == "django-insecure-dev-key":
+    raise ValueError(
+        "The SECRET_KEY setting must be set to a unique, secret value in production. "
+        "Please set the SECRET_KEY environment variable."
+    )
+
 ALLOWED_HOSTS = [
     host.strip()
     for host in os.getenv(
