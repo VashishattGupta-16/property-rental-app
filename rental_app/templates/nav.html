@@ -58,50 +58,52 @@
                        </div>
                     </div>
                 </div>
-
-                <!-- Logo -->
-                <a href="{% url 'index' %}" class="logo-wrap">
-                    <h1 class="logo-text">Property<span class="logo-highlight">X</span></h1>
-                </a>
             </div>
 
             <!-- ======================================
                  CENTER: Desktop Navigation
             ======================================= -->
             <div class="navbar-center">
-                
-                <a href="{% url 'rental_list' %}" class="nav-link">Explore</a>
+                <!-- Brand (centered on mobile) -->
+                <a href="{% url 'index' %}" class="logo-wrap" aria-label="Home">
+                    <h1 class="logo-text">Property<span class="logo-highlight">X</span></h1>
+                </a>
 
-                <!-- Desktop Acquire Dropdown -->
-                <div class="dropdown-container desktop-dropdown">
-                    <button class="dropdown-trigger" type="button">
-                        Acquire <i class="fa-solid fa-chevron-down dropdown-arrow"></i>
-                    </button>
-                    <div class="dropdown-menu desktop-dropdown-menu">
-                        <div class="dropdown-card">
-                            <a href="{% url 'rental_list' %}?type=VILLA" class="dropdown-item">Villas</a>
-                            <a href="{% url 'rental_list' %}?type=SHOWROOM" class="dropdown-item">Commercial Shops</a>
-                            <a href="{% url 'rental_list' %}?type=APARTMENT" class="dropdown-item">Apartments</a>
-                            <a href="{% url 'rental_list' %}?type=INDUSTRIAL_PLOT" class="dropdown-item">Plots</a>
+                <!-- Desktop Navigation Links -->
+                <div class="navbar-links">
+                    <a href="{% url 'rental_list' %}" class="nav-link">Explore</a>
+
+                    <!-- Desktop Acquire Dropdown -->
+                    <div class="dropdown-container desktop-dropdown">
+                        <button class="dropdown-trigger" type="button">
+                            Acquire <i class="fa-solid fa-chevron-down dropdown-arrow"></i>
+                        </button>
+                        <div class="dropdown-menu desktop-dropdown-menu">
+                            <div class="dropdown-card">
+                                <a href="{% url 'rental_list' %}?type=VILLA" class="dropdown-item">Villas</a>
+                                <a href="{% url 'rental_list' %}?type=SHOWROOM" class="dropdown-item">Commercial Shops</a>
+                                <a href="{% url 'rental_list' %}?type=APARTMENT" class="dropdown-item">Apartments</a>
+                                <a href="{% url 'rental_list' %}?type=INDUSTRIAL_PLOT" class="dropdown-item">Plots</a>
+                            </div>
                         </div>
                     </div>
-                </div>
 
-                <!-- Desktop Rent Dropdown -->
-                <div class="dropdown-container desktop-dropdown">
-                    <button class="dropdown-trigger" type="button">
-                        Rent <i class="fa-solid fa-chevron-down dropdown-arrow"></i>
-                    </button>
-                    <div class="dropdown-menu desktop-dropdown-menu">
-                        <div class="dropdown-card">
-                            <a href="{% url 'rental_list' %}?type=1BHK" class="dropdown-item">1 BHK</a>
-                            <a href="{% url 'rental_list' %}?type=2BHK" class="dropdown-item">2 BHK</a>
-                            <a href="{% url 'rental_list' %}?type=PG" class="dropdown-item">PGs</a>
+                    <!-- Desktop Rent Dropdown -->
+                    <div class="dropdown-container desktop-dropdown">
+                        <button class="dropdown-trigger" type="button">
+                            Rent <i class="fa-solid fa-chevron-down dropdown-arrow"></i>
+                        </button>
+                        <div class="dropdown-menu desktop-dropdown-menu">
+                            <div class="dropdown-card">
+                                <a href="{% url 'rental_list' %}?type=1BHK" class="dropdown-item">1 BHK</a>
+                                <a href="{% url 'rental_list' %}?type=2BHK" class="dropdown-item">2 BHK</a>
+                                <a href="{% url 'rental_list' %}?type=PG" class="dropdown-item">PGs</a>
+                            </div>
                         </div>
                     </div>
-                </div>
 
-                <a href="{% url 'about' %}" class="nav-link">About</a>
+                    <a href="{% url 'about' %}" class="nav-link">About</a>
+                </div>
             </div>
 
             <!-- ======================================

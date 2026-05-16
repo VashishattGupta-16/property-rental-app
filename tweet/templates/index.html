@@ -140,7 +140,7 @@
           <div class="absolute inset-0 bg-gradient-to-t from-slate-950/50 to-transparent pointer-events-none"></div>
         </div>
 
-        <div class="col-span-12 sm:col-span-5 lg:col-span-5 grid grid-cols-2 sm:grid-cols-1 gap-4">
+        <div class="col-span-12 sm:col-span-5 lg:col-span-5 grid grid-cols-1 gap-4">
           <div class="relative rounded-3xl overflow-hidden border border-white/10 glass-card lp-float-c reveal">
             <div data-parallax data-speed="0.12" data-max="140" class="h-[150px] sm:h-[160px] lg:h-[200px]">
               <img
@@ -355,23 +355,47 @@
       revealEls.forEach(el => io.observe(el));
     }
 
-    // Parallax (subtle)
+    // Parallax (subtle, no gaps)
     if (reduceMotion) return;
 
-    const items = Array.from(document.querySelectorAll("[data-parallax]"));
+    const items = Array.from(document.querySelectorAll("[data-parallax]"))
+      .map(el => ({
+        el,
+        img: el.querySelector("img"),
+        speed: Number.parseFloat(el.dataset.speed || "0.10"),
+        max: Number.parseFloat(el.dataset.max || "160"),
+      }))
+      .filter(item => item.img && !Number.isNaN(item.speed) && !Number.isNaN(item.max));
+
     if (!items.length) return;
+
+    // Prime images so we never reveal empty space during parallax on small screens.
+    for (const item of items) {
+      item.img.style.objectPosition = "50% 50%";
+      item.img.style.willChange = "translate";
+    }
 
     let ticking = false;
 
     function update() {
-      const y = window.scrollY || 0;
-      for (const el of items) {
-        const speed = Number.parseFloat(el.dataset.speed || "0.10");
-        if (Number.isNaN(speed)) continue;
-        const max = Number.parseFloat(el.dataset.max || "160");
-        const raw = y * speed;
-        const clamped = Number.isNaN(max) ? raw : Math.max(-max, Math.min(max, raw));
-        el.style.transform = `translate3d(0, ${Math.round(clamped)}px, 0)`;
+      const vh = window.innerHeight || 1;
+      const intensity = 4;
+
+      for (const item of items) {
+        const rect = item.el.getBoundingClientRect();
+        if (!rect.height) continue;
+        const centerDiff = (rect.top + rect.height / 2) - vh / 2;
+        const progress = centerDiff / vh;
+
+        const desiredRange = Math.min(item.max, item.max * item.speed * intensity);
+
+        // Images use `scale-110`, so the safe translate range is ~5% of the container height.
+        // Clamp to that to avoid the "half image / empty gap" issue on small screens.
+        const safeRange = Math.max(0, rect.height * 0.05 - 1);
+        const range = Math.min(desiredRange, safeRange);
+        const offset = Math.max(-range, Math.min(range, -progress * range));
+
+        item.img.style.translate = `0px ${Math.round(offset)}px`;
       }
       ticking = false;
     }
