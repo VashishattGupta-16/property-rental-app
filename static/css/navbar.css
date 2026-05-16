@@ -16,6 +16,7 @@
   background: var(--nav-bg);
   border-bottom: 1px solid var(--nav-border);
   backdrop-filter: blur(18px);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.22);
 }
 
 .navbar-shell {
@@ -117,6 +118,20 @@
   border-color: rgba(56, 189, 248, 0.35);
 }
 
+.profile-trigger {
+  appearance: none;
+  border: 0;
+  padding: 0;
+  background: transparent;
+  cursor: pointer;
+}
+
+.profile-trigger:focus-visible {
+  outline: 2px solid rgba(56, 189, 248, 0.6);
+  outline-offset: 4px;
+  border-radius: 999px;
+}
+
 .dropdown-arrow {
   font-size: 0.85em;
   opacity: 0.9;
@@ -127,6 +142,7 @@
   top: calc(100% + 0.65rem);
   left: 0;
   min-width: 14rem;
+  max-width: calc(100vw - 2rem);
   display: none;
   z-index: 60;
 }
@@ -143,6 +159,12 @@
   padding: 0.5rem;
   box-shadow: var(--nav-shadow);
   backdrop-filter: blur(22px);
+}
+
+.dropdown-sep {
+  border: 0;
+  border-top: 1px solid var(--nav-border);
+  margin: 0.5rem 0;
 }
 
 .dropdown-item {
@@ -190,6 +212,52 @@
 
 .navbar-center {
   display: none;
+}
+
+/* Mobile dropdown sizing */
+.mobile-dropdown .dropdown-menu {
+  width: min(92vw, 22rem);
+}
+
+.mobile-dropdown .dropdown-card {
+  max-height: calc(100vh - 110px);
+  overflow: auto;
+  overscroll-behavior: contain;
+}
+
+/* Accordion (mobile menu) */
+.accordion-btn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.7rem 0.85rem;
+  border-radius: 1rem;
+  border: 0;
+  background: transparent;
+  color: var(--nav-text);
+  font-weight: 900;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: background 0.15s ease, transform 0.15s ease;
+}
+
+.accordion-btn:hover {
+  background: rgba(56, 189, 248, 0.10);
+}
+
+.accordion-btn i {
+  transition: transform 0.18s ease;
+  opacity: 0.9;
+}
+
+.accordion-btn[aria-expanded="true"] i {
+  transform: rotate(180deg);
+}
+
+.accordion-content {
+  padding: 0.25rem 0 0.15rem;
 }
 
 @media (min-width: 768px) {
