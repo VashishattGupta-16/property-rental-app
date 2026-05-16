@@ -1,5 +1,21 @@
 from django.shortcuts import redirect
 from django.urls import reverse
+from django.http import HttpResponse
+
+
+class UptimeRobotMiddleware:
+    """
+    Intercepts UptimeRobot health checks and returns a 200 OK response immediately
+    to avoid processing the full Django request lifecycle and generating verbose logs.
+    """
+    def __init__(self, get_response):
+        self.get_response = get_response
+
+    def __call__(self, request):
+        user_agent = request.META.get('HTTP_USER_AGENT', '')
+        if 'UptimeRobot' in user_agent:
+            return HttpResponse("OK")
+        return self.get_response(request)
 
 
 class ProfileCompletionMiddleware:

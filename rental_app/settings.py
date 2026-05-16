@@ -99,6 +99,7 @@ INSTALLED_APPS = [
 # =========================================================
 
 MIDDLEWARE = [
+    "tweet.middleware.UptimeRobotMiddleware",
     "django.middleware.security.SecurityMiddleware",
 
     # WhiteNoise
@@ -358,13 +359,17 @@ DEFAULT_AUTO_FIELD = (
 LOGGING = {
     "version": 1,
     "disable_existing_loggers": False,
-
+    "filters": {
+        "ignore_uptimerobot": {
+            "()": "rental_app.log_filters.UptimeRobotFilter",
+        },
+    },
     "handlers": {
         "console": {
             "class": "logging.StreamHandler",
+            "filters": ["ignore_uptimerobot"],
         },
     },
-
     "root": {
         "handlers": ["console"],
         "level": "DEBUG",
