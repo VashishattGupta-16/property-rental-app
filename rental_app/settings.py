@@ -97,7 +97,7 @@ INSTALLED_APPS = [
     "allauth.socialaccount.providers.google",
 
     # Local Apps
-    "rentals.apps.RentalsConfig",
+    "tweet.apps.TweetConfig",
 ]
 
 # =========================================================
@@ -105,7 +105,7 @@ INSTALLED_APPS = [
 # =========================================================
 
 MIDDLEWARE = [
-    "rentals.middleware.UptimeRobotMiddleware",
+    "tweet.middleware.UptimeRobotMiddleware",
     "django.middleware.security.SecurityMiddleware",
 
     # WhiteNoise
@@ -122,7 +122,7 @@ MIDDLEWARE = [
     "allauth.account.middleware.AccountMiddleware",
 
     # Custom Middleware
-    "rentals.middleware.ProfileCompletionMiddleware",
+    "tweet.middleware.ProfileCompletionMiddleware",
 ]
 
 # =========================================================
@@ -184,7 +184,7 @@ else:
 # CUSTOM USER MODEL
 # =========================================================
 
-AUTH_USER_MODEL = "rentals.CustomUser"
+AUTH_USER_MODEL = "tweet.CustomUser"
 
 # =========================================================
 # AUTHENTICATION BACKENDS
