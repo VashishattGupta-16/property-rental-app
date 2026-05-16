@@ -37,30 +37,7 @@
                 <h1 class="text-3xl font-black tracking-tighter text-[var(--text-main)]">Create Account</h1>
             </header>
 
-            <form method="post" novalidate class="space-y-6">
-                {% csrf_token %}
-                <div class="space-y-5">
-                    {% for field in form %}
-                    <div class="space-y-2">
-                        <label class="flex justify-between items-center px-1">
-                            <span class="text-[0.65rem] font-black uppercase tracking-[0.2em] opacity-40 text-[var(--text-main)]">{{ field.label }}</span>
-                            {% if field.errors %}<span class="text-[0.6rem] font-bold text-rose-500 uppercase tracking-widest">Error</span>{% endif %}
-                        </label>
-                        {{ field }}
-                        {% if field.help_text %}<p class="text-[0.6rem] text-[var(--text-muted)] opacity-50">{{ field.help_text|striptags }}</p>{% endif %}
-                    </div>
-                    {% endfor %}
-                </div>
-
-                <div class="pt-6 space-y-4">
-                    <button type="submit" class="w-full btn-pro py-5 text-[0.75rem] border-none shadow-xl">ESTABLISH ACCOUNT</button>
-                    
-                    <div class="relative flex py-2 items-center">
-                        <div class="flex-grow border-t border-[var(--surface-border)]"></div>
-                        <span class="flex-shrink mx-4 text-[0.6rem] font-black text-[var(--text-muted)] uppercase tracking-widest">Or</span>
-                        <div class="flex-grow border-t border-[var(--surface-border)]"></div>
-                    </div>
-
+          
                     <a href="{% provider_login_url 'google' %}" class="flex items-center justify-center gap-3 w-full bg-[var(--bg)] border border-[var(--surface-border)] py-4 rounded-2xl text-[0.7rem] font-black hover:bg-[var(--surface-border)] transition-all">
                         <img src="https://www.gstatic.com/images/branding/product/1x/gsa_512dp.png" class="w-4 h-4" alt="G">
                         Register with Google
