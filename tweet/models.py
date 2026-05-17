@@ -1,6 +1,7 @@
 import os
 from django.db import models
 from django.contrib.auth.models import AbstractUser, BaseUserManager
+import uuid
 from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.core.validators import RegexValidator
@@ -106,6 +107,12 @@ class CustomUser(AbstractUser):
 # =========================
 
 class PropertyShare(models.Model):
+    id = models.UUIDField(
+        primary_key=True,
+        default=uuid.uuid4,
+        editable=False
+    )
+
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.SET_NULL,
@@ -132,7 +139,7 @@ class PropertyShare(models.Model):
         choices=Platform.choices
     )
 
-    created_at = models.DateTimeField(auto_now_add=True)
+    created_at = models.DateTimeField(auto_now_add=True, db_index=True)
 
     def __str__(self):
         return f"{self.property.title} → {self.platform}"
@@ -142,30 +149,58 @@ class PropertyShare(models.Model):
 # PROPERTY LEAD
 # =========================
 
-class PropertyLead(models.Model):
+class PropertyVisit(models.Model):
+    """Represents a visit to a property from a shared link."""
+    share = models.ForeignKey(
+        PropertyShare,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="visits"
+    )
+
+    # The user who *clicked* the link, if they are logged in
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.SET_NULL,
         null=True,
         blank=True,
-        related_name="property_leads"
+        related_name="property_visits"
     )
 
+    ip_address = models.GenericIPAddressField(null=True, blank=True)
+    user_agent = models.TextField(blank=True, null=True)
+    visited_at = models.DateTimeField(auto_now_add=True, db_index=True)
+
+    def __str__(self):
+        return f"Visit for {self.share.property.title} via {self.share.platform}"
+
+
+# =========================
+# PROPERTY INQUIRY
+# =========================
+
+class PropertyInquiry(models.Model):
+    """Represents a conversion event (e.g., a contact form submission)."""
+    visit = models.OneToOneField(
+        PropertyVisit,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="inquiry"
+    )
     property = models.ForeignKey(
         'Rental',
         on_delete=models.CASCADE,
-        related_name="leads"
+        related_name="inquiries"
     )
-
-    source = models.CharField(max_length=50)  # whatsapp, facebook, direct
-    ip_address = models.GenericIPAddressField(null=True, blank=True)
-    user_agent = models.TextField(blank=True, null=True)
-    converted = models.BooleanField(default=False)
-    clicked_at = models.DateTimeField(auto_now_add=True)
+    name = models.CharField(max_length=100)
+    phone = models.CharField(max_length=20)
+    message = models.TextField(blank=True)
+    created_at = models.DateTimeField(auto_now_add=True, db_index=True)
 
     def __str__(self):
-        return f"{self.property.title} → {self.source}"
-
+        return f"Inquiry for {self.property.title} from {self.name}"
 
 # =========================
 # RENTAL MODEL

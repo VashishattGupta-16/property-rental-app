@@ -237,15 +237,30 @@ def rental_delete(request, slug):
 @login_required
 def rental_contact(request, rental_id):
     rental = get_object_or_404(Rental, pk=rental_id)
+    success = False
 
     if request.method == 'POST':
-        return render(request, 'rental_contact.html', {
-            'rental': rental,
-            'success': True
-        })
+        # This is a simplified example. Use a Django Form for production.
+        name = request.POST.get('name')
+        phone = request.POST.get('phone')
+        message = request.POST.get('message')
+
+        # Get the visit_id from the session if it exists
+        visit_id = request.session.get('property_visit_id')
+        visit = None
+        if visit_id:
+            try:
+                visit = PropertyVisit.objects.get(pk=visit_id)
+            except PropertyVisit.DoesNotExist:
+                visit = None # The visit might have been deleted, proceed without it
+
+        PropertyInquiry.objects.create(
+            visit=visit, property=rental, name=name, phone=phone, message=message
+        )
+        success = True
 
     return render(request, 'rental_contact.html', {
-        'rental': rental
+        'rental': rental, 'success': success
     })
 
 

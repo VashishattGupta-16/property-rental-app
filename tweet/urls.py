@@ -2,63 +2,23 @@ from django.urls import path
 from . import views
 
 urlpatterns = [
+    path("", views.index, name="index"),
+    path("rentals/", views.rental_list, name="rental_list"),
+    path("rentals/create/", views.rental_create, name="rental_create"),
+    path("rentals/<slug:slug>/", views.rental_detail, name="rental_detail"),
+    path("rentals/<slug:slug>/edit/", views.rental_edit, name="rental_edit"),
+    path("rentals/<slug:slug>/delete/", views.rental_delete, name="rental_delete"),
+    path("rentals/<int:rental_id>/contact/", views.rental_contact, name="rental_contact"),
 
-    # =========================
-    # HOME
-    # =========================
-    path('', views.index, name='index'),
+    # Share and Visit Tracking URLs
+    path("api/share/<slug:slug>/", views.create_share_link, name="create_share_link"),
+    path("track/<uuid:share_id>/", views.track_visit, name="track_visit"),
 
+    path("profile/", views.profile, name="profile"),
+    path("profile/setup/", views.profile_setup, name="profile_setup"),
+    path("wishlist/", views.wishlist, name="wishlist"),
+    path("wishlist/toggle/<int:rental_id>/", views.toggle_wishlist, name="toggle_wishlist"),
 
-    # =========================
-    # RENTALS LISTING
-    # =========================
-    path('rentals/', views.rental_list, name='rental_list'),
-
-
-    # =========================
-    # PROPERTY CRUD
-    # =========================
-    path('property/create/', views.rental_create, name='rental_create'),
-    path('property/<slug:slug>/edit/', views.rental_edit, name='rental_edit'),
-    path('property/<slug:slug>/delete/', views.rental_delete, name='rental_delete'),
-
-
-    # =========================
-    # PROPERTY DETAIL
-    # =========================
-    path('property/<slug:slug>/', views.rental_detail, name='rental_detail'),
-    path('rentals/<int:rental_id>/contact/', views.rental_contact, name='rental_contact'),
-
-
-    # =========================
-    # USER
-    # =========================
-    path('profile/', views.profile, name='profile'),
-    path('profile/setup/', views.profile_setup, name='profile_setup'),
-
-
-    # =========================
-    # WISHLIST
-    # =========================
-    path('wishlist/', views.wishlist, name='wishlist'),
-    path('wishlist/toggle/<int:rental_id>/', views.toggle_wishlist, name='toggle_wishlist'),
-
-
-    # =========================
-    # ABOUT
-    # =========================
-    path('about/', views.about, name='about'),
-
-
-    # =========================
-    # SYSTEM
-    # =========================
-    path('ping/', views.ping_view, name='ping'),
-
-
-    # =========================
-    # SHARE + LEAD TRACKING
-    # =========================
-    path('share/<slug:slug>/<str:platform>/', views.track_share, name='track_share'),
-    path('lead/<slug:slug>/<str:source>/', views.track_lead, name='track_lead'),
+    path("about/", views.about, name="about"),
+    path("ping/", views.ping_view, name="ping"),
 ]
