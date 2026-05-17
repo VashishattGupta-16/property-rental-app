@@ -114,6 +114,48 @@ def rental_detail(request, slug):
 
 
 # =========================================================
+# SHARE & VISIT TRACKING
+# =========================================================
+
+@require_POST
+def create_share_link(request, slug):
+    """
+    API endpoint to log a share action and return a unique share ID.
+    The frontend calls this via POST, gets a share_id, and constructs
+    the shareable URL.
+    """
+    rental = get_object_or_404(Rental, slug=slug)
+    platform = request.POST.get('platform')
+
+    if not platform:
+        return JsonResponse({'error': 'Platform not specified'}, status=400)
+
+    share = PropertyShare.objects.create(
+        user=request.user if request.user.is_authenticated else None,
+        property=rental,
+        platform=platform
+    )
+
+    return JsonResponse({'share_id': share.id})
+
+
+def track_visit(request, share_id):
+    """
+    This is the destination for a shared link. It records the visit,
+    attributes it to the original share, and redirects to the property.
+    """
+    share = get_object_or_404(PropertyShare.objects.select_related('property'), pk=share_id)
+
+    visit = PropertyVisit.objects.create(
+        share=share,
+        user=request.user if request.user.is_authenticated else None,
+        ip_address=get_client_ip(request),
+        user_agent=request.META.get('HTTP_USER_AGENT', '')
+    )
+    request.session['property_visit_id'] = visit.pk
+    return redirect('rental_detail', slug=share.property.slug)
+
+# =========================================================
 # EDIT PROPERTY
 # =========================================================
 
