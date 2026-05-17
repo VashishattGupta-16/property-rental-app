@@ -3,34 +3,62 @@ from . import views
 
 urlpatterns = [
 
-    # ================= HOME =================
-    # Public facing pages
+    # =========================
+    # HOME
+    # =========================
     path('', views.index, name='index'),
 
-    # ================= RENTALS =================
+
+    # =========================
+    # RENTALS LISTING
+    # =========================
     path('rentals/', views.rental_list, name='rental_list'),
 
-    # ================= PROPERTY CRUD =================
+
+    # =========================
+    # PROPERTY CRUD
+    # =========================
     path('property/create/', views.rental_create, name='rental_create'),
     path('property/<slug:slug>/edit/', views.rental_edit, name='rental_edit'),
     path('property/<slug:slug>/delete/', views.rental_delete, name='rental_delete'),
 
-    # ================= PROPERTY DETAIL =================
-    # path('rentals/<int:rental_id>/', views.room_describe, name='room_describe'), # Removed redundant URL
+
+    # =========================
+    # PROPERTY DETAIL
+    # =========================
     path('property/<slug:slug>/', views.rental_detail, name='rental_detail'),
     path('rentals/<int:rental_id>/contact/', views.rental_contact, name='rental_contact'),
 
-    # ================= USER =================
-    path('profile/', views.profile, name='profile'), # Consolidated
+
+    # =========================
+    # USER
+    # =========================
+    path('profile/', views.profile, name='profile'),
     path('profile/setup/', views.profile_setup, name='profile_setup'),
 
-    # ================= WISHLIST =================
-    path('wishlist/', views.wishlist, name='wishlist'), # Consolidated
+
+    # =========================
+    # WISHLIST
+    # =========================
+    path('wishlist/', views.wishlist, name='wishlist'),
     path('wishlist/toggle/<int:rental_id>/', views.toggle_wishlist, name='toggle_wishlist'),
 
-    # ================= ABOUT =================
+
+    # =========================
+    # ABOUT
+    # =========================
     path('about/', views.about, name='about'),
 
-    # ================= HEALTH CHECK =================
+
+    # =========================
+    # SYSTEM
+    # =========================
     path('ping/', views.ping_view, name='ping'),
+
+
+    # =========================
+    # SHARE + LEAD TRACKING
+    # =========================
+    path('share/<slug:slug>/<str:platform>/', views.track_share, name='track_share'),
+    path('lead/<slug:slug>/<str:source>/', views.track_lead, name='track_lead'),
 ]

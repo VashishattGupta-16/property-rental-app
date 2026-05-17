@@ -27,13 +27,14 @@ phone_validator = RegexValidator(
 
 
 # =========================
-# CUSTOM USER MANAGER
+# USER MANAGER
 # =========================
 
 class CustomUserManager(BaseUserManager):
     def create_user(self, email, password=None, **extra_fields):
         if not email:
             raise ValueError("Email is required")
+
         email = self.normalize_email(email)
         user = self.model(email=email, **extra_fields)
         user.set_password(password)
@@ -64,11 +65,11 @@ class CustomUser(AbstractUser):
     last_name = models.CharField(max_length=150, blank=True)
 
     phone_number = models.CharField(
-        max_length=10,      
-        unique=True,        
-        validators=[phone_validator], 
-        blank=True, 
-        null=True 
+        max_length=10,
+        unique=True,
+        validators=[phone_validator],
+        blank=True,
+        null=True
     )
 
     user_type = models.CharField(
@@ -77,6 +78,7 @@ class CustomUser(AbstractUser):
         blank=True,
         null=True
     )
+
     address = models.TextField(blank=True, null=True)
     current_location = models.CharField(max_length=255, blank=True, null=True)
 
@@ -86,12 +88,9 @@ class CustomUser(AbstractUser):
     REQUIRED_FIELDS = []
 
     def __str__(self):
-        if self.first_name:
-            return f"{self.first_name} {self.last_name}".strip()
         return self.email
 
     def profile_is_complete(self):
-        """Checks if the user has filled out all required profile fields."""
         return all([
             self.first_name,
             self.last_name,
@@ -100,6 +99,43 @@ class CustomUser(AbstractUser):
             self.address,
             self.current_location,
         ])
+
+
+# =========================
+# PROPERTY SHARE (FIXED LOCATION)
+# =========================
+
+class PropertyShare(models.Model):
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="property_shares"
+    )
+
+    property = models.ForeignKey(
+        'Rental',
+        on_delete=models.CASCADE,
+        related_name="shares"
+    )
+
+    class Platform(models.TextChoices):
+        WHATSAPP = "WHATSAPP", "WhatsApp"
+        FACEBOOK = "FACEBOOK", "Facebook"
+        TWITTER = "TWITTER", "Twitter"
+        COPY = "COPY", "Copy Link"
+        DIRECT = "DIRECT", "Direct"
+
+    platform = models.CharField(
+        max_length=20,
+        choices=Platform.choices
+    )
+
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.property.title} → {self.platform}"
 
 
 # =========================
@@ -183,7 +219,7 @@ class RentalImage(models.Model):
 
 
 # =========================
-# WISHLIST (FIXED)
+# WISHLIST
 # =========================
 
 class Wishlist(models.Model):
@@ -202,7 +238,7 @@ class Wishlist(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
-        unique_together = ('user', 'rental')  # prevents duplicate saves
+        unique_together = ('user', 'rental')
 
     def __str__(self):
         return f"{self.user} → {self.rental}"
