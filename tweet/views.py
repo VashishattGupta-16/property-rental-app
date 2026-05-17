@@ -8,7 +8,7 @@ from django.utils.http import url_has_allowed_host_and_scheme
 from django.urls import reverse
 from django.contrib import messages
 
-from .models import Rental, Wishlist, PropertyShare, PropertyLead
+from .models import Rental, Wishlist, PropertyShare, PropertyVisit, PropertyInquiry
 from .forms import RentalForm, GalleryFormSet, ProfileSetupForm
 
 
@@ -111,40 +111,6 @@ def rental_detail(request, slug):
     return render(request, 'room_describe.html', {
         'rental': rental
     })
-
-
-# =========================================================
-# SHARE TRACKING
-# =========================================================
-
-def track_share(request, slug, platform):
-    rental = get_object_or_404(Rental, slug=slug)
-
-    PropertyShare.objects.create(
-        user=request.user if request.user.is_authenticated else None,
-        property=rental,
-        platform=platform
-    )
-
-    return redirect('rental_detail', slug=slug)
-
-
-# =========================================================
-# LEAD TRACKING
-# =========================================================
-
-def track_lead(request, slug, source):
-    rental = get_object_or_404(Rental, slug=slug)
-
-    PropertyLead.objects.create(
-        user=request.user if request.user.is_authenticated else None,
-        property=rental,
-        source=source,
-        ip_address=get_client_ip(request),
-        user_agent=request.META.get('HTTP_USER_AGENT', '')
-    )
-
-    return redirect('rental_detail', slug=slug)
 
 
 # =========================================================

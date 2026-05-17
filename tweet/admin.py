@@ -7,7 +7,8 @@ from .models import (
     Rental,
     RentalImage,
     PropertyShare,
-    PropertyLead,
+    PropertyVisit,
+    PropertyInquiry,
 )
 
 
@@ -160,37 +161,55 @@ class PropertyShareAdmin(admin.ModelAdmin):
 
 
 # =========================
-# PROPERTY LEAD ADMIN
+# PROPERTY VISIT ADMIN
 # =========================
 
-@admin.register(PropertyLead)
-class PropertyLeadAdmin(admin.ModelAdmin):
+@admin.register(PropertyVisit)
+class PropertyVisitAdmin(admin.ModelAdmin):
     list_display = (
-        'property',
+        'share',
         'user',
-        'source',
         'ip_address',
-        'converted',
-        'clicked_at',
+        'visited_at',
     )
 
     list_filter = (
-        'source',
-        'converted',
-        'clicked_at',
+        'visited_at',
+        'share__platform',
     )
 
     search_fields = (
-        'property__title',
+        'share__property__title',
         'user__email',
         'ip_address',
     )
 
-    ordering = ('-clicked_at',)
+    ordering = ('-visited_at',)
 
 
 # =========================
-# USER REGISTRATION
+# PROPERTY INQUIRY ADMIN
+# =========================
+
+@admin.register(PropertyInquiry)
+class PropertyInquiryAdmin(admin.ModelAdmin):
+    list_display = (
+        'property',
+        'name',
+        'phone',
+        'created_at',
+        'visit',
+    )
+    list_filter = ('created_at', 'property__location')
+    search_fields = (
+        'property__title',
+        'name',
+        'phone',
+    )
+    ordering = ('-created_at',)
+
+# =========================
+# FINAL REGISTRATION
 # =========================
 
 admin.site.register(CustomUser, CustomUserAdmin)
