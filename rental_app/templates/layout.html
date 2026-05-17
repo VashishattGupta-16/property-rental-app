@@ -1,8 +1,23 @@
 {% load static %}
+
+{% load meta %}
+
+{% include 'partials/meta.html' %}
+
 <!DOCTYPE html>
 <html lang="en" class="scroll-smooth">
 
 <head>
+
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-N6Y0TE3G74"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-N6Y0TE3G74');
+</script>
+
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}The Residence Co | Premium Living{% endblock %}</title>
