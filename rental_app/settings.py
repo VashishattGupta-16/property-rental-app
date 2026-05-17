@@ -78,6 +78,7 @@ SECURE_PROXY_SSL_HEADER = (
 
 INSTALLED_APPS = [
     # Django Apps
+    'meta',
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
@@ -277,6 +278,19 @@ SOCIALACCOUNT_PROVIDERS = {
         ],
     }
 }
+# =========================================================
+# Meta CONFIGURATION
+# =========================================================
+
+META_SITE_PROTOCOL = 'https'
+META_SITE_DOMAIN = 'rentalpro-web.onrender.com'
+META_DEFAULT_KEYWORDS = [
+    'rentals',
+    'apartments',
+    'real estate',
+    'homes',
+]
+META_USE_SITES = False
 
 # =========================================================
 # CLOUDINARY CONFIGURATION

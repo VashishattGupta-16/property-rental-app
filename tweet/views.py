@@ -7,6 +7,7 @@ from django.db.models import Q
 from django.utils.http import url_has_allowed_host_and_scheme
 from django.urls import reverse
 from django.contrib import messages
+from meta.views import Meta
 
 from .models import Rental, Wishlist
 from .forms import (
