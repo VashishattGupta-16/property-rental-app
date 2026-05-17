@@ -16,7 +16,7 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='customuser',
             name='phone_number',
-            field=models.CharField(blank=True, max_length=10, null=True, unique=True, validators=[django.core.validators.RegexValidator(message='Enter a valid phone number (10–15 digits).', regex='^\\+?\\d{10,15}$')]),
+            field=models.CharField(blank=True, max_length=15, null=True, unique=True, validators=[django.core.validators.RegexValidator(message='Enter a valid phone number (10–15 digits).', regex='^\\+?\\d{10,15}$')]),
         ),
         migrations.CreateModel(
             name='PropertyShare',
