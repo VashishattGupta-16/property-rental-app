@@ -139,6 +139,35 @@ class PropertyShare(models.Model):
 
 
 # =========================
+# PROPERTY LEAD
+# =========================
+
+class PropertyLead(models.Model):
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="property_leads"
+    )
+
+    property = models.ForeignKey(
+        'Rental',
+        on_delete=models.CASCADE,
+        related_name="leads"
+    )
+
+    source = models.CharField(max_length=50)  # whatsapp, facebook, direct
+    ip_address = models.GenericIPAddressField(null=True, blank=True)
+    user_agent = models.TextField(blank=True, null=True)
+    converted = models.BooleanField(default=False)
+    clicked_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.property.title} → {self.source}"
+
+
+# =========================
 # RENTAL MODEL
 # =========================
 
