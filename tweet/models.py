@@ -144,6 +144,13 @@ class PropertyShare(models.Model):
     def __str__(self):
         return f"{self.property.title} → {self.platform}"
 
+    class Meta:
+        indexes = [
+            models.Index(fields=['user', 'created_at']),
+            models.Index(fields=['property', 'created_at']),
+            models.Index(fields=['platform', 'created_at']),
+        ]
+
 
 # =========================
 # PROPERTY LEAD
@@ -175,6 +182,11 @@ class PropertyVisit(models.Model):
     def __str__(self):
         return f"Visit for {self.share.property.title} via {self.share.platform}"
 
+    class Meta:
+        indexes = [
+            models.Index(fields=['share', 'visited_at']),
+        ]
+
 
 # =========================
 # PROPERTY INQUIRY
@@ -201,6 +213,12 @@ class PropertyInquiry(models.Model):
 
     def __str__(self):
         return f"Inquiry for {self.property.title} from {self.name}"
+
+    class Meta:
+        indexes = [
+            models.Index(fields=['property', 'created_at']),
+            models.Index(fields=['visit']),
+        ]
 
 # =========================
 # RENTAL MODEL

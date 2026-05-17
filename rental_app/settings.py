@@ -67,6 +67,8 @@ CSRF_TRUSTED_ORIGINS = [
 SESSION_COOKIE_SECURE = not DEBUG
 CSRF_COOKIE_SECURE = not DEBUG
 
+SECURE_SSL_REDIRECT = not DEBUG
+
 SECURE_PROXY_SSL_HEADER = (
     "HTTP_X_FORWARDED_PROTO",
     "https",
@@ -92,6 +94,8 @@ INSTALLED_APPS = [
     "cloudinary",
     "cloudinary_storage",
 
+    "rest_framework",
+    "corsheaders",
     "allauth",
     "allauth.account",
     "allauth.socialaccount",
@@ -108,6 +112,7 @@ INSTALLED_APPS = [
 MIDDLEWARE = [
     "tweet.middleware.UptimeRobotMiddleware",
     "django.middleware.security.SecurityMiddleware",
+    "corsheaders.middleware.CorsMiddleware",
 
     # WhiteNoise
     "whitenoise.middleware.WhiteNoiseMiddleware",
@@ -176,6 +181,47 @@ DATABASES = {
 }
 
 # =========================================================
+# CACHING (REDIS)
+# =========================================================
+
+CACHES = {
+    "default": {
+        "BACKEND": "django_redis.cache.RedisCache",
+        "LOCATION": os.getenv("REDIS_URL", "redis://127.0.0.1:6379/1"),
+        "OPTIONS": {
+            "CLIENT_CLASS": "django_redis.client.DefaultClient",
+        }
+    }
+}
+
+# =========================================================
+# CELERY CONFIGURATION
+# =========================================================
+
+CELERY_BROKER_URL = os.getenv("REDIS_URL", "redis://127.0.0.1:6379/0")
+CELERY_RESULT_BACKEND = os.getenv("REDIS_URL", "redis://127.0.0.1:6379/0")
+CELERY_ACCEPT_CONTENT = ['json']
+CELERY_TASK_SERIALIZER = 'json'
+CELERY_RESULT_SERIALIZER = 'json'
+CELERY_TIMEZONE = TIME_ZONE
+
+# Example periodic task schedule
+CELERY_BEAT_SCHEDULE = {
+    'aggregate-analytics-every-night': {
+        'task': 'tweet.tasks.aggregate_daily_analytics',
+        'schedule': 3600.0 * 24, # Run once a day
+    },
+}
+
+# =========================================================
+# CORS HEADERS
+# =========================================================
+
+CORS_ALLOWED_ORIGINS = [
+    origin.strip() for origin in os.getenv("CORS_ALLOWED_ORIGINS", "http://localhost:3000,http://127.0.0.1:3000").split(",")
+]
+
+# =========================================================
 # CUSTOM USER MODEL
 # =========================================================
 
@@ -189,6 +235,21 @@ AUTHENTICATION_BACKENDS = [
     "django.contrib.auth.backends.ModelBackend",
     "allauth.account.auth_backends.AuthenticationBackend",
 ]
+
+# =========================================================
+# DJANGO REST FRAMEWORK
+# =========================================================
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    ),
+    'DEFAULT_THROTTLE_CLASSES': [
+        'rest_framework.throttling.AnonRateThrottle',
+        'rest_framework.throttling.UserRateThrottle'
+    ],
+    'DEFAULT_THROTTLE_RATES': { 'anon': '100/day', 'user': '1000/day' }
+}
 
 # =========================================================
 # DJANGO ALLAUTH CONFIGURATION
@@ -373,6 +434,7 @@ DEFAULT_AUTO_FIELD = (
 LOGGING = {
     "version": 1,
     "disable_existing_loggers": False,
+    "formatters": { "verbose": { "format": "%(levelname)s %(asctime)s %(module)s %(message)s" } },
     "filters": {
         "ignore_uptimerobot": {
             "()": "rental_app.log_filters.UptimeRobotFilter",
@@ -381,11 +443,12 @@ LOGGING = {
     "handlers": {
         "console": {
             "class": "logging.StreamHandler",
+            "formatter": "verbose",
             "filters": ["ignore_uptimerobot"],
         },
     },
     "root": {
         "handlers": ["console"],
-        "level": "DEBUG",
+        "level": "INFO",
     },
 }
