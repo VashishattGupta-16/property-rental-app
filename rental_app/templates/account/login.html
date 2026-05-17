@@ -1,0 +1,47 @@
+{% extends 'layout.html' %}
+{% load socialaccount %}
+{% load static %}
+
+{% block content %}
+<div class="min-h-screen flex items-center justify-center py-20 px-6 bg-[var(--bg)]">
+    <div class="w-full max-w-[1000px] grid lg:grid-cols-2 bg-[var(--bg-card)] rounded-[3rem] overflow-hidden border border-[var(--surface-border)] shadow-2xl">
+        
+        <div class="hidden lg:flex flex-col justify-between p-16 bg-[#1A2E1F]">
+            <div>
+                <div class="w-12 h-12 rounded-2xl bg-[var(--accent)] flex items-center justify-center mb-12 shadow-lg">
+                    <i class="fa-solid fa-shield-halved text-white text-xl"></i>
+                </div>
+                <h2 class="text-4xl text-white text-[#F5F5F5] tracking-tighter leading-tight">
+                    Welcome <br> <span class="text-[var(--accent)]">Back.</span>
+                </h2>
+                <p class="mt-6 text-[#8E918F] font-medium leading-relaxed max-w-[280px]">
+                    Your exclusive property dashboard is ready for your next move.
+                </p>
+            </div>
+            <div class="text-[0.6rem] font-black uppercase tracking-[0.4em] text-[#F5F5F5]/20">
+                Secure Session Active
+            </div>
+        </div>
+
+        <div class="p-8 lg:p-16 flex flex-col justify-center">
+            <header class="mb-10">
+                <nav class="flex items-center gap-2 text-[0.6rem] font-black uppercase tracking-[0.4em] text-[var(--accent)] mb-4">
+                    <span>Authorize</span>
+                    <i class="fa-solid fa-chevron-right text-[0.5rem] opacity-30"></i>
+                    <span class="opacity-30">Dashboard</span>
+                </nav>
+                <h1 class="text-3xl font-black tracking-tighter text-[var(--text-main)]">Sign In</h1>
+            </header>
+
+            <form method="post" novalidate class="space-y-6">
+                {% csrf_token %}
+                    <a href="{% provider_login_url 'google' %}" class="flex items-center justify-center gap-3 w-full bg-[var(--bg)] border border-[var(--surface-border)] py-4 rounded-2xl text-[0.7rem] font-black hover:bg-[var(--surface-border)] transition-all">
+                        <img src="https://www.gstatic.com/images/branding/product/1x/gsa_512dp.png" class="w-4 h-4" alt="G">
+                        Login with Google
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
