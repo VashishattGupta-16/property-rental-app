@@ -162,26 +162,18 @@ TEMPLATES = [
 # DATABASE
 # =========================================================
 
-if not DEBUG:
-    # Production settings for Render
-    DATABASE_URL = os.getenv("DATABASE_URL")
-    if not DATABASE_URL:
-        raise ValueError("DATABASE_URL environment variable not set for production")
+DATABASE_URL = os.getenv("DATABASE_URL")
 
-    DATABASES = {
-        'default': dj_database_url.config(
-            conn_max_age=600,
-            ssl_require=True  # Render requires SSL for PostgreSQL connections
-        )
-    }
-else:
-    # Local development settings
-    DATABASES = {
-        "default": {
-            "ENGINE": "django.db.backends.sqlite3",
-            "NAME": BASE_DIR / "db.sqlite3",
-        }
-    }
+if not DATABASE_URL:
+    raise ValueError("DATABASE_URL environment variable is missing. PostgreSQL is required.")
+
+DATABASES = {
+    'default': dj_database_url.config(
+        default=DATABASE_URL,
+        conn_max_age=600,
+        ssl_require=not DEBUG  # Enforce SSL only in production (Render)
+    )
+}
 
 # =========================================================
 # CUSTOM USER MODEL
