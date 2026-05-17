@@ -11,9 +11,6 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.AlterField(
-            model_name='customuser',
-            name='phone_number',
-            field=models.CharField(blank=True, max_length=10, null=True, unique=True, validators=[django.core.validators.RegexValidator(message='Enter a valid phone number (10–15 digits).', regex='^\\+?\\d{10,15}$')]),
-        ),
+        # This migration is intentionally empty. It bypasses a problematic schema
+        # change (shrinking a CharField) that was reverted in migration 0011.
     ]
