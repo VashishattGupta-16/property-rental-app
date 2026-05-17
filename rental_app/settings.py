@@ -142,6 +142,19 @@ WSGI_APPLICATION = "rental_app.wsgi.application"
 SITE_ID = 1
 
 # =========================================================
+# INTERNATIONALIZATION
+# =========================================================
+
+LANGUAGE_CODE = "en-us"
+
+TIME_ZONE = "Asia/Kolkata"
+
+USE_I18N = True
+
+USE_TZ = True
+
+
+# =========================================================
 # TEMPLATES
 # =========================================================
 
@@ -204,6 +217,7 @@ CELERY_ACCEPT_CONTENT = ['json']
 CELERY_TASK_SERIALIZER = 'json'
 CELERY_RESULT_SERIALIZER = 'json'
 CELERY_TIMEZONE = TIME_ZONE
+CELERY_ENABLE_UTC = True # Recommended for production
 
 # Example periodic task schedule
 CELERY_BEAT_SCHEDULE = {
@@ -406,18 +420,6 @@ STORAGES = {
 MEDIA_URL = "/media/"
 
 MEDIA_ROOT = BASE_DIR / "media"
-
-# =========================================================
-# INTERNATIONALIZATION
-# =========================================================
-
-LANGUAGE_CODE = "en-us"
-
-TIME_ZONE = "Asia/Kolkata"
-
-USE_I18N = True
-
-USE_TZ = True
 
 # =========================================================
 # DEFAULT AUTO FIELD
