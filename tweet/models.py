@@ -1,13 +1,11 @@
-import os
-from django.db import models
-from django.contrib.auth.models import AbstractUser, BaseUserManager
 import uuid
+from django.db import models
 from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.core.validators import RegexValidator
 from django.utils.text import slugify
 from django.utils.crypto import get_random_string
-
+from django.contrib.auth.models import AbstractUser, BaseUserManager
 from cloudinary_storage.storage import MediaCloudinaryStorage
 
 
@@ -28,36 +26,14 @@ phone_validator = RegexValidator(
 
 
 # =========================
-# USER MANAGER
-# =========================
-
-class CustomUserManager(BaseUserManager):
-    def create_user(self, email, password=None, **extra_fields):
-        if not email:
-            raise ValueError("Email is required")
-
-        email = self.normalize_email(email)
-        user = self.model(email=email, **extra_fields)
-        user.set_password(password)
-        user.save(using=self._db)
-        return user
-
-    def create_superuser(self, email, password=None, **extra_fields):
-        extra_fields.setdefault("is_staff", True)
-        extra_fields.setdefault("is_superuser", True)
-        return self.create_user(email, password, **extra_fields)
-
-
-# =========================
-# CUSTOM USER
+# USER MODEL
 # =========================
 
 class CustomUser(AbstractUser):
-
     class UserType(models.TextChoices):
         BROKER = "BROKER", "Broker"
         OWNER = "OWNER", "Owner"
-        SEEKER = "SEEKER", "Looking for Property"
+        SEEKER = "SEEKER", "Seeker"
 
     username = None
 
@@ -74,7 +50,7 @@ class CustomUser(AbstractUser):
     )
 
     user_type = models.CharField(
-        max_length=50,
+        max_length=20,
         choices=UserType.choices,
         blank=True,
         null=True
@@ -83,141 +59,15 @@ class CustomUser(AbstractUser):
     address = models.TextField(blank=True, null=True)
     current_location = models.CharField(max_length=255, blank=True, null=True)
 
-    objects = CustomUserManager()
-
     USERNAME_FIELD = "email"
     REQUIRED_FIELDS = []
 
     def __str__(self):
         return self.email
 
-    def profile_is_complete(self):
-        return all([
-            self.first_name,
-            self.last_name,
-            self.phone_number,
-            self.user_type,
-            self.address,
-            self.current_location,
-        ])
-
 
 # =========================
-# PROPERTY SHARE (FIXED LOCATION)
-# =========================
-
-class PropertyShare(models.Model):
-   
-
-    user = models.ForeignKey(
-        settings.AUTH_USER_MODEL,
-        on_delete=models.SET_NULL,
-        null=True,
-        blank=True,
-        related_name="property_shares"
-    )
-
-    property = models.ForeignKey(
-        'Rental',
-        on_delete=models.CASCADE,
-        related_name="shares"
-    )
-
-    class Platform(models.TextChoices):
-        WHATSAPP = "WHATSAPP", "WhatsApp"
-        FACEBOOK = "FACEBOOK", "Facebook"
-        TWITTER = "TWITTER", "Twitter"
-        COPY = "COPY", "Copy Link"
-        DIRECT = "DIRECT", "Direct"
-
-    platform = models.CharField(
-        max_length=20,
-        choices=Platform.choices
-    )
-
-    created_at = models.DateTimeField(auto_now_add=True, db_index=True)
-
-    def __str__(self):
-        return f"{self.property.title} → {self.platform}"
-
-    class Meta:
-        indexes = [
-            models.Index(fields=['user', 'created_at']),
-            models.Index(fields=['property', 'created_at']),
-            models.Index(fields=['platform', 'created_at']),
-        ]
-
-
-# =========================
-# PROPERTY LEAD
-# =========================
-
-class PropertyVisit(models.Model):
-    """Represents a visit to a property from a shared link."""
-    share = models.ForeignKey(
-        PropertyShare,
-        on_delete=models.SET_NULL,
-        null=True,
-        blank=True,
-        related_name="visits"
-    )
-
-    # The user who *clicked* the link, if they are logged in
-    user = models.ForeignKey(
-        settings.AUTH_USER_MODEL,
-        on_delete=models.SET_NULL,
-        null=True,
-        blank=True,
-        related_name="property_visits"
-    )
-
-    ip_address = models.GenericIPAddressField(null=True, blank=True)
-    user_agent = models.TextField(blank=True, null=True)
-    visited_at = models.DateTimeField(auto_now_add=True, db_index=True)
-
-    def __str__(self):
-        return f"Visit for {self.share.property.title} via {self.share.platform}"
-
-    class Meta:
-        indexes = [
-            models.Index(fields=['share', 'visited_at']),
-        ]
-
-
-# =========================
-# PROPERTY INQUIRY
-# =========================
-
-class PropertyInquiry(models.Model):
-    """Represents a conversion event (e.g., a contact form submission)."""
-    visit = models.OneToOneField(
-        PropertyVisit,
-        on_delete=models.SET_NULL,
-        null=True,
-        blank=True,
-        related_name="inquiry"
-    )
-    property = models.ForeignKey(
-        'Rental',
-        on_delete=models.CASCADE,
-        related_name="inquiries"
-    )
-    name = models.CharField(max_length=100)
-    phone = models.CharField(max_length=20)
-    message = models.TextField(blank=True)
-    created_at = models.DateTimeField(auto_now_add=True, db_index=True)
-
-    def __str__(self):
-        return f"Inquiry for {self.property.title} from {self.name}"
-
-    class Meta:
-        indexes = [
-            models.Index(fields=['property', 'created_at']),
-            models.Index(fields=['visit']),
-        ]
-
-# =========================
-# RENTAL MODEL
+# RENTAL
 # =========================
 
 class Rental(models.Model):
@@ -231,7 +81,7 @@ class Rental(models.Model):
         PG = "PG", "PG"
         VILLA = "VILLA", "Villa"
         SHOWROOM = "SHOWROOM", "Showroom"
-        INDUSTRIAL_PLOT = "INDUSTRIAL_PLOT", "Industrial Plot"
+        INDUSTRIAL = "INDUSTRIAL_PLOT", "Industrial Plot"
 
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL,
@@ -242,11 +92,14 @@ class Rental(models.Model):
     title = models.CharField(max_length=150)
     slug = models.SlugField(unique=True, blank=True)
     description = models.TextField()
+
     contact = models.CharField(max_length=15, validators=[phone_validator])
     price = models.DecimalField(max_digits=12, decimal_places=2)
+
     location = models.CharField(max_length=255)
     address = models.TextField(blank=True, null=True)
-    property_type = models.CharField(max_length=50, choices=PropertyTypes.choices)
+
+    property_type = models.CharField(max_length=30, choices=PropertyTypes.choices)
 
     furnishing = models.CharField(max_length=100, blank=True)
     sqft = models.PositiveIntegerField()
@@ -259,7 +112,7 @@ class Rental(models.Model):
     security_deposit = models.DecimalField(max_digits=12, decimal_places=2, default=0)
 
     image = models.ImageField(
-        upload_to='rentals/',
+        upload_to="rentals/",
         storage=MediaCloudinaryStorage(),
         validators=[validate_image_size]
     )
@@ -277,7 +130,101 @@ class Rental(models.Model):
 
 
 # =========================
-# RENTAL GALLERY
+# PROPERTY SHARE
+# =========================
+
+class PropertyShare(models.Model):
+
+    class Platform(models.TextChoices):
+        WHATSAPP = "WHATSAPP", "WhatsApp"
+        FACEBOOK = "FACEBOOK", "Facebook"
+        TWITTER = "TWITTER", "Twitter"
+        COPY = "COPY", "Copy Link"
+        DIRECT = "DIRECT", "Direct"
+
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="property_shares"
+    )
+
+    property = models.ForeignKey(
+        Rental,
+        on_delete=models.CASCADE,
+        related_name="shares"
+    )
+
+    platform = models.CharField(max_length=20, choices=Platform.choices)
+
+    created_at = models.DateTimeField(auto_now_add=True, db_index=True)
+
+    def __str__(self):
+        return f"{self.property.title} → {self.platform}"
+
+
+# =========================
+# PROPERTY VISIT
+# =========================
+
+class PropertyVisit(models.Model):
+    share = models.ForeignKey(
+        PropertyShare,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="visits"
+    )
+
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="property_visits"
+    )
+
+    ip_address = models.GenericIPAddressField(null=True, blank=True)
+    user_agent = models.TextField(blank=True, null=True)
+
+    visited_at = models.DateTimeField(auto_now_add=True, db_index=True)
+
+    def __str__(self):
+        return f"Visit - {self.id}"
+
+
+# =========================
+# PROPERTY INQUIRY
+# =========================
+
+class PropertyInquiry(models.Model):
+    visit = models.OneToOneField(
+        PropertyVisit,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="inquiry"
+    )
+
+    property = models.ForeignKey(
+        Rental,
+        on_delete=models.CASCADE,
+        related_name="inquiries"
+    )
+
+    name = models.CharField(max_length=100)
+    phone = models.CharField(max_length=20)
+    message = models.TextField(blank=True)
+
+    created_at = models.DateTimeField(auto_now_add=True, db_index=True)
+
+    def __str__(self):
+        return f"Inquiry - {self.name}"
+
+
+# =========================
+# RENTAL IMAGE
 # =========================
 
 class RentalImage(models.Model):
@@ -288,12 +235,9 @@ class RentalImage(models.Model):
     )
 
     image = models.ImageField(
-        upload_to='rental_gallery/',
+        upload_to="rental_gallery/",
         storage=MediaCloudinaryStorage()
     )
-
-    def __str__(self):
-        return f"Image for {self.rental.title}"
 
 
 # =========================
@@ -316,7 +260,7 @@ class Wishlist(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
-        unique_together = ('user', 'rental')
+        unique_together = ("user", "rental")
 
     def __str__(self):
-        return f"{self.user} → {self.rental}"
+        return f"{self.user.email} → {self.rental.title}"
