@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wishlist Debug Error</title>
+</head>
+<body style="font-family: monospace; background-color: #222; color: #eee; padding: 20px;">
+    <h1>Wishlist Page Error</h1>
+    <p style="color: #ff6666;"><strong>Error:</strong> {{ error_message }}</p>
+    <p>This error occurred while rendering the wishlist template. The Python view function itself did not crash.</p>
+    <h2>Wishlist Items Data (for debugging):</h2>
+    <pre>{{ wishlist_items_data|json_script:"wishlist_data" }}</pre>
+</body>
+</html>
