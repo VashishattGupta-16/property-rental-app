@@ -52,9 +52,11 @@
                     <div class="flex justify-between items-center mt-4 gap-3">
                         <span class="text-sky-400 font-black">₹{{ item.rental.price|default:"0" }}</span>
 
-                        <a href="{% url 'rental_detail' item.rental.slug %}"
-                           class="text-xs text-white hover:text-sky-400 font-black">
-                            Open →
+                         <a href="{% url 'rental_detail' rental.slug %}" title="View Details"
+                            class="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-white/5 border border-white/10 flex items-center justify-center hover:bg-blue-600 transition-all duration-300 active:scale-95">
+
+                            <i class="fa-solid fa-arrow-right text-[10px] sm:text-xs text-white"></i>
+
                         </a>
                     </div>
                 </div>
