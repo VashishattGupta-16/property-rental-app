@@ -4,7 +4,7 @@ from pathlib import Path
 import cloudinary
 import dj_database_url
 from dotenv import load_dotenv
-from decouple import config
+
 # =========================================================
 # BASE DIRECTORY
 # =========================================================
