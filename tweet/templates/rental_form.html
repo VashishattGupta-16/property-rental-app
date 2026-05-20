@@ -2,17 +2,21 @@
 {% load media_urls %}
 
 {% block content %}
+
 <style>
     .glass-card {
         background: rgba(17, 24, 39, 0.7);
         backdrop-filter: blur(12px);
         border: 1px solid rgba(255, 255, 255, 0.1);
-        box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.37);
     }
-    /* Stepper Styles */
+
     .step-content { display: none; }
-    .step-content.active { display: block; animation: fadeIn 0.4s ease-in-out; }
-    
+    .step-content.active {
+        display: block;
+        animation: fadeIn 0.3s ease-in-out;
+    }
+
     @keyframes fadeIn {
         from { opacity: 0; transform: translateY(10px); }
         to { opacity: 1; transform: translateY(0); }
@@ -23,165 +27,193 @@
 </style>
 
 <div class="max-w-4xl mx-auto py-12 px-4">
-    
-    <!-- HEADER & PROGRESS -->
-    <div class="mb-12">
-        <h1 class="text-4xl font-black text-white mb-8">
-            {% if form.instance.pk %} Edit <span class="text-blue-500">Property</span> {% else %} Create <span class="text-blue-500">Listing</span> {% endif %}
-        </h1>
-        
-        <!-- Progress Bar -->
-        <div class="flex items-center justify-between relative">
-            <div class="absolute h-1 bg-gray-700 w-full top-1/2 -z-10"></div>
-            <div id="progress-line" class="absolute h-1 bg-blue-500 transition-all duration-500 top-1/2 -z-10" style="width: 0%;"></div>
-            
-            <div class="step-indicator active w-10 h-10 rounded-full glass-card border-2 flex items-center justify-center font-bold text-white bg-slate-900" data-step="1">1</div>
-            <div class="step-indicator w-10 h-10 rounded-full glass-card border-2 flex items-center justify-center font-bold text-white bg-slate-900" data-step="2">2</div>
-            <div class="step-indicator w-10 h-10 rounded-full glass-card border-2 flex items-center justify-center font-bold text-white bg-slate-900" data-step="3">3</div>
+
+    <h1 class="text-4xl font-black text-white mb-8">
+        {% if form.instance.pk %}
+            Edit <span class="text-blue-500">Property</span>
+        {% else %}
+            Create <span class="text-blue-500">Listing</span>
+        {% endif %}
+    </h1>
+
+    <!-- ERROR DISPLAY (IMPORTANT FIX) -->
+    {% if form.errors or formset.errors %}
+        <div class="mb-6 p-4 rounded-xl bg-red-500/10 border border-red-500/30 text-red-300">
+            {{ form.errors }}
+            {{ formset.errors }}
         </div>
-        <div class="flex justify-between mt-2 text-[10px] font-black uppercase tracking-widest text-gray-500">
-            <span>Core Info</span>
-            <span>Details</span>
-            <span>Gallery</span>
-        </div>
+    {% endif %}
+
+    <!-- PROGRESS -->
+    <div class="flex items-center justify-between relative mb-10">
+        <div class="absolute h-1 bg-gray-700 w-full top-1/2 -z-10"></div>
+        <div id="progress-line" class="absolute h-1 bg-blue-500 transition-all top-1/2 -z-10" style="width:0%"></div>
+
+        <div class="step-indicator active w-10 h-10 rounded-full glass-card border-2 flex items-center justify-center">1</div>
+        <div class="step-indicator w-10 h-10 rounded-full glass-card border-2 flex items-center justify-center">2</div>
+        <div class="step-indicator w-10 h-10 rounded-full glass-card border-2 flex items-center justify-center">3</div>
     </div>
 
-    <form id="multiStepForm" method="post" enctype="multipart/form-data" class="space-y-8">
-        {% csrf_token %}
-        {{ formset.management_form }}
+    <form id="multiStepForm" method="POST" enctype="multipart/form-data">
 
-        <!-- STEP 1: CORE INFO -->
-        <div class="step-content active" id="step1">
-            <div class="glass-card rounded-3xl p-8">
-                <h2 class="text-xl font-bold text-white mb-6 flex items-center gap-2">
-                    <i class="fa-solid fa-house text-blue-500"></i> Primary Information
-                </h2>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <!-- Manually render first few fields or use a loop with if -->
-                    <div class="flex flex-col">
-                        <label class="text-gray-400 text-xs font-bold uppercase mb-2">{{ form.title.label }}</label>
+        {% csrf_token %}
+
+        <!-- IMPORTANT FIX -->
+        <div class="hidden">
+            {{ formset.management_form }}
+        </div>
+
+        <!-- STEP 1 -->
+        <div class="step-content active">
+            <div class="glass-card p-8 rounded-3xl">
+                <h2 class="text-white text-xl font-bold mb-6">Primary Info</h2>
+
+                <div class="grid md:grid-cols-2 gap-6">
+
+                    <div>
+                        <label class="text-gray-400 text-xs uppercase">{{ form.title.label }}</label>
                         {{ form.title }}
+                        {{ form.title.errors }}
                     </div>
-                    <div class="flex flex-col">
-                        <label class="text-gray-400 text-xs font-bold uppercase mb-2">{{ form.location.label }}</label>
+
+                    <div>
+                        <label class="text-gray-400 text-xs uppercase">{{ form.location.label }}</label>
                         {{ form.location }}
+                        {{ form.location.errors }}
                     </div>
-                    <div class="flex flex-col md:col-span-2">
-                        <label class="text-gray-400 text-xs font-bold uppercase mb-2">{{ form.description.label }}</label>
+
+                    <div class="md:col-span-2">
+                        <label class="text-gray-400 text-xs uppercase">{{ form.description.label }}</label>
                         {{ form.description }}
+                        {{ form.description.errors }}
                     </div>
+
                 </div>
             </div>
         </div>
 
-        <!-- STEP 2: PRICING & TYPE -->
-        <div class="step-content" id="step2">
-            <div class="glass-card rounded-3xl p-8">
-                <h2 class="text-xl font-bold text-white mb-6 flex items-center gap-2">
-                    <i class="fa-solid fa-tag text-blue-500"></i> Pricing & Specifications
-                </h2>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div class="flex flex-col">
-                        <label class="text-gray-400 text-xs font-bold uppercase mb-2">{{ form.price.label }}</label>
+        <!-- STEP 2 -->
+        <div class="step-content">
+            <div class="glass-card p-8 rounded-3xl">
+
+                <h2 class="text-white text-xl font-bold mb-6">Pricing</h2>
+
+                <div class="grid md:grid-cols-2 gap-6">
+
+                    <div>
+                        <label class="text-gray-400 text-xs uppercase">{{ form.price.label }}</label>
                         {{ form.price }}
+                        {{ form.price.errors }}
                     </div>
-                    <div class="flex flex-col">
-                        <label class="text-gray-400 text-xs font-bold uppercase mb-2">{{ form.property_type.label }}</label>
+
+                    <div>
+                        <label class="text-gray-400 text-xs uppercase">{{ form.property_type.label }}</label>
                         {{ form.property_type }}
+                        {{ form.property_type.errors }}
                     </div>
-                    <!-- Catch-all for remaining fields in the main form -->
+
+                    <!-- SAFE FIELD LOOP (FIXED) -->
                     {% for field in form %}
-                        {% if field.name not in "title location description price property_type" %}
-                            <div class="flex flex-col">
-                                <label class="text-gray-400 text-xs font-bold uppercase mb-2">{{ field.label }}</label>
+                        {% if field.name != "title" and field.name != "location" and field.name != "description" and field.name != "price" and field.name != "property_type" %}
+
+                            <div>
+                                <label class="text-gray-400 text-xs uppercase">
+                                    {{ field.label }}
+                                </label>
+
                                 {{ field }}
+                                {{ field.errors }}
                             </div>
+
                         {% endif %}
                     {% endfor %}
+
                 </div>
             </div>
         </div>
 
-        <!-- STEP 3: GALLERY -->
-        <div class="step-content" id="step3">
-            <div class="glass-card rounded-3xl p-8">
-                <h2 class="text-xl font-bold text-white mb-6 flex items-center gap-2">
-                    <i class="fa-solid fa-images text-blue-500"></i> Visual Media
-                </h2>
-                <p class="text-gray-500 text-sm mb-6 italic">Upload up to 3 gallery images to make your listing stand out.</p>
-                <div class="grid grid-cols-1 gap-4">
-                    {% for form_img in formset %}
-                        <div class="p-4 border border-white/5 rounded-2xl bg-white/5 royal-input">
-                            {{ form_img.as_p }}
+        <!-- STEP 3 -->
+        <div class="step-content">
+            <div class="glass-card p-8 rounded-3xl">
+
+                <h2 class="text-white text-xl font-bold mb-6">Gallery</h2>
+
+                <div class="space-y-4">
+                    {% for f in formset %}
+                        <div class="bg-white/5 p-4 rounded-xl">
+                            {{ f.as_p }}
+                            {{ f.errors }}
                         </div>
                     {% endfor %}
                 </div>
+
             </div>
         </div>
 
-        <!-- NAVIGATION BUTTONS -->
-        <div class="flex justify-between items-center pt-8">
-            <button type="button" id="prevBtn" class="hidden px-8 py-3 rounded-xl border border-white/10 text-white font-bold hover:bg-white/5 transition-all">
+        <!-- BUTTONS -->
+        <div class="flex justify-between mt-8">
+
+            <button type="button" id="prevBtn" class="hidden px-6 py-3 bg-gray-700 text-white rounded-lg">
                 Previous
             </button>
+
             <div class="ml-auto flex gap-4">
-                <button type="button" id="nextBtn" class="px-10 py-4 bg-blue-600 text-white font-black rounded-xl shadow-lg shadow-blue-600/20 hover:bg-blue-500 transition-all">
-                    Next Step
+
+                <button type="button" id="nextBtn" class="px-8 py-3 bg-blue-600 text-white rounded-lg">
+                    Next
                 </button>
-                <button type="submit" id="submitBtn" class="hidden px-10 py-4 bg-emerald-600 text-white font-black rounded-xl shadow-lg shadow-emerald-600/20 hover:bg-emerald-500 transition-all">
-                    {% if form.instance.pk %}Update Listing{% else %}Publish Listing{% endif %}
+
+                <button type="submit" id="submitBtn" class="hidden px-8 py-3 bg-green-600 text-white rounded-lg">
+                    {% if form.instance.pk %}Update{% else %}Publish{% endif %}
                 </button>
+
             </div>
         </div>
+
     </form>
 </div>
 
 <script>
-    const steps = Array.from(document.querySelectorAll('.step-content'));
-    const indicators = document.querySelectorAll('.step-indicator');
-    const progressLine = document.getElementById('progress-line');
-    const nextBtn = document.getElementById('nextBtn');
-    const prevBtn = document.getElementById('prevBtn');
-    const submitBtn = document.getElementById('submitBtn');
-    let currentStep = 0;
+let steps = document.querySelectorAll('.step-content');
+let indicators = document.querySelectorAll('.step-indicator');
+let currentStep = 0;
 
-    function updateStep() {
-        steps.forEach((step, index) => {
-            step.classList.toggle('active', index === currentStep);
-        });
+let nextBtn = document.getElementById('nextBtn');
+let prevBtn = document.getElementById('prevBtn');
+let submitBtn = document.getElementById('submitBtn');
+let progress = document.getElementById('progress-line');
 
-        indicators.forEach((ind, index) => {
-            ind.classList.toggle('active', index === currentStep);
-            ind.classList.toggle('completed', index < currentStep);
-        });
+function updateUI() {
+    steps.forEach((s, i) => s.classList.toggle('active', i === currentStep));
 
-        progressLine.style.width = (currentStep / (steps.length - 1)) * 100 + "%";
-
-        // Button Visibility
-        prevBtn.classList.toggle('hidden', currentStep === 0);
-        
-        if (currentStep === steps.length - 1) {
-            nextBtn.classList.add('hidden');
-            submitBtn.classList.remove('hidden');
-        } else {
-            nextBtn.classList.remove('hidden');
-            submitBtn.classList.add('hidden');
-        }
-    }
-
-    nextBtn.addEventListener('click', () => {
-        if (currentStep < steps.length - 1) {
-            currentStep++;
-            updateStep();
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-        }
+    indicators.forEach((i, idx) => {
+        i.classList.toggle('active', idx === currentStep);
+        i.classList.toggle('completed', idx < currentStep);
     });
 
-    prevBtn.addEventListener('click', () => {
-        if (currentStep > 0) {
-            currentStep--;
-            updateStep();
-        }
-    });
+    progress.style.width = (currentStep / (steps.length - 1)) * 100 + "%";
+
+    prevBtn.classList.toggle('hidden', currentStep === 0);
+    nextBtn.classList.toggle('hidden', currentStep === steps.length - 1);
+    submitBtn.classList.toggle('hidden', currentStep !== steps.length - 1);
+}
+
+nextBtn.onclick = () => {
+    currentStep++;
+    updateUI();
+};
+
+prevBtn.onclick = () => {
+    currentStep--;
+    updateUI();
+};
+
+/* DEBUG: check publish click */
+document.getElementById("multiStepForm").addEventListener("submit", function() {
+    console.log("FORM SUBMIT TRIGGERED");
+});
+
+updateUI();
 </script>
+
 {% endblock %}
