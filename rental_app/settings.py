@@ -4,7 +4,7 @@ from pathlib import Path
 import cloudinary
 import dj_database_url
 from dotenv import load_dotenv
-
+from decouple import config
 # =========================================================
 # BASE DIRECTORY
 # =========================================================
@@ -179,16 +179,13 @@ TEMPLATES = [
 # DATABASE
 # =========================================================
 
-DATABASE_URL = os.getenv("DATABASE_URL")
-
-if not DATABASE_URL:
-    raise ValueError("DATABASE_URL environment variable is missing. PostgreSQL is required.")
+DATABASE_URL = config("DATABASE_URL", default=None)
 
 DATABASES = {
-    'default': dj_database_url.config(
+    "default": dj_database_url.config(
         default=DATABASE_URL,
         conn_max_age=600,
-        ssl_require=not DEBUG  # Enforce SSL only in production (Render)
+        ssl_require=not DEBUG,
     )
 }
 
