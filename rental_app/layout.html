@@ -15,7 +15,14 @@
 </script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>The Residence Co</title>
+    <title>Empire Estate</title>
+
+    <!-- Rye Font for branding -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Rye&display=swap" rel="stylesheet">
+
+    <style>.rye-regular{font-family:"Rye",serif;font-weight:400;font-style:normal;}</style>
 
     <!-- Font Awesome for icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
@@ -32,8 +39,8 @@
     <nav class="bg-white/80 backdrop-blur-lg shadow-sm sticky top-0 z-50">
         <div class="mx-auto max-w-[1400px] px-6">
             <div class="flex justify-between items-center h-16">
-                <a href="{% url 'rental_list' %}" class="text-2xl font-bold text-sky-500">
-                    The Residence Co
+                <a href="{% url 'rental_list' %}" class="text-3xl text-sky-500 rye-regular">
+                    Empire Estate
                 </a>
                 <div class="flex items-center gap-6">
                     {% if user.is_authenticated %}
@@ -60,7 +67,7 @@
 
     <footer class="bg-slate-100 border-t border-slate-200 mt-24">
         <div class="mx-auto max-w-[1400px] px-6 py-8 text-center text-sm text-slate-500">
-            <p>&copy; {% now "Y" %} The Residence Co. All rights reserved.</p>
+            <p>&copy; {% now "Y" %} Empire Estate. All rights reserved.</p>
         </div>
     </footer>
 
