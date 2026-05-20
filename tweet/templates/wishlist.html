@@ -52,7 +52,7 @@
                     <div class="flex justify-between items-center mt-4 gap-3">
                         <span class="text-sky-400 font-black">₹{{ item.rental.price|default:"0" }}</span>
 
-                        <a href="{% url 'room_describe' item.rental.id %}"
+                        <a href="{% url 'rental_detail' item.rental.slug %}"
                            class="text-xs text-white hover:text-sky-400 font-black">
                             Open →
                         </a>
@@ -79,4 +79,3 @@
 </style>
 
 {% endblock %}
-
