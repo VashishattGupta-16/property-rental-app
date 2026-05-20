@@ -9,7 +9,6 @@ urlpatterns = [
     path("rentals/<slug:slug>/edit/", views.rental_edit, name="rental_edit"),
     path("rentals/<slug:slug>/delete/", views.rental_delete, name="rental_delete"),
     path("rentals/<int:rental_id>/contact/", views.rental_contact, name="rental_contact"),
-
     # Share and Visit Tracking URLs
     path("api/share/<slug:slug>/", views.create_share_link, name="create_share_link"),
     path("track/<uuid:share_id>/", views.track_visit, name="track_visit"),
