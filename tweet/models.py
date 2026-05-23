@@ -62,6 +62,16 @@ class CustomUser(AbstractUser):
     USERNAME_FIELD = "email"
     REQUIRED_FIELDS = []
 
+    def profile_is_complete(self) -> bool:
+        return bool(
+            self.first_name
+            and self.last_name
+            and self.phone_number
+            and self.user_type
+            and self.address
+            and self.current_location
+        )
+
     def __str__(self):
         return self.email
 

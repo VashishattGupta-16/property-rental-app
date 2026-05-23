@@ -1,0 +1,36 @@
+{
+  "name": "Empire Estate",
+  "short_name": "Empire",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0f172a",
+  "theme_color": "#0f172a",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/static/images/icon-192x192.png",
+      "type": "image/png",
+      "sizes": "192x192"
+    },
+    {
+      "src": "/static/images/icon-512x512.png",
+      "type": "image/png",
+      "sizes": "512x512"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "/static/images/screenshots/screenshot-wide.png",
+      "type": "image/png",
+      "sizes": "1280x720",
+      "form_factor": "wide",
+      "label": "Home"
+    },
+    {
+      "src": "/static/images/screenshots/screenshot-mobile.png",
+      "type": "image/png",
+      "sizes": "750x1334",
+      "label": "Home"
+    }
+  ]
+}

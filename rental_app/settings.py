@@ -179,9 +179,14 @@ TEMPLATES = [
 # DATABASE
 # =========================================================
 
-# dj_database_url will automatically look for the "DATABASE_URL" environment variable
+DATABASE_URL = os.getenv("DATABASE_URL", "").strip()
+
+if not DATABASE_URL:
+    raise ValueError("DATABASE_URL environment variable is missing. PostgreSQL is required.")
+
 DATABASES = {
-    "default": dj_database_url.config(
+    "default": dj_database_url.parse(
+        DATABASE_URL,
         conn_max_age=600,
         ssl_require=not DEBUG,
     )

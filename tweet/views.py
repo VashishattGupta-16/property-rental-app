@@ -354,3 +354,7 @@ def about(request):
 
 def ping_view(request):
     return HttpResponse("System Operational", content_type="text/plain")
+
+
+def offline(request):
+    return render(request, "offline.html")

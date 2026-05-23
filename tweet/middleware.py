@@ -34,10 +34,15 @@ class ProfileCompletionMiddleware:
                 allowed_paths = [
                     reverse('profile_setup'),
                     reverse('account_logout'),
+                    reverse('offline'),
                 ]
 
                 # Allow access to all /accounts/ URLs (for login, password reset, etc.)
-                is_allowed_path = request.path in allowed_paths or request.path.startswith('/accounts/')
+                is_allowed_path = (
+                    request.path in allowed_paths
+                    or request.path.startswith('/accounts/')
+                    or request.path in ("/manifest.json", "/sw.js")
+                )
 
                 if not is_allowed_path:
                     return redirect('profile_setup')
