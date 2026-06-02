@@ -82,6 +82,7 @@ SECURE_PROXY_SSL_HEADER = (
 
 INSTALLED_APPS = [
     # Django Apps
+    "jazzmin",
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
@@ -106,6 +107,15 @@ INSTALLED_APPS = [
     # Local Apps
     "tweet.apps.TweetConfig",
 ]
+
+JAZZMIN_SETTINGS = {
+    "site_title": "RentalPro Admin",
+    "site_header": "RentalPro",
+    "site_brand": "RentalPro",
+    "welcome_sign": "Welcome to Rental Dashboard",
+    "show_sidebar": True,
+    "navigation_expanded": True,
+}
 
 # =========================================================
 # MIDDLEWARE
