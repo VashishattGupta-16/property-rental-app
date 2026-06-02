@@ -1,4 +1,5 @@
-{% extends "layout.html" %}
+{% extends base_template|default:"layout.html" %}
+
 {% load static %}
 
 {% block title %}Empire Estate | Premium Rentals{% endblock %}
@@ -403,11 +404,12 @@
 
 {% block extra_scripts %}
 <script>
-  (function () {
+  function initRevealAnimations() {
     const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const container = document.getElementById('main-content') || document.body;
 
-    // Reveal on scroll
-    const revealEls = Array.from(document.querySelectorAll(".reveal"));
+    // Optimized: Only query for elements within the swapped container that haven't been shown
+    const revealEls = Array.from(container.querySelectorAll(".reveal:not(.is-inview)"));
     if (reduceMotion) {
       revealEls.forEach(el => el.classList.add("is-inview"));
     } else if (revealEls.length) {
@@ -417,14 +419,23 @@
           entry.target.classList.add("is-inview");
           obs.unobserve(entry.target);
         }
-      }, { threshold: 0.15, rootMargin: "0px 0px -10% 0px" });
+      }, { threshold: 0.01, rootMargin: "0px 0px 100px 0px" });
       revealEls.forEach(el => io.observe(el));
     }
+  }
+
+  // Run on initial load and after every HTMX swap
+  initRevealAnimations();
+  document.body.addEventListener('htmx:afterSettle', initRevealAnimations);
+
+  (function () {
+    const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
     // Parallax (subtle, no gaps)
     if (reduceMotion) return;
 
-    const items = Array.from(document.querySelectorAll("[data-parallax]"))
+    const container = document.getElementById('main-content') || document.body;
+    const items = Array.from(container.querySelectorAll("[data-parallax]"))
       .map(el => ({
         el,
         img: el.querySelector("img"),

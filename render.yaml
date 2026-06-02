@@ -10,10 +10,7 @@ services:
     name: Empire Estate-web
     plan: free
     runtime: python
-    buildCommand: |
-      pip install -r requirements.txt
-      python manage.py collectstatic --noinput
-      python manage.py migrate
+    buildCommand: "./build.sh"
     startCommand: "gunicorn rental_app.wsgi:application --config gunicorn.conf.py"
     envVars:
       - key: PYTHON_VERSION

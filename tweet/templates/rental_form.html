@@ -1,4 +1,4 @@
-{% extends "layout.html" %}
+{% extends base_template %}
 {% load media_urls %}
 
 {% block content %}
@@ -6,6 +6,7 @@
     .glass-card {
         background: rgba(17, 24, 39, 0.7);
         backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
         border: 1px solid rgba(255, 255, 255, 0.1);
         box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
     }
@@ -20,6 +21,11 @@
 
     .step-indicator.active { color: #3b82f6; border-color: #3b82f6; }
     .step-indicator.completed { color: #10b981; border-color: #10b981; }
+
+    .input-error {
+        border-color: #f87171 !important;
+        box-shadow: 0 0 0 4px rgba(248, 113, 113, 0.1) !important;
+    }
 </style>
 
 <div class="max-w-4xl mx-auto py-12 px-4">
@@ -58,17 +64,26 @@
                 </h2>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <!-- Manually render first few fields or use a loop with if -->
-                    <div class="flex flex-col">
+                    <div class="flex flex-col gap-1">
                         <label class="text-gray-400 text-xs font-bold uppercase mb-2">{{ form.title.label }}</label>
-                        {{ form.title }}
+                        <div class="{% if form.title.errors %}input-error{% endif %} contents">{{ form.title }}</div>
+                        {% if form.title.errors %}
+                            <p class="text-red-400 text-[10px] font-bold uppercase tracking-tight">{{ form.title.errors.0 }}</p>
+                        {% endif %}
                     </div>
-                    <div class="flex flex-col">
+                    <div class="flex flex-col gap-1">
                         <label class="text-gray-400 text-xs font-bold uppercase mb-2">{{ form.location.label }}</label>
-                        {{ form.location }}
+                        <div class="{% if form.location.errors %}input-error{% endif %} contents">{{ form.location }}</div>
+                        {% if form.location.errors %}
+                            <p class="text-red-400 text-[10px] font-bold uppercase tracking-tight">{{ form.location.errors.0 }}</p>
+                        {% endif %}
                     </div>
-                    <div class="flex flex-col md:col-span-2">
+                    <div class="flex flex-col md:col-span-2 gap-1">
                         <label class="text-gray-400 text-xs font-bold uppercase mb-2">{{ form.description.label }}</label>
-                        {{ form.description }}
+                        <div class="{% if form.description.errors %}input-error{% endif %} contents">{{ form.description }}</div>
+                        {% if form.description.errors %}
+                            <p class="text-red-400 text-[10px] font-bold uppercase tracking-tight">{{ form.description.errors.0 }}</p>
+                        {% endif %}
                     </div>
                 </div>
             </div>
@@ -81,20 +96,27 @@
                     <i class="fa-solid fa-tag text-blue-500"></i> Pricing & Specifications
                 </h2>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div class="flex flex-col">
+                    <div class="flex flex-col gap-1">
                         <label class="text-gray-400 text-xs font-bold uppercase mb-2">{{ form.price.label }}</label>
-                        {{ form.price }}
+                        <div class="{% if form.price.errors %}input-error{% endif %} contents">{{ form.price }}</div>
+                        {% if form.price.errors %}
+                            <p class="text-red-400 text-[10px] font-bold uppercase tracking-tight">{{ form.price.errors.0 }}</p>
+                        {% endif %}
                     </div>
-                    <div class="flex flex-col">
+                    <div class="flex flex-col gap-1">
                         <label class="text-gray-400 text-xs font-bold uppercase mb-2">{{ form.property_type.label }}</label>
-                        {{ form.property_type }}
+                        <div class="{% if form.property_type.errors %}input-error{% endif %} contents">{{ form.property_type }}</div>
+                        {% if form.property_type.errors %}
+                            <p class="text-red-400 text-[10px] font-bold uppercase tracking-tight">{{ form.property_type.errors.0 }}</p>
+                        {% endif %}
                     </div>
                     <!-- Catch-all for remaining fields in the main form -->
                     {% for field in form %}
                         {% if field.name not in "title location description price property_type" %}
-                            <div class="flex flex-col">
+                            <div class="flex flex-col gap-1">
                                 <label class="text-gray-400 text-xs font-bold uppercase mb-2">{{ field.label }}</label>
-                                {{ field }}
+                                <div class="{% if field.errors %}input-error{% endif %} contents">{{ field }}</div>
+                                {% if field.errors %}<p class="text-red-400 text-[10px] font-bold uppercase tracking-tight">{{ field.errors.0 }}</p>{% endif %}
                             </div>
                         {% endif %}
                     {% endfor %}
@@ -112,7 +134,11 @@
                 <div class="grid grid-cols-1 gap-4">
                     {% for form_img in formset %}
                         <div class="p-4 border border-white/5 rounded-2xl bg-white/5 royal-input">
-                            {{ form_img.as_p }}
+                            {% for hidden in form_img.hidden_fields %}{{ hidden }}{% endfor %}
+                            <div class="flex flex-col gap-1">
+                                {{ form_img.image }}
+                                {% if form_img.image.errors %}<p class="text-red-400 text-[10px] font-bold uppercase tracking-tight">{{ form_img.image.errors.0 }}</p>{% endif %}
+                            </div>
                         </div>
                     {% endfor %}
                 </div>
@@ -139,6 +165,7 @@
 <script>
     const steps = Array.from(document.querySelectorAll('.step-content'));
     const indicators = document.querySelectorAll('.step-indicator');
+    const form = document.getElementById('multiStepForm');
     const progressLine = document.getElementById('progress-line');
     const nextBtn = document.getElementById('nextBtn');
     const prevBtn = document.getElementById('prevBtn');
@@ -173,7 +200,6 @@
         if (currentStep < steps.length - 1) {
             currentStep++;
             updateStep();
-            window.scrollTo({ top: 0, behavior: 'smooth' });
         }
     });
 
@@ -181,6 +207,18 @@
         if (currentStep > 0) {
             currentStep--;
             updateStep();
+        }
+    });
+
+    // Server-side error handling: find the first field with a Django error and jump to that step
+    window.addEventListener('load', () => {
+        const firstServerSideError = document.querySelector('.input-error');
+        if (firstServerSideError) {
+            const targetStep = firstServerSideError.closest('.step-content');
+            if (targetStep) {
+                currentStep = steps.indexOf(targetStep);
+                updateStep();
+            }
         }
     });
 </script>

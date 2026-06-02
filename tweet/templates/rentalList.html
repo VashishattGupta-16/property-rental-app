@@ -1,11 +1,8 @@
-{% extends "layout.html" %}
+{% extends base_template %}
 {% load static %}
 {% load media_urls %}
 
 {% block content %}
-
-<!-- FONT AWESOME (ensure icons work) -->
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 
 <!-- HERO SECTION -->
 <section class="relative fluid-section py-16 px-4 overflow-hidden">
@@ -168,7 +165,7 @@
 
                 <img src="{{ rental.image|optimized_cloudinary_url:'f_auto,q_auto,c_fill,w_600,h_400' }}"
                     class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
-                    alt="{{ rental.title }}">
+                    loading="lazy" decoding="async" alt="{{ rental.title }}">
 
                 {% else %}
 
@@ -193,7 +190,7 @@
                 <!-- Saved Badge -->
                 <div class="absolute top-3 left-3 z-[90]">
                     <span data-wishlist-badge
-                        class="px-2 py-1 rounded-full text-[9px] font-black tracking-wide bg-red-500/20 text-red-200 border border-red-500/30 backdrop-blur-md transition-opacity {% if rental.id in wishlisted_rental_ids %}opacity-100{% else %}opacity-0{% endif %}">
+                        class="px-2 py-1 rounded-full text-[9px] font-black tracking-wide bg-red-500/20 text-red-200 border border-red-500/30 backdrop-blur-md transition-opacity {% if rental.is_wishlisted %}opacity-100{% else %}opacity-0{% endif %}">
                         Saved
                     </span>
                 </div>
@@ -204,14 +201,13 @@
 
                     {% csrf_token %}
 
-                    <button type="submit"
-                        data-wishlisted="{% if rental.id in wishlisted_rental_ids %}1{% else %}0{% endif %}"
-                        aria-pressed="{% if rental.id in wishlisted_rental_ids %}true{% else %}false{% endif %}"
+                    <button type="submit" data-wishlisted="{{ rental.is_wishlisted|yesno:'1,0' }}"
+                        aria-pressed="{% if rental.is_wishlisted %}true{% else %}false{% endif %}"
                         class="wishlist-btn w-9 h-9 rounded-full bg-black/50 backdrop-blur-md border border-white/10 flex items-center justify-center text-white hover:bg-red-500/80 transition-all duration-300 active:scale-90 shadow-lg"
-                        aria-label="{% if rental.id in wishlisted_rental_ids %}Remove from wishlist{% else %}Add to wishlist{% endif %}">
+                        aria-label="{{ rental.is_wishlisted|yesno:'Remove from wishlist,Add to wishlist' }}">
 
                         <i
-                            class="{% if rental.id in wishlisted_rental_ids %}fa-solid fa-heart text-red-500{% else %}fa-regular fa-heart{% endif %} text-lg"></i>
+                            class="{{ rental.is_wishlisted|yesno:'fa-solid fa-heart text-red-500,fa-regular fa-heart' }} text-lg"></i>
 
                     </button>
 

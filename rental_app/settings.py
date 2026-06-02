@@ -52,7 +52,7 @@ ALLOWED_HOSTS = [
     host.strip()
     for host in os.getenv(
         "DJANGO_ALLOWED_HOSTS",
-        "127.0.0.1,localhost,theresidenceco-web.onrender.com,.onrender.com",
+        "127.0.0.1,localhost,theresidenceco-web.onrender.com,.onrender.com,.ngrok-free.dev",
     ).split(",")
 ]
 
@@ -60,12 +60,14 @@ CSRF_TRUSTED_ORIGINS = [
     origin.strip()
     for origin in os.getenv(
         "DJANGO_CSRF_TRUSTED_ORIGINS",
-        "https://theresidenceco-web.onrender.com",
+        "http://127.0.0.1:8000,http://localhost:8000,https://theresidenceco-web.onrender.com,https://*.ngrok-free.dev",
     ).split(",")
 ]
 
 SESSION_COOKIE_SECURE = not DEBUG
 CSRF_COOKIE_SECURE = not DEBUG
+SESSION_COOKIE_SAMESITE = 'Lax'
+CSRF_COOKIE_SAMESITE = 'Lax'
 
 SECURE_SSL_REDIRECT = not DEBUG
 
@@ -88,6 +90,7 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "django.contrib.humanize",
     "django.contrib.sites",
+    "django.contrib.postgres",
 
     # Third Party Apps
     "cloudinary",
@@ -118,6 +121,7 @@ MIDDLEWARE = [
 
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
+    "tweet.middleware.HtmxVaryMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
@@ -170,6 +174,7 @@ TEMPLATES = [
                 "django.template.context_processors.request",
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
+                "tweet.context_processors.base_template",
             ],
         },
     },
@@ -179,32 +184,39 @@ TEMPLATES = [
 # DATABASE
 # =========================================================
 
-DATABASE_URL = os.getenv("DATABASE_URL", "").strip()
-
+DATABASE_URL = os.getenv("DATABASE_URL")
 if not DATABASE_URL:
-    raise ValueError("DATABASE_URL environment variable is missing. PostgreSQL is required.")
+    raise ValueError(
+        "DATABASE_URL must be set for PostgreSQL. "
+        "Configure DATABASE_URL in your environment or .env file."
+    )
 
 DATABASES = {
-    "default": dj_database_url.parse(
-        DATABASE_URL,
-        conn_max_age=600,
-        ssl_require=not DEBUG,
-    )
+    "default": dj_database_url.parse(DATABASE_URL)
 }
 
 # =========================================================
 # CACHING (REDIS)
 # =========================================================
 
-CACHES = {
-    "default": {
-        "BACKEND": "django_redis.cache.RedisCache",
-        "LOCATION": os.getenv("REDIS_URL", "redis://127.0.0.1:6379/1"),
-        "OPTIONS": {
-            "CLIENT_CLASS": "django_redis.client.DefaultClient",
+# Fallback to local memory cache if Redis is not available locally
+if os.getenv("REDIS_URL"):
+    CACHES = {
+        "default": {
+            "BACKEND": "django_redis.cache.RedisCache",
+            "LOCATION": os.getenv("REDIS_URL"),
+            "OPTIONS": {
+                "CLIENT_CLASS": "django_redis.client.DefaultClient",
+            }
         }
     }
-}
+else:
+    CACHES = {
+        "default": {
+            "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
+            "LOCATION": "unique-snowflake",
+        }
+    }
 
 # =========================================================
 # CELERY CONFIGURATION
@@ -270,6 +282,8 @@ REST_FRAMEWORK = {
 
 ACCOUNT_AUTHENTICATION_METHOD = "email"
 
+ACCOUNT_DEFAULT_HTTP_PROTOCOL = "https"
+
 ACCOUNT_EMAIL_REQUIRED = True
 
 ACCOUNT_USERNAME_REQUIRED = False
@@ -297,6 +311,8 @@ LOGIN_URL = "/accounts/login/"
 LOGIN_REDIRECT_URL = "/rentals/"
 
 LOGOUT_REDIRECT_URL = "/"
+ACCOUNT_LOGOUT_REDIRECT_URL = "/"
+ACCOUNT_LOGOUT_ON_GET = True
 
 # =========================================================
 # GOOGLE AUTH

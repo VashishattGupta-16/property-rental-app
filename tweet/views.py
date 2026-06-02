@@ -1,20 +1,22 @@
 from django.shortcuts import render, get_object_or_404, redirect
+from django.core.paginator import Paginator
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.views import redirect_to_login
 from django.views.decorators.http import require_POST
 from django.http import HttpResponse, JsonResponse
-from django.db.models import Q
+from django.db.models import Q, Case, When, Value, BooleanField, Exists, OuterRef
 from django.utils.http import url_has_allowed_host_and_scheme
 from django.urls import reverse
 from django.contrib import messages
-
 from .models import Rental, Wishlist, PropertyShare, PropertyVisit, PropertyInquiry
 from .forms import RentalForm, GalleryFormSet, ProfileSetupForm
+from .tasks import record_property_visit
 
 
 # =========================================================
 # HELPERS
 # =========================================================
+
 
 def _wants_json(request):
     accept = (request.headers.get("accept") or "").lower()
@@ -22,6 +24,10 @@ def _wants_json(request):
         request.headers.get("x-requested-with") == "XMLHttpRequest"
         or "application/json" in accept
     )
+
+
+def _is_htmx(request):
+    return (request.headers.get("HX-Request") or "").lower() == "true"
 
 
 def get_client_ip(request):
@@ -44,13 +50,29 @@ def index(request):
 # =========================================================
 
 def rental_list(request):
+    user = request.user
     rentals = (
         Rental.objects
-        .select_related('user')
-        .prefetch_related('gallery')
         .filter(is_available=True)
         .order_by('-created_at')
     )
+
+    if user.is_authenticated:
+        rentals = rentals.annotate(
+            is_owner=Case(
+                When(user_id=user.id, then=Value(True)),
+                default=Value(False),
+                output_field=BooleanField(),
+            ),
+            is_wishlisted=Exists(
+                Wishlist.objects.filter(user_id=user.id, rental_id=OuterRef("pk"))
+            ),
+        )
+    else:
+        rentals = rentals.annotate(
+            is_owner=Value(False, output_field=BooleanField()),
+            is_wishlisted=Value(False, output_field=BooleanField()),
+        )
 
     search_query = request.GET.get('q', '').strip()
     location_query = request.GET.get('location', '').strip()
@@ -80,21 +102,18 @@ def rental_list(request):
     if owner_query == 'me' and request.user.is_authenticated:
         rentals = rentals.filter(user=request.user)
 
-    wishlisted_ids = set()
-    if request.user.is_authenticated:
-        wishlisted_ids = set(
-            request.user.wishlist_items.values_list('rental_id', flat=True)
-        )
-
-    for rental in rentals:
-        rental.is_owner = (
-            request.user.is_authenticated and rental.user == request.user
-        )
+    paginator = Paginator(rentals, 12)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+    pagination_params = request.GET.copy()
+    pagination_params.pop('page', None)
+    pagination_query = pagination_params.urlencode()
 
     return render(request, 'rentalList.html', {
-        'rentals': rentals,
-        'wishlisted_rental_ids': wishlisted_ids,
+        'rentals': page_obj,
         'search_params': request.GET,
+        'page_obj': page_obj,
+        'pagination_query': pagination_query,
     })
 
 
@@ -109,7 +128,7 @@ def rental_detail(request, slug):
     )
 
     return render(request, 'room_describe.html', {
-        'rental': rental
+        'rental': rental,
     })
 
 
@@ -124,15 +143,15 @@ def create_share_link(request, slug):
     The frontend calls this via POST, gets a share_id, and constructs
     the shareable URL.
     """
-    rental = get_object_or_404(Rental, slug=slug)
+    rental = get_object_or_404(Rental.objects.only("id"), slug=slug)
     platform = request.POST.get('platform')
 
     if not platform:
         return JsonResponse({'error': 'Platform not specified'}, status=400)
 
     share = PropertyShare.objects.create(
-        user=request.user if request.user.is_authenticated else None,
-        property=rental,
+        user_id=request.user.id if request.user.is_authenticated else None,
+        property_id=rental.id,
         platform=platform
     )
 
@@ -144,15 +163,19 @@ def track_visit(request, share_id):
     This is the destination for a shared link. It records the visit,
     attributes it to the original share, and redirects to the property.
     """
-    share = get_object_or_404(PropertyShare.objects.select_related('property'), pk=share_id)
+    share = get_object_or_404(
+        PropertyShare.objects.select_related('property').only('id', 'property__slug'),
+        pk=share_id,
+    )
 
-    visit = PropertyVisit.objects.create(
-        share=share,
-        user=request.user if request.user.is_authenticated else None,
+    # Offload write to background task for instant redirect performance
+    record_property_visit.delay(
+        share_id=share.id,
+        user_id=request.user.id if request.user.is_authenticated else None,
         ip_address=get_client_ip(request),
         user_agent=request.META.get('HTTP_USER_AGENT', '')
     )
-    request.session['property_visit_id'] = visit.pk
+    
     return redirect('rental_detail', slug=share.property.slug)
 
 # =========================================================
@@ -163,7 +186,7 @@ def track_visit(request, share_id):
 def rental_edit(request, slug):
     rental = get_object_or_404(Rental, slug=slug)
 
-    if rental.user != request.user and not request.user.is_staff:
+    if rental.user_id != request.user.id and not request.user.is_staff:
         return redirect('index')
 
     if request.method == 'POST':
@@ -183,7 +206,6 @@ def rental_edit(request, slug):
     return render(request, 'rental_form.html', {
         'form': form,
         'formset': formset,
-        'rental': rental
     })
 
 # =========================================================
@@ -217,7 +239,7 @@ def rental_create(request):
 
     return render(request, 'rental_form.html', {
         'form': form,
-        'formset': formset
+        'formset': formset,
     })
 
 
@@ -228,9 +250,9 @@ def rental_create(request):
 @login_required
 @require_POST
 def rental_delete(request, slug):
-    rental = get_object_or_404(Rental, slug=slug)
+    rental = get_object_or_404(Rental.objects.only("id", "slug", "user_id"), slug=slug)
 
-    if rental.user != request.user and not request.user.is_staff:
+    if rental.user_id != request.user.id and not request.user.is_staff:
         return HttpResponse("Unauthorized", status=403)
 
     rental.delete()
@@ -243,7 +265,7 @@ def rental_delete(request, slug):
 
 @login_required
 def rental_contact(request, rental_id):
-    rental = get_object_or_404(Rental, pk=rental_id)
+    rental = get_object_or_404(Rental.objects.select_related('user'), pk=rental_id)
     success = False
 
     if request.method == 'POST':
@@ -257,17 +279,18 @@ def rental_contact(request, rental_id):
         visit = None
         if visit_id:
             try:
-                visit = PropertyVisit.objects.get(pk=visit_id)
+                visit = PropertyVisit.objects.only('id').get(pk=visit_id)
             except PropertyVisit.DoesNotExist:
                 visit = None # The visit might have been deleted, proceed without it
 
         PropertyInquiry.objects.create(
-            visit=visit, property=rental, name=name, phone=phone, message=message
+            visit=visit, property_id=rental.id, name=name, phone=phone, message=message
         )
         success = True
 
     return render(request, 'rental_contact.html', {
-        'rental': rental, 'success': success
+        'rental': rental,
+        'success': success,
     })
 
 
@@ -277,12 +300,20 @@ def rental_contact(request, rental_id):
 
 @login_required
 def profile(request):
-    listings = Rental.objects.filter(user=request.user).order_by('-created_at')
+    listings = (
+        Rental.objects
+        .filter(user_id=request.user.id)
+        .only('id', 'title', 'slug', 'image', 'location', 'price', 'created_at')
+        .order_by('-created_at')
+    )
+    paginator = Paginator(listings, 12)
+    page_obj = paginator.get_page(request.GET.get('page'))
 
     return render(request, 'profile.html', {
         'user': request.user,
-        'listings': listings,
-        'listings_count': listings.count(),
+        'listings': page_obj,
+        'page_obj': page_obj,
+        'listings_count': paginator.count,
         'wishlist_count': request.user.wishlist_items.count(),
     })
 
@@ -299,7 +330,7 @@ def profile_setup(request):
         return redirect('index')
 
     return render(request, 'profile_setup.html', {
-        'form': form
+        'form': form,
     })
 
 
@@ -309,23 +340,45 @@ def profile_setup(request):
 
 @login_required
 def wishlist(request):
-    wishlist_items = request.user.wishlist_items.select_related('rental')
+    wishlist_items = (
+        request.user.wishlist_items
+        .select_related('rental')
+        .only(
+            'id',
+            'created_at',
+            'rental__id',
+            'rental__slug',
+            'rental__title',
+            'rental__image',
+            'rental__location',
+            'rental__price',
+        )
+        .order_by('-created_at')
+    )
+    paginator = Paginator(wishlist_items, 12)
+    page_obj = paginator.get_page(request.GET.get('page'))
 
     return render(request, 'wishlist.html', {
-        'wishlist': wishlist_items
+        'wishlist': page_obj,
+        'page_obj': page_obj,
     })
 
 
 @require_POST
 def toggle_wishlist(request, rental_id):
     if not request.user.is_authenticated:
-        return redirect_to_login(request.get_full_path(), reverse("index"))
+        login_url = reverse("account_login")
+        # Return JSON 401 for both AJAX and HTMX to allow client-side handling
+        if _is_htmx(request) or _wants_json(request):
+            # Note: layout.html JS handles response.status === 401
+            return JsonResponse({"login_url": login_url}, status=401)
+        return redirect_to_login(request.get_full_path(), login_url)
 
-    rental = get_object_or_404(Rental, pk=rental_id)
+    rental = get_object_or_404(Rental.objects.only("id"), pk=rental_id)
 
     obj, created = Wishlist.objects.get_or_create(
-        user=request.user,
-        rental=rental
+        user_id=request.user.id,
+        rental_id=rental.id
     )
 
     if not created:
@@ -333,6 +386,9 @@ def toggle_wishlist(request, rental_id):
         wishlisted = False
     else:
         wishlisted = True
+
+    if _is_htmx(request):
+        return HttpResponse(status=204) # 204 prevents HTMX from swapping anything if we handle deletion via JS/OOB
 
     if _wants_json(request):
         return JsonResponse({

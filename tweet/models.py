@@ -6,6 +6,7 @@ from django.core.validators import RegexValidator
 from django.utils.text import slugify
 from django.utils.crypto import get_random_string
 from django.contrib.auth.models import AbstractUser, BaseUserManager
+from django.contrib.postgres.indexes import GinIndex
 from cloudinary_storage.storage import MediaCloudinaryStorage
 
 
@@ -106,10 +107,10 @@ class Rental(models.Model):
     contact = models.CharField(max_length=15, validators=[phone_validator])
     price = models.DecimalField(max_digits=12, decimal_places=2)
 
-    location = models.CharField(max_length=255)
+    location = models.CharField(max_length=255, db_index=True)
     address = models.TextField(blank=True, null=True)
 
-    property_type = models.CharField(max_length=30, choices=PropertyTypes.choices)
+    property_type = models.CharField(max_length=30, choices=PropertyTypes.choices, db_index=True)
 
     furnishing = models.CharField(max_length=100, blank=True)
     sqft = models.PositiveIntegerField()
@@ -129,6 +130,18 @@ class Rental(models.Model):
 
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        indexes = [
+            models.Index(fields=["is_available", "-created_at"], name="rental_avail_created_idx"),
+            models.Index(fields=["property_type", "is_available", "-created_at"], name="rental_type_avail_created_idx"),
+            models.Index(fields=["user", "-created_at"], name="rental_user_created_idx"),
+            models.Index(fields=["is_available", "price"], name="rental_avail_price_idx"),
+            # Trigram search indexes (requires Postgres pg_trgm extension)
+            GinIndex(fields=["title"], name="rental_title_trgm_idx", opclasses=["gin_trgm_ops"]),
+            GinIndex(fields=["location"], name="rental_location_trgm_idx", opclasses=["gin_trgm_ops"]),
+            GinIndex(fields=["description"], name="rental_desc_trgm_idx", opclasses=["gin_trgm_ops"]),
+        ]
 
     def save(self, *args, **kwargs):
         if not self.slug:

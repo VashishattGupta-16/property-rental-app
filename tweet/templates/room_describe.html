@@ -1,4 +1,4 @@
-{% extends "layout.html" %}
+{% extends base_template|default:"layout.html" %}
 {% load media_urls %}
 
 {% block content %}
@@ -82,9 +82,12 @@
 
                 <div class="scroller-item border">
                     {% if rental.image %}
-                        <img src="{{ rental.image|optimized_cloudinary_url:'f_auto,q_auto,c_limit,w_1400' }}"
-                             class="media-cover"
-                             alt="{{ rental.title }}">
+                        <img src="{{ rental.image|optimized_cloudinary_url:'f_auto,q_auto,c_limit,w_1200' }}"
+                              class="media-cover"
+                              fetchpriority="high"
+                              decoding="async"
+                              sizes="(min-width: 1024px) 56vw, 92vw"
+                              alt="{{ rental.title }}">
                     {% else %}
                         <div class="w-full h-full bg-gray-200 flex items-center justify-center">
                             No Image
@@ -95,9 +98,12 @@
                 {% for item in rental.gallery.all %}
                 <div class="scroller-item border">
                     {% if item.image %}
-                        <img src="{{ item.image|optimized_cloudinary_url:'f_auto,q_auto,c_limit,w_1400' }}"
-                             class="media-cover"
-                             alt="Gallery image">
+                        <img src="{{ item.image|optimized_cloudinary_url:'f_auto,q_auto,c_fill,w_900,h_560' }}"
+                              class="media-cover"
+                              loading="lazy"
+                              decoding="async"
+                              sizes="(min-width: 1024px) 56vw, 92vw"
+                              alt="Gallery image">
                     {% else %}
                         <div class="w-full h-full bg-gray-200 flex items-center justify-center">
                             No Image

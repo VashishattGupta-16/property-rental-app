@@ -1,5 +1,4 @@
 {% load static %}
-<link rel="stylesheet" href="{% static 'css/navbar.css' %}">
 
 <nav class="navbar-wrapper">
     <div class="navbar-shell">
@@ -68,7 +67,7 @@
             ======================================= -->
             <div class="navbar-center">
                 <!-- Brand (centered on mobile) -->
-                <a href="{% url 'index' %}" class="logo-wrap" aria-label="Home">
+                <a href="{% url 'index' %}" class="logo-wrap" aria-label="Home" hx-boost="false">
                     <h1 class="logo-text rye-regular">Empire <span class="logo-highlight">Estate</span></h1>
                 </a>
 
@@ -100,6 +99,7 @@
                             <div class="dropdown-card">
                                 <a href="{% url 'rental_list' %}?type=1BHK" class="dropdown-item">1 BHK</a>
                                 <a href="{% url 'rental_list' %}?type=2BHK" class="dropdown-item">2 BHK</a>
+                                <a href="{% url 'rental_list' %}?type=3BHK" class="dropdown-item">3 BHK</a>
                                 <a href="{% url 'rental_list' %}?type=PG" class="dropdown-item">PGs</a>
                             </div>
                         </div>
@@ -151,7 +151,7 @@
 
                 {% else %}
 
-                <a href="{% url 'account_signup' %}" class="login-link">Login</a>
+                <a href="{% url 'account_login' %}" class="login-link" hx-boost="false">Login</a>
 
                 {% endif %}
             </div>

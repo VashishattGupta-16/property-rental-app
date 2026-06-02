@@ -11,7 +11,7 @@ urlpatterns = [
     path("rentals/<int:rental_id>/contact/", views.rental_contact, name="rental_contact"),
     # Share and Visit Tracking URLs
     path("api/share/<slug:slug>/", views.create_share_link, name="create_share_link"),
-    path("track/<uuid:share_id>/", views.track_visit, name="track_visit"),
+    path("track/<int:share_id>/", views.track_visit, name="track_visit"),
 
     path("profile/", views.profile, name="profile"),
     path("profile/setup/", views.profile_setup, name="profile_setup"),

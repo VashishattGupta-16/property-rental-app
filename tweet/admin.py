@@ -104,6 +104,7 @@ class RentalImageInline(admin.TabularInline):
 @admin.register(Rental)
 class RentalAdmin(admin.ModelAdmin):
     inlines = [RentalImageInline]
+    list_select_related = ('user',)
 
     list_display = (
         'title',
@@ -140,6 +141,8 @@ class RentalAdmin(admin.ModelAdmin):
 
 @admin.register(PropertyShare)
 class PropertyShareAdmin(admin.ModelAdmin):
+    list_select_related = ('property', 'user')
+
     list_display = (
         'property',
         'user',
@@ -166,6 +169,8 @@ class PropertyShareAdmin(admin.ModelAdmin):
 
 @admin.register(PropertyVisit)
 class PropertyVisitAdmin(admin.ModelAdmin):
+    list_select_related = ('share', 'share__property', 'user')
+
     list_display = (
         'share',
         'user',
@@ -193,6 +198,8 @@ class PropertyVisitAdmin(admin.ModelAdmin):
 
 @admin.register(PropertyInquiry)
 class PropertyInquiryAdmin(admin.ModelAdmin):
+    list_select_related = ('property', 'visit')
+
     list_display = (
         'property',
         'name',

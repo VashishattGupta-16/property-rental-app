@@ -1,4 +1,4 @@
-{% extends 'layout.html' %}
+{% extends base_template %}
 {% load socialaccount %}
 {% load static %}
 
@@ -35,11 +35,10 @@
 
             <form method="post" novalidate class="space-y-6">
                 {% csrf_token %}
-                    <a href="{% provider_login_url 'google' %}" class="flex items-center justify-center gap-3 w-full bg-[var(--bg)] border border-[var(--surface-border)] py-4 rounded-2xl text-[0.7rem] font-black hover:bg-[var(--surface-border)] transition-all">
-                        <img src="https://www.gstatic.com/images/branding/product/1x/gsa_512dp.png" class="w-4 h-4" alt="G">
-                        Login with Google
-                    </a>
-                </div>
+                <a href="{% provider_login_url 'google' %}" hx-boost="false" class="flex items-center justify-center gap-3 w-full bg-[var(--bg)] border border-[var(--surface-border)] py-4 rounded-2xl text-[0.7rem] font-black hover:bg-[var(--surface-border)] transition-all">
+                    <img src="https://www.gstatic.com/images/branding/product/1x/gsa_512dp.png" class="w-4 h-4" alt="G">
+                    Login with Google
+                </a>
             </form>
         </div>
     </div>

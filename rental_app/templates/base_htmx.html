@@ -1,0 +1,17 @@
+{# This template is used for HTMX partial swaps to prevent layout nesting #}
+
+<main id="main-content">
+{% if request.path != '/' %}
+<div class="fluid-page pt-6 mb-2">
+    <button onclick="history.back()"
+        class="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl glass-card text-[10px] font-black uppercase tracking-widest text-slate-300 hover:text-white hover:border-sky-500/50 transition-all active:scale-95 shadow-lg">
+        <i class="fa-solid fa-arrow-left text-sky-500"></i>
+        Back
+    </button>
+</div>
+{% endif %}
+
+{% block content %}{% endblock %}
+</main>
+
+<div id="page-scripts" hx-swap-oob="true">{% block extra_scripts %}{% endblock %}</div>
