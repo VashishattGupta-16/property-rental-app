@@ -202,7 +202,7 @@
                     {% csrf_token %}
 
                     <button type="submit" data-wishlisted="{{ rental.is_wishlisted|yesno:'1,0' }}"
-                        aria-pressed="{% if rental.is_wishlisted %}true{% else %}false{% endif %}"
+                        aria-pressed="{{ rental.is_wishlisted|yesno:'true,false' }}"
                         class="wishlist-btn w-9 h-9 rounded-full bg-black/50 backdrop-blur-md border border-white/10 flex items-center justify-center text-white hover:bg-red-500/80 transition-all duration-300 active:scale-90 shadow-lg"
                         aria-label="{{ rental.is_wishlisted|yesno:'Remove from wishlist,Add to wishlist' }}">
 
