@@ -47,11 +47,9 @@ python-dateutil==2.9.0.post0
 
 cryptography==42.0.5
 PyJWT==2.11.0
-
-# ML / NLP (SAFE FOR RENDER)
-spacy==3.7.2
-pandas==2.1.4
-numpy
-scipy
+## ML / NLP (TEMPORARILY DISABLED FOR DEPLOY STABILITY)
+# spacy
+# pandas
+# scikit-surprise
 
 django-jazzmin==3.0.1

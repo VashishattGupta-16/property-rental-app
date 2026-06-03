@@ -9,8 +9,16 @@ from django_redis import get_redis_connection
 from django.core.cache import cache
 from celery import shared_task
 from .models import Rental, PropertyVisit, Wishlist
-from .ai_engine import ListingProcessor, optimize_listing_image
-from .recommender import PropertyRecommender
+try:
+    from .ai_engine import ListingProcessor, optimize_listing_image
+except ImportError:
+    ListingProcessor = None
+    optimize_listing_image = None
+
+try:
+    from .recommender import PropertyRecommender
+except ImportError:
+    PropertyRecommender = None
 
 
 @shared_task
@@ -68,6 +76,9 @@ def drain_visit_buffer():
 
 @shared_task
 def process_rental_ai_assets(rental_id):
+    if ListingProcessor is None or optimize_listing_image is None:
+        return "AI/Pillow dependencies missing, skipping."
+
     rental = Rental.objects.get(id=rental_id)
     
     # 1. NLP Metadata
@@ -86,6 +97,9 @@ def train_recommendation_model():
     Offline training and feed pre-computation.
     Iterates over active users to generate top 12 property recommendations.
     """
+    if PropertyRecommender is None:
+        return "Recommendation dependencies (pandas/surprise) missing, skipping."
+
     from surprise import SVD, Dataset, Reader
     User = get_user_model()
     rec_engine = PropertyRecommender()

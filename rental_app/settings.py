@@ -60,7 +60,7 @@ CSRF_TRUSTED_ORIGINS = [
     origin.strip()
     for origin in os.getenv(
         "DJANGO_CSRF_TRUSTED_ORIGINS",
-        "http://127.0.0.1:8000,http://localhost:8000,https://rentalpro-web.onrender.com,https://*.ngrok-free.dev",
+        "http://127.0.0.1:8000,http://localhost:8000,https://rentalpro-web.onrender.com,https://*.onrender.com,https://*.ngrok-free.dev",
     ).split(",")
 ]
 
@@ -297,7 +297,7 @@ REST_FRAMEWORK = {
 
 ACCOUNT_AUTHENTICATION_METHOD = "email"
 
-ACCOUNT_DEFAULT_HTTP_PROTOCOL = "https"
+ACCOUNT_DEFAULT_HTTP_PROTOCOL = "http" if DEBUG else "https"
 
 ACCOUNT_EMAIL_REQUIRED = True
 

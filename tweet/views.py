@@ -389,21 +389,47 @@ def toggle_wishlist(request, rental_id):
 
     rental = get_object_or_404(Rental.objects.only("id"), pk=rental_id)
 
+    import logging
+    logger = logging.getLogger(__name__)
+    logger.info(f"Wishlist toggle attempt: User {request.user.id} for Rental {rental_id}")
+
     # DEBUG: Log basic request and identifiers to help trace wishlist flow
     print("[wishlist] User:", request.user)
     print("[wishlist] Authenticated:", request.user.is_authenticated)
     print("[wishlist] Rental ID (param):", rental_id)
 
-    obj, created = Wishlist.objects.get_or_create(
-        user_id=request.user.id,
-        rental_id=rental.id
-    )
+    # DEBUG: Log request headers relevant to AJAX/HTMX/CSRF
+    try:
+        hdrs = {k: v for k, v in request.headers.items() if k.lower().startswith(('x-', 'hx-', 'accept', 'cookie'))}
+        print("[wishlist][HEADERS]", hdrs)
+    except Exception:
+        print("[wishlist][HEADERS] unable to read headers")
+
+    try:
+        obj, created = Wishlist.objects.get_or_create(
+            user_id=request.user.id,
+            rental_id=rental.id
+        )
+    except Exception as e:
+        # Log and return JSON 500 for AJAX callers so frontend can show error
+        print("[wishlist][ERROR] get_or_create failed:", repr(e))
+        if _wants_json(request):
+            return JsonResponse({"ok": False, "error": str(e)}, status=500)
+        messages.error(request, "Unable to update wishlist at this time.")
+        return redirect('rental_list')
 
     # DEBUG: Log whether a new wishlist record was created or an existing one removed
     print("[wishlist] Wishlist Created:", created, "Wishlist ID:", getattr(obj, 'id', None))
 
     if not created:
-        obj.delete()
+        try:
+            obj.delete()
+        except Exception as e:
+            print("[wishlist][ERROR] delete failed:", repr(e))
+            if _wants_json(request):
+                return JsonResponse({"ok": False, "error": str(e)}, status=500)
+            messages.error(request, "Unable to update wishlist at this time.")
+            return redirect('rental_list')
         wishlisted = False
     else:
         wishlisted = True

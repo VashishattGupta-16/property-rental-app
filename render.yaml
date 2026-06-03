@@ -14,7 +14,7 @@ services:
     startCommand: "gunicorn rental_app.wsgi:application --config gunicorn.conf.py"
     envVars:
       - key: PYTHON_VERSION
-        value: 3.12.10
+        value: 3.11.10
       - key: DJANGO_SETTINGS_MODULE
         value: rental_app.settings
       - key: DJANGO_DEBUG
@@ -44,4 +44,4 @@ services:
       - key: SECRET_KEY
         generateValue: true
       - key: DJANGO_ALLOWED_HOSTS
-        value: "localhost,127.0.0.1,.onrender.com"
+        value: "localhost,127.0.0.1,rentalpro-web.onrender.com,.onrender.com"
