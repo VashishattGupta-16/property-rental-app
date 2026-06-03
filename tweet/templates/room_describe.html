@@ -39,7 +39,8 @@
 
         <div class="space-y-4">
 
-            <span class="inline-flex items-center gap-2 bg-[var(--accent)] text-white text-[9px] font-black px-4 py-1 rounded-full uppercase tracking-widest">
+            <span
+                class="inline-flex items-center gap-2 bg-[var(--accent)] text-white text-[9px] font-black px-4 py-1 rounded-full uppercase tracking-widest">
                 <i class="fa-solid fa-tag"></i>
                 {{ rental.get_property_type_display }}
             </span>
@@ -69,6 +70,19 @@
 
             <p class="text-[10px] font-bold opacity-30">/ Month</p>
 
+            <!-- Wishlist Button (Detail) -->
+            <div class="mt-4 text-left">
+                <form action="{% url 'toggle_wishlist' rental.id %}" method="POST" class="js-wishlist-form inline">
+                    {% csrf_token %}
+                    <button type="submit" data-wishlisted="{{ is_wishlisted|yesno:'1,0' }}"
+                        aria-pressed="{{ is_wishlisted|yesno:'true,false' }}"
+                        class="wishlist-btn inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-black/50 backdrop-blur-md border border-white/10 text-white hover:bg-red-500/80 transition-all duration-300 active:scale-95">
+                        <i class="{{ is_wishlisted|yesno:'fa-solid fa-heart text-red-500,fa-regular fa-heart' }}"></i>
+                        <span class="text-sm font-bold">{{ is_wishlisted|yesno:'Saved,Save' }}</span>
+                    </button>
+                </form>
+            </div>
+
         </div>
     </div>
 
@@ -82,32 +96,26 @@
 
                 <div class="scroller-item border">
                     {% if rental.image %}
-                        <img src="{{ rental.image|optimized_cloudinary_url:'f_auto,q_auto,c_limit,w_1200' }}"
-                              class="media-cover"
-                              fetchpriority="high"
-                              decoding="async"
-                              sizes="(min-width: 1024px) 56vw, 92vw"
-                              alt="{{ rental.title }}">
+                    <img src="{{ rental.image|optimized_cloudinary_url:'f_auto,q_auto,c_limit,w_1200' }}"
+                        class="media-cover" fetchpriority="high" decoding="async" sizes="(min-width: 1024px) 56vw, 92vw"
+                        alt="{{ rental.title }}">
                     {% else %}
-                        <div class="w-full h-full bg-gray-200 flex items-center justify-center">
-                            No Image
-                        </div>
+                    <div class="w-full h-full bg-gray-200 flex items-center justify-center">
+                        No Image
+                    </div>
                     {% endif %}
                 </div>
 
                 {% for item in rental.gallery.all %}
                 <div class="scroller-item border">
                     {% if item.image %}
-                        <img src="{{ item.image|optimized_cloudinary_url:'f_auto,q_auto,c_fill,w_900,h_560' }}"
-                              class="media-cover"
-                              loading="lazy"
-                              decoding="async"
-                              sizes="(min-width: 1024px) 56vw, 92vw"
-                              alt="Gallery image">
+                    <img src="{{ item.image|optimized_cloudinary_url:'f_auto,q_auto,c_fill,w_900,h_560' }}"
+                        class="media-cover" loading="lazy" decoding="async" sizes="(min-width: 1024px) 56vw, 92vw"
+                        alt="Gallery image">
                     {% else %}
-                        <div class="w-full h-full bg-gray-200 flex items-center justify-center">
-                            No Image
-                        </div>
+                    <div class="w-full h-full bg-gray-200 flex items-center justify-center">
+                        No Image
+                    </div>
                     {% endif %}
                 </div>
                 {% endfor %}
@@ -193,14 +201,10 @@
 
                 <!-- Copy Link -->
                 <div class="flex gap-2">
-                    <input type="text"
-                           id="shareLink"
-                           value="{{ request.build_absolute_uri }}"
-                           readonly
-                           class="w-full p-3 text-xs rounded-lg border bg-transparent">
+                    <input type="text" id="shareLink" value="{{ request.build_absolute_uri }}" readonly
+                        class="w-full p-3 text-xs rounded-lg border bg-transparent">
 
-                    <button onclick="copyLink()"
-                            class="px-4 py-2 text-xs font-black bg-black text-white rounded-lg">
+                    <button onclick="copyLink()" class="px-4 py-2 text-xs font-black bg-black text-white rounded-lg">
                         Copy
                     </button>
                 </div>
@@ -209,20 +213,19 @@
                 <div class="flex flex-wrap gap-2 text-xs font-bold">
 
                     <a class="px-3 py-2 rounded-lg bg-green-500 text-white"
-                       href="https://wa.me/?text={{ request.build_absolute_uri }}"
-                       target="_blank">
+                        href="https://wa.me/?text={{ request.build_absolute_uri }}" target="_blank">
                         WhatsApp
                     </a>
 
                     <a class="px-3 py-2 rounded-lg bg-blue-600 text-white"
-                       href="https://www.facebook.com/sharer/sharer.php?u={{ request.build_absolute_uri }}"
-                       target="_blank">
+                        href="https://www.facebook.com/sharer/sharer.php?u={{ request.build_absolute_uri }}"
+                        target="_blank">
                         Facebook
                     </a>
 
                     <a class="px-3 py-2 rounded-lg bg-black text-white"
-                       href="https://twitter.com/intent/tweet?url={{ request.build_absolute_uri }}&text={{ rental.title }}"
-                       target="_blank">
+                        href="https://twitter.com/intent/tweet?url={{ request.build_absolute_uri }}&text={{ rental.title }}"
+                        target="_blank">
                         X
                     </a>
 
@@ -241,7 +244,7 @@
                 </p>
 
                 <a href="{% url 'rental_contact' rental.id %}"
-                   class="btn-pro w-full py-5 flex items-center justify-center gap-2">
+                    class="btn-pro w-full py-5 flex items-center justify-center gap-2">
                     <i class="fa-solid fa-phone"></i>
                     Contact Owner
                 </a>
@@ -254,13 +257,13 @@
 
 <!-- JS -->
 <script>
-function copyLink() {
-    const input = document.getElementById("shareLink");
-    input.select();
-    input.setSelectionRange(0, 99999);
-    document.execCommand("copy");
-    alert("Link copied!");
-}
+    function copyLink() {
+        const input = document.getElementById("shareLink");
+        input.select();
+        input.setSelectionRange(0, 99999);
+        document.execCommand("copy");
+        alert("Link copied!");
+    }
 </script>
 
 {% endblock %}

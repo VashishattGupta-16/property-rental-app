@@ -127,8 +127,17 @@ def rental_detail(request, slug):
         slug=slug
     )
 
+    # Determine if the current user has wishlisted this rental
+    is_wishlisted = False
+    if request.user.is_authenticated:
+        is_wishlisted = Wishlist.objects.filter(user_id=request.user.id, rental_id=rental.id).exists()
+
+    # DEBUG: log detail view wishlist state
+    print("[rental_detail] User:", request.user, "Authenticated:", request.user.is_authenticated, "is_wishlisted:", is_wishlisted)
+
     return render(request, 'room_describe.html', {
         'rental': rental,
+        'is_wishlisted': is_wishlisted,
     })
 
 
@@ -340,6 +349,10 @@ def profile_setup(request):
 
 @login_required
 def wishlist(request):
+    # DEBUG: Log wishlist access and current user
+    print("[wishlist_view] User:", request.user)
+    print("[wishlist_view] Authenticated:", request.user.is_authenticated)
+
     wishlist_items = (
         request.user.wishlist_items
         .select_related('rental')
@@ -376,10 +389,18 @@ def toggle_wishlist(request, rental_id):
 
     rental = get_object_or_404(Rental.objects.only("id"), pk=rental_id)
 
+    # DEBUG: Log basic request and identifiers to help trace wishlist flow
+    print("[wishlist] User:", request.user)
+    print("[wishlist] Authenticated:", request.user.is_authenticated)
+    print("[wishlist] Rental ID (param):", rental_id)
+
     obj, created = Wishlist.objects.get_or_create(
         user_id=request.user.id,
         rental_id=rental.id
     )
+
+    # DEBUG: Log whether a new wishlist record was created or an existing one removed
+    print("[wishlist] Wishlist Created:", created, "Wishlist ID:", getattr(obj, 'id', None))
 
     if not created:
         obj.delete()
