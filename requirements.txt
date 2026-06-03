@@ -57,5 +57,4 @@ requests==2.32.3
 django-jazzmin==3.0.1
 
 spacy==3.7.5
-scikit-surprise==1.1.4
 pandas==2.2.2
