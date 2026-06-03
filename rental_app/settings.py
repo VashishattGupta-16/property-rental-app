@@ -242,9 +242,13 @@ CELERY_ENABLE_UTC = True # Recommended for production
 
 # Example periodic task schedule
 CELERY_BEAT_SCHEDULE = {
-    'aggregate-analytics-every-night': {
-        'task': 'tweet.tasks.aggregate_daily_analytics',
-        'schedule': 3600.0 * 24, # Run once a day
+    'drain-visit-buffer-every-hour': {
+        'task': 'tweet.tasks.drain_visit_buffer',
+        'schedule': 3600.0,  # Run every hour
+    },
+    'train-recommendations-daily': {
+        'task': 'tweet.tasks.train_recommendation_model',
+        'schedule': 3600.0 * 24,  # Run once a day
     },
 }
 

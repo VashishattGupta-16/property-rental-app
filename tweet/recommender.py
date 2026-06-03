@@ -13,7 +13,11 @@ class PropertyRecommender:
         Fetch wishlist data to build the interaction matrix.
         Used primarily by background training tasks.
         """
-        import pandas as pd
+        try:
+            import pandas as pd
+        except ImportError:
+            raise ImportError("pandas is required for recommendations. Install it with: pip install pandas")
+        
         interactions = Wishlist.objects.all().values('user_id', 'rental_id')
         if not interactions.exists():
             return None

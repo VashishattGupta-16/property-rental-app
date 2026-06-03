@@ -1,4 +1,3 @@
-import spacy
 import re
 from io import BytesIO
 from PIL import Image
@@ -12,11 +11,15 @@ def get_nlp_pipeline():
     global _nlp_pipeline
     if _nlp_pipeline is None:
         try:
-            _nlp_pipeline = spacy.load("en_core_web_sm")
-        except OSError:
-            import os
-            os.system("python -m spacy download en_core_web_sm")
-            _nlp_pipeline = spacy.load("en_core_web_sm")
+            import spacy
+            try:
+                _nlp_pipeline = spacy.load("en_core_web_sm")
+            except OSError:
+                import os
+                os.system("python -m spacy download en_core_web_sm")
+                _nlp_pipeline = spacy.load("en_core_web_sm")
+        except ImportError:
+            raise ImportError("spacy is required for NLP features. Install it with: pip install spacy")
     return _nlp_pipeline
 
 class ListingProcessor:
