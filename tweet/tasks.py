@@ -3,6 +3,7 @@ import json
 import pickle
 from typing import List
 from django.utils.dateparse import parse_datetime
+from django.utils import timezone
 from django.contrib.auth import get_user_model
 from django_redis import get_redis_connection
 from django.core.cache import cache
@@ -10,6 +11,29 @@ from celery import shared_task
 from .models import Rental, PropertyVisit, Wishlist
 from .ai_engine import ListingProcessor, optimize_listing_image
 from .recommender import PropertyRecommender
+
+
+@shared_task
+def record_property_visit(share_id, user_id, ip_address, user_agent):
+    """
+    Record a single property visit by pushing it to the Redis visit stream.
+    The `drain_visit_buffer` batch task will later ingest entries into the DB.
+    This keeps request latency low and avoids direct DB writes in the request path.
+    """
+    try:
+        con = get_redis_connection("default")
+        payload = {
+            "share_id": share_id,
+            "user_id": user_id,
+            "ip_address": ip_address,
+            "user_agent": user_agent,
+            "visited_at": timezone.now().isoformat(),
+        }
+        con.rpush("stream:property_visits", json.dumps(payload))
+        return True
+    except Exception:
+        # Swallow exceptions to avoid breaking request flow; worker logs will contain errors
+        return False
 
 @shared_task
 def drain_visit_buffer():
