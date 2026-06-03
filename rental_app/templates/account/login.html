@@ -1,11 +1,13 @@
 {% extends base_template %}
 {% load socialaccount %}
 {% load static %}
+{% load widget_tweaks %}
 
 {% block content %}
 <div class="min-h-screen flex items-center justify-center py-20 px-6 bg-[var(--bg)]">
-    <div class="w-full max-w-[1000px] grid lg:grid-cols-2 bg-[var(--bg-card)] rounded-[3rem] overflow-hidden border border-[var(--surface-border)] shadow-2xl">
-        
+    <div
+        class="w-full max-w-[1000px] grid lg:grid-cols-2 bg-[var(--bg-card)] rounded-[3rem] overflow-hidden border border-[var(--surface-border)] shadow-2xl">
+
         <div class="hidden lg:flex flex-col justify-between p-16 bg-[#1A2E1F]">
             <div>
                 <div class="w-12 h-12 rounded-2xl bg-[var(--accent)] flex items-center justify-center mb-12 shadow-lg">
@@ -25,7 +27,8 @@
 
         <div class="p-8 lg:p-16 flex flex-col justify-center">
             <header class="mb-10">
-                <nav class="flex items-center gap-2 text-[0.6rem] font-black uppercase tracking-[0.4em] text-[var(--accent)] mb-4">
+                <nav
+                    class="flex items-center gap-2 text-[0.6rem] font-black uppercase tracking-[0.4em] text-[var(--accent)] mb-4">
                     <span>Authorize</span>
                     <i class="fa-solid fa-chevron-right text-[0.5rem] opacity-30"></i>
                     <span class="opacity-30">Dashboard</span>
@@ -33,9 +36,45 @@
                 <h1 class="text-3xl font-black tracking-tighter text-[var(--text-main)]">Sign In</h1>
             </header>
 
-            <form method="post" novalidate class="space-y-6">
+            <form method="post" novalidate class="space-y-6" hx-boost="false">
                 {% csrf_token %}
-                <a href="{% provider_login_url 'google' %}" hx-boost="false" class="flex items-center justify-center gap-3 w-full bg-[var(--bg)] border border-[var(--surface-border)] py-4 rounded-2xl text-[0.7rem] font-black hover:bg-[var(--surface-border)] transition-all">
+
+                {% if form.non_field_errors %}
+                <div class="rounded-2xl border border-red-400/20 bg-red-500/10 p-4 text-sm text-red-300">
+                    {{ form.non_field_errors }}
+                </div>
+                {% endif %}
+
+                <div class="grid gap-4">
+                    {% if form.login %}
+                    <div class="space-y-2">
+                        <label for="id_login" class="block text-sm font-bold text-[var(--text-main)]">Email</label>
+                        {{ form.login|add_class:"w-full rounded-2xl border border-[var(--surface-border)] bg-[var(--bg)]
+                        p-4 text-sm text-[var(--text-main)]" }}
+                        {{ form.login.errors }}
+                    </div>
+                    {% endif %}
+
+                    {% if form.password %}
+                    <div class="space-y-2">
+                        <label for="id_password"
+                            class="block text-sm font-bold text-[var(--text-main)]">Password</label>
+                        {{ form.password|add_class:"w-full rounded-2xl border border-[var(--surface-border)]
+                        bg-[var(--bg)] p-4 text-sm text-[var(--text-main)]" }}
+                        {{ form.password.errors }}
+                    </div>
+                    {% endif %}
+                </div>
+
+                <button type="submit"
+                    class="w-full py-4 rounded-2xl bg-[var(--accent)] text-[0.7rem] font-black uppercase tracking-[0.2em] text-white hover:bg-[#1B7A64] transition-all">
+                    Sign In
+                </button>
+
+                <div class="text-center text-xs uppercase tracking-[0.3em] text-[var(--text-muted)]">or</div>
+
+                <a href="{% provider_login_url 'google' %}" hx-boost="false"
+                    class="flex items-center justify-center gap-3 w-full bg-[var(--bg)] border border-[var(--surface-border)] py-4 rounded-2xl text-[0.7rem] font-black hover:bg-[var(--surface-border)] transition-all">
                     <img src="https://www.gstatic.com/images/branding/product/1x/gsa_512dp.png" class="w-4 h-4" alt="G">
                     Login with Google
                 </a>
