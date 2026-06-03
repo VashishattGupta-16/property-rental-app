@@ -52,7 +52,7 @@ ALLOWED_HOSTS = [
     host.strip()
     for host in os.getenv(
         "DJANGO_ALLOWED_HOSTS",
-        "127.0.0.1,localhost,theresidenceco-web.onrender.com,.onrender.com,.ngrok-free.dev",
+        "127.0.0.1,localhost,rentalpro-web.onrender.com,.onrender.com,.ngrok-free.dev",
     ).split(",")
 ]
 
@@ -60,7 +60,7 @@ CSRF_TRUSTED_ORIGINS = [
     origin.strip()
     for origin in os.getenv(
         "DJANGO_CSRF_TRUSTED_ORIGINS",
-        "http://127.0.0.1:8000,http://localhost:8000,https://theresidenceco-web.onrender.com,https://*.ngrok-free.dev",
+        "http://127.0.0.1:8000,http://localhost:8000,https://rentalpro-web.onrender.com,https://*.ngrok-free.dev",
     ).split(",")
 ]
 
@@ -103,6 +103,7 @@ INSTALLED_APPS = [
     "allauth.account",
     "allauth.socialaccount",
     "allauth.socialaccount.providers.google",
+    "widget_tweaks",
 
     # Local Apps
     "tweet.apps.TweetConfig",
@@ -302,10 +303,6 @@ ACCOUNT_EMAIL_REQUIRED = True
 
 ACCOUNT_USERNAME_REQUIRED = False
 
-ACCOUNT_LOGIN_METHODS = {
-    "email",
-}
-
 ACCOUNT_SIGNUP_FIELDS = [
     "email*",
     "password1*",
@@ -322,10 +319,10 @@ ACCOUNT_USER_MODEL_EMAIL_FIELD = "email"
 
 LOGIN_URL = "/accounts/login/"
 
-LOGIN_REDIRECT_URL = "/rentals/"
+LOGIN_REDIRECT_URL = "/"
 
-LOGOUT_REDIRECT_URL = "/"
-ACCOUNT_LOGOUT_REDIRECT_URL = "/"
+LOGOUT_REDIRECT_URL = "/accounts/login/"
+ACCOUNT_LOGOUT_REDIRECT_URL = "/accounts/login/"
 ACCOUNT_LOGOUT_ON_GET = True
 
 # =========================================================
