@@ -1,5 +1,25 @@
 {% load static %}
 
+<style>
+    /* Disable all transitions and animations to remove navigation and app opening effects */
+    *, *::before, *::after {
+        animation-duration: 0s !important;
+        transition-duration: 0s !important;
+        animation: none !important;
+    }
+
+    /* Specific fix for HTMX page transitions and potential fade-in classes */
+    body, main, section, .navbar-wrapper {
+        opacity: 1 !important;
+        transform: none !important;
+    }
+
+    /* Ensure HTMX content settles immediately without a transition phase */
+    .htmx-settling {
+        transition: none !important;
+    }
+</style>
+
 <nav class="navbar-wrapper">
     <div class="navbar-shell">
         <div class="navbar-grid">

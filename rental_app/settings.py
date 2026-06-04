@@ -342,7 +342,8 @@ SOCIALACCOUNT_ADAPTER = "tweet.adapters.SocialAccountAdapter"
 
 SOCIALACCOUNT_QUERY_EMAIL = True
 
-SOCIALACCOUNT_AUTO_SIGNUP = True
+# Setting to False ensures new users see the signup form before account creation
+SOCIALACCOUNT_AUTO_SIGNUP = False
 
 SOCIALACCOUNT_EMAIL_REQUIRED = True
 
@@ -445,6 +446,7 @@ LOGGING = {
     "disable_existing_loggers": False,
     "formatters": {
         "verbose": {
+        
             "format": "%(levelname)s %(asctime)s %(module)s %(message)s",
         }
     },
