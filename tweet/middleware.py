@@ -1,8 +1,11 @@
 from django.shortcuts import redirect
 from django.urls import reverse
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpResponsePermanentRedirect
 from django.conf import settings
 from django.utils.cache import patch_vary_headers
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 class UptimeRobotMiddleware:
@@ -30,6 +33,11 @@ class ProfileCompletionMiddleware:
         self.allowed_route_names = [
             'profile_setup', 'account_logout', 'offline', 'manifest', 'service_worker'
         ]
+        self.protected_path_prefixes = (
+            '/accounts/',
+            settings.STATIC_URL,
+            settings.MEDIA_URL,
+        )
 
     def __call__(self, request):
         if request.user.is_authenticated and not request.user.is_staff:
@@ -40,9 +48,7 @@ class ProfileCompletionMiddleware:
                 # Allow access to static/media, accounts, PWA files, and API/AJAX requests
                 is_allowed_path = (
                     request.path in allowed_paths
-                    or request.path.startswith('/accounts/')
-                    or request.path.startswith(settings.STATIC_URL)
-                    or request.path.startswith(settings.MEDIA_URL)
+                    or request.path.startswith(self.protected_path_prefixes)
                     or request.headers.get('x-requested-with') == 'XMLHttpRequest'
                     or 'application/json' in request.headers.get('Accept', '')
                 )

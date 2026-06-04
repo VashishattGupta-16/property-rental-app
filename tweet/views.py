@@ -10,9 +10,6 @@ from django.urls import reverse
 from django.contrib import messages
 from .models import Rental, Wishlist, PropertyShare, PropertyVisit, PropertyInquiry
 from .forms import RentalForm, GalleryFormSet, ProfileSetupForm
-from .tasks import record_property_visit
-
-
 # =========================================================
 # HELPERS
 # =========================================================
@@ -57,22 +54,17 @@ def rental_list(request):
         .order_by('-created_at')
     )
 
+    wishlisted_ids = set()
     if user.is_authenticated:
-        rentals = rentals.annotate(
-            is_owner=Case(
-                When(user_id=user.id, then=Value(True)),
-                default=Value(False),
-                output_field=BooleanField(),
-            ),
-            is_wishlisted=Exists(
-                Wishlist.objects.filter(user_id=user.id, rental_id=OuterRef("pk"))
-            ),
+        wishlisted_ids = set(user.wishlist_items.values_list('rental_id', flat=True))
+
+    rentals = rentals.annotate(
+        is_owner=Case(
+            When(user_id=user.id, then=Value(True)),
+            default=Value(False),
+            output_field=BooleanField(),
         )
-    else:
-        rentals = rentals.annotate(
-            is_owner=Value(False, output_field=BooleanField()),
-            is_wishlisted=Value(False, output_field=BooleanField()),
-        )
+    )
 
     search_query = request.GET.get('q', '').strip()
     location_query = request.GET.get('location', '').strip()
@@ -113,7 +105,7 @@ def rental_list(request):
         'rentals': page_obj,
         'search_params': request.GET,
         'page_obj': page_obj,
-        'pagination_query': pagination_query,
+        'wishlisted_rental_ids': wishlisted_ids,
     })
 
 
@@ -176,15 +168,12 @@ def track_visit(request, share_id):
         PropertyShare.objects.select_related('property').only('id', 'property__slug'),
         pk=share_id,
     )
-
-    # Offload write to background task for instant redirect performance
-    record_property_visit.delay(
-        share_id=share.id,
+    PropertyVisit.objects.create(
+        share=share,
         user_id=request.user.id if request.user.is_authenticated else None,
         ip_address=get_client_ip(request),
         user_agent=request.META.get('HTTP_USER_AGENT', '')
     )
-    
     return redirect('rental_detail', slug=share.property.slug)
 
 # =========================================================
@@ -309,20 +298,12 @@ def rental_contact(request, rental_id):
 
 @login_required
 def profile(request):
-    listings = (
-        Rental.objects
-        .filter(user_id=request.user.id)
-        .only('id', 'title', 'slug', 'image', 'location', 'price', 'created_at')
-        .order_by('-created_at')
-    )
-    paginator = Paginator(listings, 12)
-    page_obj = paginator.get_page(request.GET.get('page'))
-
+    listings = Rental.objects.filter(user_id=request.user.id).order_by('-created_at')
+    
     return render(request, 'profile.html', {
         'user': request.user,
-        'listings': page_obj,
-        'page_obj': page_obj,
-        'listings_count': paginator.count,
+        'listings': listings,
+        'listings_count': listings.count(),
         'wishlist_count': request.user.wishlist_items.count(),
     })
 

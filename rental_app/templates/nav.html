@@ -120,8 +120,8 @@
                     <button class="profile-trigger js-dropdown-btn" type="button" aria-label="Profile menu"
                         aria-haspopup="menu" aria-expanded="false">
                         <div class="profile-avatar">
-                            <!-- Get first letter of username -->
-                            {{ user.username|make_list|first|upper }}
+                            <!-- Get first letter of email -->
+                            {{ user.email|slice:":1"|upper }}
                         </div>
                     </button>
 

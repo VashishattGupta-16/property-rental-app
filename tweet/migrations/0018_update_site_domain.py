@@ -4,23 +4,24 @@ import os
 def update_site_domain(apps, schema_editor):
     Site = apps.get_model('sites', 'Site')
     
-    # Render automatically provides RENDER_EXTERNAL_HOSTNAME (e.g. myapp.onrender.com)
-    domain = os.getenv("RENDER_EXTERNAL_HOSTNAME")
+    # Use 127.0.0.1:8000 for local development, otherwise use environment variables
+    domain = (
+        os.getenv("DJANGO_SITE_DOMAIN") or 
+        os.getenv("RENDER_EXTERNAL_HOSTNAME") or 
+        "127.0.0.1:8000"
+    )
     
-    if domain:
-        # Update the site domain only if we are in a production/Render environment
-        Site.objects.update_or_create(
-            id=1,
-            defaults={
-                'domain': domain,
-                'name': 'Empire Estate'
-            }
-        )
-    # Locally, we rely on the default (example.com) or manual adjustment in Admin
+    Site.objects.update_or_create(
+        id=1,
+        defaults={
+            'domain': domain,
+            'name': 'Empire Estate'
+        }
+    )
 
 class Migration(migrations.Migration):
     dependencies = [
-        ('tweet', '0017_alter_customuser_managers_and_more'), # Ensure this matches your last migration
+        ('tweet', '0017_alter_customuser_managers_and_more'),
         ('sites', '0002_alter_domain_unique'),
     ]
     operations = [

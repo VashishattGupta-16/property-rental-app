@@ -1,64 +1,51 @@
-{% load socialaccount %}
-{% load static %}
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Complete Signup</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-</head>
-<body class="bg-gray-100 flex items-center justify-center min-h-screen">
+{% extends base_template|default:"layout.html" %}
+{% load i18n %}
 
-<div class="bg-white shadow-xl rounded-2xl p-8 w-full max-w-md">
-
-    <!-- Logo / Title -->
-    <h2 class="text-2xl font-bold text-center text-gray-800 mb-2">
-        Complete Your Signup
-    </h2>
-    <p class="text-sm text-gray-500 text-center mb-6">
-        You're signing in with Google. Just confirm your details.
-    </p>
-
-    <!-- Form -->
-    <form method="post" class="space-y-4">
-        {% csrf_token %}
-
-        <!-- Email -->
-        <div>
-            <label class="block text-sm font-medium text-gray-700">Email</label>
-            {{ form.email }}
+{% block content %}
+<div class="min-h-screen flex items-center justify-center py-20 px-6 bg-[var(--bg)]">
+    <div class="w-full max-w-[540px] bg-[var(--bg-card)] rounded-[2.5rem] border border-[var(--surface-border)] shadow-2xl p-10 md:p-14">
+        
+        <div class="mb-10 text-center">
+            <div class="w-16 h-16 rounded-2xl bg-[var(--accent)]/10 flex items-center justify-center mx-auto mb-6 border border-[var(--accent)]/20 text-[var(--accent)] text-2xl">
+                <i class="fa-solid fa-user-plus"></i>
+            </div>
+            <h1 class="text-3xl font-black text-white tracking-tighter mb-2">
+                Complete <span class="text-[var(--accent)]">Registration</span>
+            </h1>
+            <p class="text-[var(--text-muted)] text-sm font-medium">
+                {% blocktrans with provider_name=account.get_provider.name %}You are about to use your {{ provider_name }} account to login. Please confirm your email to continue.{% endblocktrans %}
+            </p>
         </div>
 
-        <!-- Username -->
-        <div>
-            <label class="block text-sm font-medium text-gray-700">Username</label>
-            {{ form.username }}
-        </div>
+        <form method="post" class="space-y-6">
+            {% csrf_token %}
+            
+            <div class="space-y-2">
+                <label class="text-[10px] font-black uppercase tracking-widest text-[var(--text-muted)] ml-1">
+                    Email Address
+                </label>
+                <div class="w-full rounded-2xl border border-[var(--surface-border)] bg-[var(--bg)] p-4 text-sm text-[var(--text-main)] opacity-60">
+                    {{ form.email.value }}
+                    <input type="hidden" name="email" value="{{ form.email.value }}">
+                </div>
+            </div>
 
-        <!-- Errors -->
-        {% if form.errors %}
-            <div class="bg-red-100 text-red-700 text-sm p-3 rounded-lg">
+            {% if form.errors %}
+            <div class="rounded-xl bg-rose-500/10 border border-rose-500/20 p-4 text-xs text-rose-300">
                 {{ form.errors }}
             </div>
-        {% endif %}
+            {% endif %}
 
-        <!-- Submit -->
-        <button type="submit"
-            class="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition duration-200">
-            Continue
-        </button>
-    </form>
+            <button type="submit" class="w-full btn-pro py-5 text-[0.75rem] shadow-xl">
+                {% trans "Create Account" %}
+            </button>
 
-    <!-- Divider -->
-    <div class="my-6 text-center text-gray-400 text-sm">or</div>
-
-    <!-- Back to Login -->
-    <a href="/accounts/login/"
-       class="block text-center text-blue-600 hover:underline text-sm">
-        Back to Login
-    </a>
-
+            <div class="pt-6 border-t border-white/5 text-center">
+                <a href="{% url 'account_login' %}" class="text-[0.6rem] font-black uppercase tracking-[0.3em] text-slate-500 hover:text-[var(--accent)] transition-colors">
+                    Cancel and Back
+                </a>
+            </div>
+        </form>
+    </div>
 </div>
-
-</body>
-</html>
+{% endblock %}

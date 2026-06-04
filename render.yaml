@@ -45,3 +45,9 @@ services:
         generateValue: true
       - key: DJANGO_ALLOWED_HOSTS
         value: "localhost,127.0.0.1,rentalpro-web.onrender.com,.onrender.com"
+      - key: DJANGO_SITE_DOMAIN
+        value: "rentalpro-web.onrender.com"
+      - key: RENDER_EXTERNAL_HOSTNAME
+        sync: false
+      - key: DJANGO_CONN_MAX_AGE
+        value: "600"

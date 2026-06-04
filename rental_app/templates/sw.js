@@ -1,73 +1,174 @@
-const CACHE_NAME = 'Empire-cache-v7';
-const urlsToCache = [
-  '/static/dist/output.css',
-  '/static/images/icon-192x192.png',
-  '/static/images/icon-512x512.png',
-  '/manifest.json?v=4',
-  '/offline/',
+// ============================================================
+// RentalPro Service Worker — FIXED
+// Key fix: Auth routes (/accounts/, /admin/, /api/) are NEVER
+// intercepted or cached. They go straight to the network.
+// This prevents session state from being overwritten by duplicate
+// requests, which broke Google OAuth login.
+// ============================================================
+
+const CACHE_NAME = "rentalpro-v2";
+const OFFLINE_URL = "/offline/";
+
+// ─── STATIC ASSETS TO CACHE ON INSTALL ───────────────────────
+const PRECACHE_ASSETS = [
+  "/offline/",
+  "/static/images/icon-192x192.png",
+  "/static/images/icon-512x512.png",
 ];
 
-self.addEventListener('install', event => {
-  self.skipWaiting();
+// ─── ROUTES THAT MUST NEVER BE INTERCEPTED ───────────────────
+// Any path starting with these will go straight to the network.
+// CRITICAL: /accounts/ must be here — OAuth state lives in the
+// Django session. If the SW intercepts or duplicates these
+// requests, the session is overwritten and login fails.
+const BYPASS_PREFIXES = [
+  "/accounts/",   // ← Google OAuth, login, logout, signup
+  "/admin/",      // ← Django admin
+  "/api/",        // ← REST API
+];
+
+// ─── FILE EXTENSIONS THAT SHOULD NEVER BE CACHED ─────────────
+const NO_CACHE_EXTENSIONS = [
+  ".json",        // manifest.json can change; don't cache
+];
+
+// ─── HELPERS ──────────────────────────────────────────────────
+
+/**
+ * Returns true if the request URL should bypass the SW entirely.
+ * These requests go straight to the network — no caching,
+ * no interception, no duplicate fetches.
+ */
+function shouldBypass(request) {
+  // Only handle GET — let POST/PUT/DELETE etc. pass through
+  if (request.method !== "GET") return true;
+
+  const url = new URL(request.url);
+
+  // Skip non-same-origin requests (Google, CDN, Cloudinary etc.)
+  if (url.origin !== self.location.origin) return true;
+
+  const path = url.pathname;
+
+  // Skip auth/admin/api routes — CRITICAL for OAuth session integrity
+  if (BYPASS_PREFIXES.some((prefix) => path.startsWith(prefix))) return true;
+
+  // Skip file types we never want to cache
+  if (NO_CACHE_EXTENSIONS.some((ext) => path.endsWith(ext))) return true;
+
+  return false;
+}
+
+/**
+ * Returns true if the response is worth caching.
+ */
+function isCacheableResponse(response) {
+  return (
+    response &&
+    response.status === 200 &&
+    response.type === "basic" // same-origin only
+  );
+}
+
+// ─── INSTALL ──────────────────────────────────────────────────
+// Pre-cache essential offline assets.
+// skipWaiting() activates the new SW immediately on page reload.
+
+self.addEventListener("install", (event) => {
   event.waitUntil(
-    caches.open(CACHE_NAME)
-      .then(cache => {
-        return cache.addAll(urlsToCache);
-      })
+    caches
+      .open(CACHE_NAME)
+      .then((cache) => cache.addAll(PRECACHE_ASSETS))
+      .then(() => self.skipWaiting())
   );
 });
 
-self.addEventListener('activate', event => {
-  event.waitUntil((async () => {
-    if (self.registration.navigationPreload) {
-      await self.registration.navigationPreload.enable();
-    }
-    const keys = await caches.keys();
-    await Promise.all(keys.map(key => (key === CACHE_NAME ? null : caches.delete(key))));
-    await self.clients.claim();
-  })());
+// ─── ACTIVATE ─────────────────────────────────────────────────
+// Delete old caches from previous SW versions.
+// clients.claim() takes control of open pages immediately.
+
+self.addEventListener("activate", (event) => {
+  event.waitUntil(
+    caches
+      .keys()
+      .then((cacheNames) =>
+        Promise.all(
+          cacheNames
+            .filter((name) => name !== CACHE_NAME)
+            .map((name) => {
+              console.log("[SW] Deleting old cache:", name);
+              return caches.delete(name);
+            })
+        )
+      )
+      .then(() => self.clients.claim())
+  );
 });
 
-self.addEventListener('fetch', event => {
-  if (
-    event.request.method !== 'GET' || 
-    event.request.headers.has('HX-Request')
-  ) return;
+// ─── FETCH ────────────────────────────────────────────────────
+// Strategy:
+//   • Bypass routes  → straight to network, no caching
+//   • Static assets  → cache-first, fallback to network
+//   • Pages          → network-first, fallback to cache, then offline
 
-  const url = new URL(event.request.url);
-  if (url.pathname.includes('/accounts/') || url.pathname.includes('/admin/')) return;
+self.addEventListener("fetch", (event) => {
+  const { request } = event;
 
-  // Navigation: Network-Only with Offline Fallback.
-  // We NEVER cache dynamic HTML to avoid stale CSRF tokens and layout nesting.
-  if (event.request.mode === 'navigate') {
-    event.respondWith((async () => {
-      try {
-        const preloadResponse = await event.preloadResponse;
-        if (preloadResponse) return preloadResponse;
-
-        return await fetch(event.request);
-      } catch (error) {
-        const offline = await caches.match('/offline/');
-        return offline || new Response('Offline', { status: 503, headers: { 'Content-Type': 'text/html' } });
-      }
-    })());
-    return;
+  // ── Bypass: go straight to network, don't even call respondWith ──
+  // Not calling event.respondWith() lets the browser handle it natively.
+  // This is important — calling fetch() inside respondWith for auth
+  // routes was causing the duplicate requests that broke OAuth.
+  if (shouldBypass(request)) {
+    return; // ← browser handles it directly, no SW involvement
   }
 
-  // Static Assets: Cache-First
-  event.respondWith(
-    caches.match(event.request).then(async (cached) => {
-      if (cached) return cached;
-      try {
-        const response = await fetch(event.request);
-        if (response.ok && url.origin === self.location.origin && url.pathname.startsWith('/static/')) {
-          const cache = await caches.open(CACHE_NAME);
-          cache.put(event.request, response.clone());
-        }
-        return response;
-      } catch (e) {
-        return new Response('Network error', { status: 408 });
-      }
-    })
-  );
+  const url = new URL(request.url);
+  const isNavigationRequest = request.mode === "navigate";
+  const isStaticAsset = url.pathname.startsWith("/static/");
+
+  if (isStaticAsset) {
+    // ── Static assets: cache-first ──────────────────────────────
+    event.respondWith(
+      caches.match(request).then((cached) => {
+        if (cached) return cached;
+
+        return fetch(request).then((response) => {
+          if (isCacheableResponse(response)) {
+            const responseClone = response.clone();
+            caches
+              .open(CACHE_NAME)
+              .then((cache) => cache.put(request, responseClone));
+          }
+          return response;
+        });
+      })
+    );
+  } else if (isNavigationRequest) {
+    // ── Page navigations: network-first ─────────────────────────
+    event.respondWith(
+      fetch(request)
+        .then((response) => {
+          if (isCacheableResponse(response)) {
+            const responseClone = response.clone();
+            caches
+              .open(CACHE_NAME)
+              .then((cache) => cache.put(request, responseClone));
+          }
+          return response;
+        })
+        .catch(() =>
+          // Network failed → try cache → fall back to offline page
+          caches
+            .match(request)
+            .then((cached) => cached || caches.match(OFFLINE_URL))
+        )
+    );
+  } else {
+    // ── Everything else: network-first, no caching ───────────────
+    event.respondWith(
+      fetch(request).catch(
+        () => caches.match(request) // serve from cache if offline
+      )
+    );
+  }
 });

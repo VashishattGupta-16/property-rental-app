@@ -17,14 +17,37 @@
             {% trans "We could not complete the login." %}
         </h1>
         <p class="mt-5 text-sm font-medium leading-7 text-slate-400">
-            {% trans "Please try again. If this keeps happening, the Google OAuth client ID and client secret on Render
-            must match the same Web application in Google Cloud Console." %}
+            {% trans "Please try again. If this keeps happening, contact support with the error code shown below." %}
         </p>
 
         {% if auth_error %}
         <div class="mt-6 rounded-2xl border border-white/10 bg-white/[0.03] p-4 text-xs text-slate-400">
             <span class="font-bold uppercase tracking-widest text-slate-300">{% trans "Error" %}:</span>
             {{ auth_error.code|default:"authentication_error" }}
+            {% if auth_error.exception %}
+            <div class="mt-2 break-words text-[0.75rem] text-slate-300">
+                <span class="font-semibold">{% trans "Details" %}:</span>
+                {{ auth_error.exception }}
+            </div>
+            {% endif %}
+            {% if error_hint %}
+            <div class="mt-2 break-words text-[0.75rem] text-slate-300">
+                <span class="font-semibold">{% trans "Hint" %}:</span>
+                {{ error_hint }}
+            </div>
+            {% endif %}
+            {% if callback_query %}
+            <div class="mt-2 break-words text-[0.75rem] text-slate-300">
+                <span class="font-semibold">{% trans "Callback query" %}:</span>
+                <pre class="whitespace-pre-wrap">{{ callback_query }}</pre>
+            </div>
+            {% endif %}
+            {% if state_id %}
+            <div class="mt-2 break-words text-[0.75rem] text-slate-300">
+                <span class="font-semibold">{% trans "State ID" %}:</span>
+                {{ state_id }}
+            </div>
+            {% endif %}
         </div>
         {% endif %}
 
