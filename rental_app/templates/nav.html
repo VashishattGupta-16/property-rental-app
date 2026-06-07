@@ -1,20 +1,10 @@
 {% load static %}
 
 <style>
-    /* Disable all transitions and animations to remove navigation and app opening effects */
-    *, *::before, *::after {
-        animation-duration: 0s !important;
-        transition-duration: 0s !important;
-        animation: none !important;
-    }
-
-    /* Specific fix for HTMX page transitions and potential fade-in classes */
     body, main, section, .navbar-wrapper {
         opacity: 1 !important;
         transform: none !important;
     }
-
-    /* Ensure HTMX content settles immediately without a transition phase */
     .htmx-settling {
         transition: none !important;
     }
@@ -28,8 +18,6 @@
                  LEFT: Mobile Menu & Logo
             ======================================= -->
             <div class="navbar-left">
-
-                <!-- Mobile Only Menu -->
                 <div class="dropdown-container mobile-dropdown">
                     <button class="dropdown-trigger js-dropdown-btn" type="button" aria-label="Menu"
                         aria-haspopup="menu" aria-expanded="false">
@@ -41,7 +29,6 @@
 
                             <hr class="dropdown-sep">
 
-                            <!-- ACQUIRE -->
                             <div class="accordion">
                                 <button class="accordion-btn" type="button" aria-expanded="false">
                                     <span>Acquire</span>
@@ -50,17 +37,14 @@
                                 <div class="accordion-content" hidden>
                                     <a href="{% url 'rental_list' %}?type=VILLA" class="dropdown-item">Villas</a>
                                     <a href="{% url 'rental_list' %}?type=SHOWROOM" class="dropdown-item">Shops</a>
-                                    <a href="{% url 'rental_list' %}?type=APARTMENT"
-                                        class="dropdown-item">Apartments</a>
-                                    <a href="{% url 'rental_list' %}?type=INDUSTRIAL_PLOT"
-                                        class="dropdown-item">Plots</a>
+                                    <a href="{% url 'rental_list' %}?type=APARTMENT" class="dropdown-item">Apartments</a>
+                                    <a href="{% url 'rental_list' %}?type=INDUSTRIAL_PLOT" class="dropdown-item">Plots</a>
                                     <a href="{% url 'rental_list' %}?type=HOUSE" class="dropdown-item">Houses</a>
                                 </div>
                             </div>
 
                             <hr class="dropdown-sep">
 
-                            <!-- RENT -->
                             <div class="accordion">
                                 <button class="accordion-btn" type="button" aria-expanded="false">
                                     <span>Rent</span>
@@ -86,36 +70,30 @@
                  CENTER: Desktop Navigation
             ======================================= -->
             <div class="navbar-center">
-                <!-- Brand (centered on mobile) -->
                 <a href="{% url 'index' %}" class="logo-wrap" aria-label="Home" hx-boost="false">
                     <h1 class="logo-text rye-regular">Empire <span class="logo-highlight">Estate</span></h1>
                 </a>
 
-                <!-- Desktop Navigation Links -->
                 <div class="navbar-links">
-
-                    <!-- Desktop Acquire Dropdown -->
                     <div class="dropdown-container desktop-dropdown">
-                        <button class="dropdown-trigger" type="button">
+                        <button class="dropdown-trigger js-dropdown-btn" type="button">
                             Acquire <i class="fa-solid fa-chevron-down dropdown-arrow"></i>
                         </button>
-                        <div class="dropdown-menu desktop-dropdown-menu">
+                        <div class="dropdown-menu desktop-dropdown-menu js-dropdown-menu">
                             <div class="dropdown-card">
                                 <a href="{% url 'rental_list' %}?type=VILLA" class="dropdown-item">Villas</a>
-                                <a href="{% url 'rental_list' %}?type=SHOWROOM" class="dropdown-item">Commercial
-                                    Shops</a>
+                                <a href="{% url 'rental_list' %}?type=SHOWROOM" class="dropdown-item">Commercial Shops</a>
                                 <a href="{% url 'rental_list' %}?type=APARTMENT" class="dropdown-item">Apartments</a>
                                 <a href="{% url 'rental_list' %}?type=INDUSTRIAL_PLOT" class="dropdown-item">Plots</a>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Desktop Rent Dropdown -->
                     <div class="dropdown-container desktop-dropdown">
-                        <button class="dropdown-trigger" type="button">
+                        <button class="dropdown-trigger js-dropdown-btn" type="button">
                             Rent <i class="fa-solid fa-chevron-down dropdown-arrow"></i>
                         </button>
-                        <div class="dropdown-menu desktop-dropdown-menu">
+                        <div class="dropdown-menu desktop-dropdown-menu js-dropdown-menu">
                             <div class="dropdown-card">
                                 <a href="{% url 'rental_list' %}?type=1BHK" class="dropdown-item">1 BHK</a>
                                 <a href="{% url 'rental_list' %}?type=2BHK" class="dropdown-item">2 BHK</a>
@@ -134,18 +112,13 @@
             ======================================= -->
             <div class="navbar-right">
                 {% if user.is_authenticated %}
-
-                <!-- Profile Dropdown -->
                 <div class="dropdown-container">
-                    <button class="profile-trigger js-dropdown-btn" type="button" aria-label="Profile menu"
-                        aria-haspopup="menu" aria-expanded="false">
+                    <button class="profile-trigger js-dropdown-btn" type="button"
+                        aria-label="Profile menu" aria-haspopup="menu" aria-expanded="false">
                         <div class="profile-avatar">
-                            <!-- Get first letter of email -->
                             {{ user.email|slice:":1"|upper }}
                         </div>
                     </button>
-
-                    <!-- Added profile-dropdown-menu class for right alignment -->
                     <div class="dropdown-menu profile-dropdown-menu js-dropdown-menu">
                         <div class="dropdown-card">
                             <a href="{% url 'profile' %}" class="dropdown-item">
@@ -155,18 +128,14 @@
                                 <i class="fa-solid fa-plus"></i> List Space
                             </a>
                             <hr style="border-color: var(--nav-border); margin: 0.5rem 0;">
-
                             <a href="{% url 'account_logout' %}" class="dropdown-item logout-btn" hx-boost="false">
                                 <i class="fa-solid fa-right-from-bracket"></i> Logout
                             </a>
                         </div>
                     </div>
                 </div>
-
                 {% else %}
-
                 <a href="{% url 'account_login' %}" class="login-link" hx-boost="false">Login</a>
-
                 {% endif %}
             </div>
 
@@ -174,64 +143,90 @@
     </div>
 </nav>
 
-<!-- JavaScript to toggle Dropdowns (Mobile menu & Profile menu) -->
 <script>
-    document.addEventListener('DOMContentLoaded', () => {
-        const dropdownBtns = document.querySelectorAll('.js-dropdown-btn');
+// ─── Navbar: Event Delegation ──────────────────────────────────────────────
+// Uses document-level delegation so it works after HTMX swaps,
+// browser back/forward, and bfcache restores — no re-init needed.
+(function () {
 
-        function closeAllDropdowns() {
-            document.querySelectorAll('.js-dropdown-menu').forEach(menu => {
-                menu.classList.remove('show-dropdown');
-            });
-            dropdownBtns.forEach(btn => btn.setAttribute('aria-expanded', 'false'));
+    // ── Close all open dropdowns ─────────────────────────────
+    function closeAll() {
+        document.querySelectorAll('.js-dropdown-menu.show-dropdown').forEach(m => {
+            m.classList.remove('show-dropdown');
+        });
+        document.querySelectorAll('.js-dropdown-btn[aria-expanded="true"]').forEach(b => {
+            b.setAttribute('aria-expanded', 'false');
+        });
+    }
+
+    // ── Toggle a specific dropdown ───────────────────────────
+    function toggleDropdown(btn) {
+        const menu = btn.closest('.dropdown-container')
+                        ?.querySelector('.js-dropdown-menu');
+        if (!menu) return;
+
+        const isOpen = menu.classList.contains('show-dropdown');
+
+        // Close everything first
+        closeAll();
+
+        // Open this one if it was closed
+        if (!isOpen) {
+            menu.classList.add('show-dropdown');
+            btn.setAttribute('aria-expanded', 'true');
         }
+    }
 
-        dropdownBtns.forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                e.stopPropagation(); // Stop click from hitting the document
+    // ── Toggle accordion ─────────────────────────────────────
+    function toggleAccordion(btn) {
+        const content = btn.closest('.accordion')?.querySelector('.accordion-content');
+        if (!content) return;
+        const isOpen = btn.getAttribute('aria-expanded') === 'true';
+        btn.setAttribute('aria-expanded', isOpen ? 'false' : 'true');
+        content.toggleAttribute('hidden', isOpen);
+    }
 
-                // Close all other open dropdowns first
-                dropdownBtns.forEach(otherBtn => {
-                    if (otherBtn === btn) return;
-                    const otherMenu = otherBtn.nextElementSibling;
-                    if (otherMenu) otherMenu.classList.remove('show-dropdown');
-                    otherBtn.setAttribute('aria-expanded', 'false');
-                });
+    // ── Single delegated click handler on document ───────────
+    // Attached ONCE — survives all HTMX swaps and back navigation
+    if (!window.__navDelegated) {
+        window.__navDelegated = true;
 
-                // Toggle the menu right next to this button
-                const menu = btn.nextElementSibling;
-                if (menu) {
-                    menu.classList.toggle('show-dropdown');
-                    btn.setAttribute('aria-expanded', menu.classList.contains('show-dropdown') ? 'true' : 'false');
-                }
-            });
-        });
+        document.addEventListener('click', function (e) {
 
-        // Close dropdowns if clicking anywhere outside
-        document.addEventListener('click', (e) => {
-            if (e.target.closest('.dropdown-container')) return;
-            closeAllDropdowns();
-        });
+            // Dropdown trigger button
+            const dropBtn = e.target.closest('.js-dropdown-btn');
+            if (dropBtn) {
+                e.stopPropagation();
+                toggleDropdown(dropBtn);
+                return;
+            }
 
-        // Close on Escape for accessibility
-        document.addEventListener('keydown', (e) => {
-            if (e.key !== 'Escape') return;
-            closeAllDropdowns();
-        });
-
-        // Mobile accordion inside the menu
-        document.querySelectorAll('.accordion-btn').forEach(btn => {
-            btn.addEventListener('click', (e) => {
+            // Accordion button
+            const accBtn = e.target.closest('.accordion-btn');
+            if (accBtn) {
                 e.preventDefault();
                 e.stopPropagation();
-                const accordion = btn.closest('.accordion');
-                const content = accordion?.querySelector('.accordion-content');
-                if (!content) return;
+                toggleAccordion(accBtn);
+                return;
+            }
 
-                const isOpen = btn.getAttribute('aria-expanded') === 'true';
-                btn.setAttribute('aria-expanded', isOpen ? 'false' : 'true');
-                content.toggleAttribute('hidden', isOpen);
-            });
+            // Click outside — close all
+            if (!e.target.closest('.dropdown-container')) {
+                closeAll();
+            }
         });
-    });
+
+        // Close on Escape
+        document.addEventListener('keydown', function (e) {
+            if (e.key === 'Escape') closeAll();
+        });
+
+        // Close on HTMX navigation start
+        document.addEventListener('htmx:beforeRequest', closeAll);
+
+        // Close on browser back/forward
+        window.addEventListener('popstate', closeAll);
+    }
+
+})();
 </script>

@@ -42,13 +42,40 @@ The content is organized as follows:
 <directory_structure>
 .env.example
 .gitignore
+2026-06-05T13_24Z/rental_db_uai6/3729.dat
+2026-06-05T13_24Z/rental_db_uai6/3731.dat
+2026-06-05T13_24Z/rental_db_uai6/3733.dat
+2026-06-05T13_24Z/rental_db_uai6/3735.dat
+2026-06-05T13_24Z/rental_db_uai6/3737.dat
+2026-06-05T13_24Z/rental_db_uai6/3739.dat
+2026-06-05T13_24Z/rental_db_uai6/3741.dat
+2026-06-05T13_24Z/rental_db_uai6/3743.dat
+2026-06-05T13_24Z/rental_db_uai6/3745.dat
+2026-06-05T13_24Z/rental_db_uai6/3747.dat
+2026-06-05T13_24Z/rental_db_uai6/3749.dat
+2026-06-05T13_24Z/rental_db_uai6/3751.dat
+2026-06-05T13_24Z/rental_db_uai6/3753.dat
+2026-06-05T13_24Z/rental_db_uai6/3754.dat
+2026-06-05T13_24Z/rental_db_uai6/3756.dat
+2026-06-05T13_24Z/rental_db_uai6/3758.dat
+2026-06-05T13_24Z/rental_db_uai6/3760.dat
+2026-06-05T13_24Z/rental_db_uai6/3762.dat
+2026-06-05T13_24Z/rental_db_uai6/3764.dat
+2026-06-05T13_24Z/rental_db_uai6/3766.dat
+2026-06-05T13_24Z/rental_db_uai6/3768.dat
+2026-06-05T13_24Z/rental_db_uai6/3770.dat
+2026-06-05T13_24Z/rental_db_uai6/3772.dat
+2026-06-05T13_24Z/rental_db_uai6/3774.dat
+2026-06-05T13_24Z/rental_db_uai6/3776.dat
+2026-06-05T13_24Z/rental_db_uai6/3777.dat
+2026-06-05T13_24Z/rental_db_uai6/toc.dat
 assets/css/input.css
 build.sh
+create_superuser.py
 debug_nav.py
 gunicorn.conf.py
 manage.py
 package.json
-PERFORMANCE_AUDIT.md
 render.yaml
 rental_app/__init__.py
 rental_app/asgi.py
@@ -64,6 +91,8 @@ rental_app/templates/manifest.json
 rental_app/templates/nav.html
 rental_app/templates/offline.html
 rental_app/templates/partials/meta.html
+rental_app/templates/partials/wishlist_button.html
+rental_app/templates/permissions_modal.html
 rental_app/templates/socialaccount/authentication_error.html
 rental_app/templates/socialaccount/login.html
 rental_app/templates/socialaccount/signup.html
@@ -71,7 +100,6 @@ rental_app/templates/sw.js
 rental_app/urls.py
 rental_app/wsgi.py
 requirements.txt
-reset_superuser.py
 static/css/admin_panel.css
 static/css/base_admin.css
 static/css/navbar.css
@@ -80,16 +108,19 @@ static/images/icon-192x192.png
 static/images/icon-512x512.png
 static/images/screenshots/screenshot-mobile.png
 static/images/screenshots/screenshot-wide.png
+static/js/permission_manager.js
 tailwind.config.js
 tweet/__init__.py
 tweet/adapters.py
 tweet/admin.py
 tweet/apps.py
 tweet/context_processors.py
+tweet/decorators.py
 tweet/forms.py
 tweet/management/__init__.py
 tweet/management/commands/__init__.py
 tweet/management/commands/ensure_socialapp.py
+tweet/management/commands/sync_site.py
 tweet/middleware.py
 tweet/migrations/__init__.py
 tweet/migrations/0001_initial.py
@@ -111,9 +142,12 @@ tweet/migrations/0015_merge_20260517_1639.py
 tweet/migrations/0016_propertyinquiry_propertyvisit_and_more.py
 tweet/migrations/0017_alter_customuser_managers_and_more.py
 tweet/migrations/0018_update_site_domain.py
+tweet/migrations/0019_alter_customuser_managers_rental_wishlisted_by_and_more.py
 tweet/models.py
+tweet/permission_manager.js
 tweet/templates/about.html
 tweet/templates/index.html
+tweet/templates/partials/wishlist_btn.html
 tweet/templates/profile_setup.html
 tweet/templates/profile.html
 tweet/templates/rental_contact.html
@@ -380,31 +414,6 @@ from django.core.wsgi import get_wsgi_application
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'rental_app.settings')
 
 application = get_wsgi_application()
-</file>
-
-<file path="reset_superuser.py">
-import os
-import django
-
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'rental_app.settings')
-django.setup()
-
-from django.contrib.auth import get_user_model
-
-User = get_user_model()
-email = "vassu_backup@gmail.com"
-password = "vassukaju"
-
-user = User.objects.filter(email=email).first()
-if user:
-    user.set_password(password)
-    user.is_staff = True
-    user.is_superuser = True
-    user.save()
-    print(f"✅ Password reset for {email}")
-else:
-    User.objects.create_superuser(email=email, password=password)
-    print(f"✅ Created new superuser {email}")
 </file>
 
 <file path="static/css/admin_panel.css">
@@ -945,173 +954,6 @@ fieldset.module,
 
 </file>
 
-<file path="tweet/forms.py">
-from django import forms
-from django.contrib.auth.forms import UserCreationForm, UserChangeForm
-from django.forms import inlineformset_factory
-
-from .models import Rental, CustomUser, RentalImage
-
-
-# =========================
-# CUSTOM WIDGETS
-# =========================
-class ColorStyledSelect(forms.Select):
-   
-    def create_option(self, name, value, label, selected, index, subindex=None, attrs=None):
-        option = super().create_option(name, value, label, selected, index, subindex, attrs)
-        # Force dropdown options to be black for readability against a white background.
-        option['attrs']['style'] = 'color: black; background-color: white;'
-        return option
-
-# =========================
-# RENTAL FORM
-# =========================
-class RentalForm(forms.ModelForm):
-
-    image = forms.ImageField(
-        required=True,
-        widget=forms.FileInput(attrs={
-            "accept": "image/*",
-            "class": "main-image-input"
-        })
-    )
-
-    class Meta:
-        model = Rental
-        fields = [
-            "title",
-            "property_type",
-            "price",
-            "location",
-            "address",
-            "description",
-            "furnishing",
-            "sqft",
-            "floor",
-            "facing",
-            "image",
-            "contact",
-            "bedrooms",
-            "bathrooms",
-]
-
-        widgets = {
-            "description": forms.Textarea(attrs={"rows": 4}),
-            "price": forms.NumberInput(),
-            "sqft": forms.NumberInput(),
-            "property_type": ColorStyledSelect(),
-        }
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
-        base_classes = (
-            "w-full rounded-2xl border px-6 py-4 "
-            "bg-[var(--input-bg)] text-[var(--text-main)] "
-            "outline-none transition duration-300 "
-            "focus:border-sky-500 focus:ring-4 focus:ring-sky-500/10"
-        )
-
-        for name, field in self.fields.items():
-            if not field.widget.is_hidden:
-                if name != "image":
-                    field.widget.attrs["class"] = base_classes
-
-                if name == "property_type":
-                    # The main select text should be white.
-                    field.widget.attrs["class"] += " text-white"
-
-                label = field.label or name.replace("_", " ").title()
-                if field.required:
-                    field.label = f"{label}*"
-                    field.widget.attrs["aria-required"] = "true"
-
-                field.widget.attrs.setdefault(
-                    "placeholder", f"Enter {label.lower()}..."
-                )
-
-
-# =========================
-# PROFILE SETUP FORM
-# =========================
-class ProfileSetupForm(forms.ModelForm):
-    class Meta:
-        model = CustomUser
-        fields = [
-            "first_name",
-            "last_name",
-            "phone_number",
-            "user_type",
-            "address",
-            "current_location",
-        ]
-        widgets = {
-            "user_type": ColorStyledSelect(),
-            "address": forms.Textarea(attrs={"rows": 3}),
-        }
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        for field_name in self.fields:
-            field = self.fields[field_name]
-            field.required = True
-            field.help_text = "" # Remove default help text
-
-        base_classes = (
-            "w-full rounded-2xl border px-6 py-4 "
-            "bg-slate-800/50 border-white/10 text-white "
-            "outline-none transition duration-300 "
-            "focus:border-sky-500 focus:ring-4 focus:ring-sky-500/10"
-        )
-
-        for name, field in self.fields.items():
-            field.widget.attrs["class"] = base_classes
-            if name == "user_type":
-                field.widget.attrs["class"] += " text-white"
-
-            label = field.label or name.replace("_", " ").title()
-            field.label = f"{label}*"
-            field.widget.attrs["aria-required"] = "true"
-            field.widget.attrs.setdefault("placeholder", f"Enter your {label.lower()}...")
-
-
-# =========================
-# GALLERY FORMSET
-# =========================
-GalleryFormSet = inlineformset_factory(
-    Rental,
-    RentalImage,
-    fields=("image",),
-    extra=5,
-    max_num=5,
-    can_delete=True,
-    widgets={
-        "image": forms.FileInput(attrs={
-            "accept": "image/*",
-            "class": "gallery-photo-input"
-        })
-    }
-)
-
-
-# =========================
-# ADMIN FORMS
-# =========================
-class CustomUserCreationForm(UserCreationForm):
-
-    class Meta(UserCreationForm.Meta):
-        model = CustomUser
-        fields = ("email", "phone_number")
-
-
-class CustomUserChangeForm(UserChangeForm):
-
-    class Meta(UserChangeForm.Meta):
-        model = CustomUser
-        fields = "__all__"
-</file>
-
 <file path="tweet/migrations/__init__.py">
 
 </file>
@@ -1528,6 +1370,31 @@ python manage.py migrate
 python manage.py ensure_socialapp
 </file>
 
+<file path="create_superuser.py">
+import os
+import django
+
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'rental_app.settings')
+django.setup()
+
+from django.contrib.auth import get_user_model
+
+User = get_user_model()
+email = "vassu_backup@gmail.com"
+password = "vassukaju"
+
+user = User.objects.filter(email=email).first()
+if user:
+    user.set_password(password)
+    user.is_staff = True
+    user.is_superuser = True
+    user.save()
+    print(f"✅ Password reset for {email}")
+else:
+    User.objects.create_superuser(email=email, password=password)
+    print(f"✅ Created new superuser {email}")
+</file>
+
 <file path="package.json">
 {
   "devDependencies": {
@@ -1615,6 +1482,43 @@ class UptimeRobotFilter(logging.Filter):
 <div id="page-scripts" hx-swap-oob="true">{% block extra_scripts %}{% endblock %}</div>
 </file>
 
+<file path="rental_app/templates/partials/wishlist_button.html">
+
+</file>
+
+<file path="rental_app/templates/permissions_modal.html">
+<div id="permission-modal" class="fixed inset-0 z-[10000] flex items-center justify-center p-6 hidden">
+    <div class="absolute inset-0 bg-slate-950/80 backdrop-blur-md"></div>
+    <div class="relative w-full max-w-md glass-card rounded-[2rem] p-8 shadow-2xl border-white/10">
+        <div class="mb-6 flex h-14 w-14 items-center justify-center rounded-2xl bg-sky-500/15 text-sky-400">
+            <i class="fa-solid fa-shield-check text-2xl"></i>
+        </div>
+        
+        <h2 class="text-2xl font-black tracking-tight text-white mb-2">Access Required</h2>
+        <p class="text-sm text-slate-400 mb-6 leading-relaxed">
+            To continue, Empire Estate needs the following browser permissions. This ensures a secure and seamless property listing experience.
+        </p>
+
+        <div id="permission-list" class="space-y-3 mb-8">
+            <!-- Populated by JS -->
+        </div>
+
+        <div class="flex gap-3">
+            <button id="confirm-permission-btn" class="btn-pro flex-1 py-4 text-[0.7rem] font-black uppercase tracking-widest">
+                Allow Access
+            </button>
+            <button onclick="hidePermissionModal()" class="flex-1 rounded-2xl border border-white/10 text-[0.7rem] font-black uppercase tracking-widest text-slate-400 hover:bg-white/5 transition-all">
+                Not Now
+            </button>
+        </div>
+    </div>
+</div>
+</file>
+
+<file path="static/js/permission_manager.js">
+
+</file>
+
 <file path="tailwind.config.js">
 /** @type {import('tailwindcss').Config} */
 module.exports = {
@@ -1638,40 +1542,6 @@ module.exports = {
 };
 </file>
 
-<file path="tweet/adapters.py">
-import logging
-import traceback
-from allauth.socialaccount.adapter import DefaultSocialAccountAdapter
-
-logger = logging.getLogger(__name__)
-
-class SocialAccountAdapter(DefaultSocialAccountAdapter):
-    def on_authentication_error(
-        self, request, provider, error=None, exception=None, extra_context=None
-    ):
-        """
-        Overrides the default error handler to print the exact error to the terminal.
-        """
-        print("\n" + "!" * 60)
-        print("SOCIAL AUTHENTICATION ERROR")
-        print(f"Provider: {provider}")
-        print(f"Error Code: {error}")
-        print(f"Request Path: {request.path}")
-        print(f"Session Key: {request.session.session_key}")
-        
-        # Filter out large binary blobs if any, show relevant OAuth keys
-        session_data = {k: v for k, v in request.session.items() if 'state' in k.lower() or 'social' in k.lower()}
-        print(f"Relevant Session Data: {session_data}")
-
-        print(f"Exception: {repr(exception)}")
-        if exception:
-            traceback.print_exc()
-        if extra_context:
-            print(f"Extra Context: {extra_context}")
-        print("!" * 60 + "\n")
-        super().on_authentication_error(request, provider, error, exception, extra_context)
-</file>
-
 <file path="tweet/context_processors.py">
 def base_template(request):
     """
@@ -1690,12 +1560,152 @@ def base_template(request):
     }
 </file>
 
-<file path="tweet/management/__init__.py">
-"""Management package for the tweet app."""
+<file path="tweet/decorators.py">
+import functools
+
+def hardware_permission_required(permissions):
+    """
+    Safe, non-blocking decorator that attaches required hardware metadata 
+    to the request for use by the frontend or view logic.
+    """
+    def decorator(view_func):
+        @functools.wraps(view_func)
+        def _wrapped_view(request, *args, **kwargs):
+            # Attach metadata to request. This is purely informative and non-blocking.
+            request.required_hardware = permissions
+            return view_func(request, *args, **kwargs)
+        return _wrapped_view
+    return decorator
 </file>
 
-<file path="tweet/management/commands/__init__.py">
-"""Commands package for tweet management commands."""
+<file path="tweet/forms.py">
+import re
+from django import forms
+from django.contrib.auth.forms import UserCreationForm, UserChangeForm
+from django.forms import inlineformset_factory
+from .models import Rental, RentalImage, CustomUser
+
+class CustomUserCreationForm(UserCreationForm):
+    class Meta:
+        model = CustomUser
+        fields = ("email",)
+
+class CustomUserChangeForm(UserChangeForm):
+    class Meta:
+        model = CustomUser
+        fields = ("email", "first_name", "last_name", "phone_number", "user_type", "is_active", "is_staff")
+
+class RentalForm(forms.ModelForm):
+    class Meta:
+        model = Rental
+        fields = [
+            'title', 'location', 'description', 'price', 'property_type', 
+            'contact', 'sqft', 'bedrooms', 'bathrooms', 'furnishing', 
+            'floor', 'facing', 'security_deposit', 'image'
+        ]
+        widgets = {
+            'title': forms.TextInput(attrs={'class': 'w-full rounded-2xl border border-white/10 bg-white/5 p-4 text-sm text-white', 'placeholder': 'e.g. Modern Luxury Villa'}),
+            'location': forms.TextInput(attrs={'class': 'w-full rounded-2xl border border-white/10 bg-white/5 p-4 text-sm text-white', 'placeholder': 'City or Neighborhood'}),
+            'description': forms.Textarea(attrs={'class': 'w-full rounded-2xl border border-white/10 bg-white/5 p-4 text-sm text-white', 'rows': 4}),
+            'price': forms.NumberInput(attrs={'class': 'w-full rounded-2xl border border-white/10 bg-white/5 p-4 text-sm text-white'}),
+            'property_type': forms.Select(attrs={'class': 'w-full rounded-2xl border border-white/10 bg-slate-900 p-4 text-sm text-white'}),
+            'contact': forms.TextInput(attrs={'class': 'w-full rounded-2xl border border-white/10 bg-white/5 p-4 text-sm text-white'}),
+            'sqft': forms.NumberInput(attrs={'class': 'w-full rounded-2xl border border-white/10 bg-white/5 p-4 text-sm text-white'}),
+            'bedrooms': forms.NumberInput(attrs={'class': 'w-full rounded-2xl border border-white/10 bg-white/5 p-4 text-sm text-white'}),
+            'bathrooms': forms.NumberInput(attrs={'class': 'w-full rounded-2xl border border-white/10 bg-white/5 p-4 text-sm text-white'}),
+            'furnishing': forms.TextInput(attrs={'class': 'w-full rounded-2xl border border-white/10 bg-white/5 p-4 text-sm text-white'}),
+            'floor': forms.TextInput(attrs={'class': 'w-full rounded-2xl border border-white/10 bg-white/5 p-4 text-sm text-white'}),
+            'facing': forms.TextInput(attrs={'class': 'w-full rounded-2xl border border-white/10 bg-white/5 p-4 text-sm text-white'}),
+            'security_deposit': forms.NumberInput(attrs={'class': 'w-full rounded-2xl border border-white/10 bg-white/5 p-4 text-sm text-white'}),
+            'image': forms.FileInput(attrs={'class': 'w-full rounded-2xl border border-white/10 bg-white/5 p-4 text-sm text-white', 'data-require-perms': 'camera,files'}),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Remove strict model validator to allow cleaning in clean_contact()
+        self.fields['contact'].validators = []
+        # Explicitly mark all mandatory fields for frontend/backend synchronization
+        required_fields = ['title', 'location', 'description', 'price', 'property_type', 'contact', 'sqft', 'bedrooms', 'bathrooms', 'image']
+        for field in required_fields:
+            self.fields[field].required = True
+            self.fields[field].widget.attrs['required'] = 'required'
+        if self.instance.pk:
+            self.fields['image'].required = False
+            self.fields['image'].widget.attrs.pop('required', None)
+
+    def clean_price(self):
+        price = self.cleaned_data.get('price')
+        if price is not None and price <= 0:
+            raise forms.ValidationError("Price must be a positive number.")
+        return price
+
+    def clean_sqft(self):
+        sqft = self.cleaned_data.get('sqft')
+        if sqft is not None and sqft <= 0:
+            raise forms.ValidationError("Area (Sqft) must be greater than zero.")
+        return sqft
+
+    def clean_contact(self):
+        contact = self.cleaned_data.get('contact', '')
+        # Strip spaces, dashes, brackets before validating
+        digits_only = re.sub(r'[\s\-\(\)\+]', '', str(contact))
+        if not digits_only.isdigit() or not (10 <= len(digits_only) <= 15):
+            raise forms.ValidationError(
+                'Enter a valid phone number. '
+                'Accepted formats: 9876543210, +91 98765 43210'
+            )
+        return contact
+
+    def clean(self):
+        cleaned_data = super().clean()
+        return cleaned_data
+
+class ProfileSetupForm(forms.ModelForm):
+    class Meta:
+        model = CustomUser
+        fields = ['first_name', 'last_name', 'phone_number', 'user_type', 'address', 'current_location']
+        widgets = {
+            field: forms.TextInput(attrs={'class': 'w-full rounded-2xl border border-white/10 bg-white/5 p-4 text-sm text-white'})
+            for field in ['first_name', 'last_name', 'phone_number', 'address', 'current_location']
+        }
+        widgets['user_type'] = forms.Select(attrs={'class': 'w-full rounded-2xl border border-white/10 bg-white/5 p-4 text-sm text-white'})
+
+class RentalImageForm(forms.ModelForm):
+    class Meta:
+        model = RentalImage
+        fields = ['image']
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Allow the formset to skip empty extra image slots
+        self.fields['image'].required = False
+
+GalleryFormSet = inlineformset_factory(
+    Rental, 
+    RentalImage, 
+    form=RentalImageForm,
+    extra=3,
+    can_delete=True
+)
+</file>
+
+<file path="tweet/management/commands/sync_site.py">
+from django.contrib.sites.models import Site
+from django.core.management.base import BaseCommand
+from django.conf import settings
+
+class Command(BaseCommand):
+    help = 'Sync the Django Sites entry with PUBLIC_SITE_DOMAIN'
+
+    def handle(self, *args, **kwargs):
+        domain = settings.PUBLIC_SITE_DOMAIN
+        site_id = settings.SITE_ID
+        site, created = Site.objects.update_or_create(
+            id=site_id,
+            defaults={'domain': domain, 'name': 'Empire Estate'},
+        )
+        action = 'Created' if created else 'Updated'
+        self.stdout.write(self.style.SUCCESS(f'{action} site: {domain}'))
 </file>
 
 <file path="tweet/migrations/0009_alter_customuser_phone_number_propertylead.py">
@@ -1995,6 +2005,252 @@ class Migration(migrations.Migration):
             field=models.CharField(choices=[('HOUSE', 'House'), ('APARTMENT', 'Apartment'), ('1BHK', '1 BHK'), ('2BHK', '2 BHK'), ('3BHK', '3 BHK'), ('PG', 'PG'), ('VILLA', 'Villa'), ('SHOWROOM', 'Showroom'), ('INDUSTRIAL_PLOT', 'Industrial Plot')], max_length=30),
         ),
     ]
+</file>
+
+<file path="tweet/migrations/0019_alter_customuser_managers_rental_wishlisted_by_and_more.py">
+# Generated by Django 5.1.5 on 2026-06-04 18:24
+
+import django.contrib.postgres.indexes
+from django.conf import settings
+from django.db import migrations, models
+
+
+class Migration(migrations.Migration):
+
+    dependencies = [
+        ('tweet', '0018_update_site_domain'),
+    ]
+
+    operations = [
+        migrations.AlterModelManagers(
+            name='customuser',
+            managers=[
+            ],
+        ),
+        migrations.AddField(
+            model_name='rental',
+            name='wishlisted_by',
+            field=models.ManyToManyField(blank=True, related_name='wishlisted_rentals', to=settings.AUTH_USER_MODEL),
+        ),
+        migrations.AlterField(
+            model_name='rental',
+            name='location',
+            field=models.CharField(db_index=True, max_length=255),
+        ),
+        migrations.AlterField(
+            model_name='rental',
+            name='property_type',
+            field=models.CharField(choices=[('HOUSE', 'House'), ('APARTMENT', 'Apartment'), ('1BHK', '1 BHK'), ('2BHK', '2 BHK'), ('3BHK', '3 BHK'), ('PG', 'PG'), ('VILLA', 'Villa'), ('SHOWROOM', 'Showroom'), ('INDUSTRIAL_PLOT', 'Industrial Plot')], db_index=True, max_length=30),
+        ),
+        migrations.AddIndex(
+            model_name='rental',
+            index=models.Index(fields=['is_available', '-created_at'], name='rental_avail_created_idx'),
+        ),
+        migrations.AddIndex(
+            model_name='rental',
+            index=models.Index(fields=['property_type', 'is_available', '-created_at'], name='rental_type_avail_created_idx'),
+        ),
+        migrations.AddIndex(
+            model_name='rental',
+            index=models.Index(fields=['user', '-created_at'], name='rental_user_created_idx'),
+        ),
+        migrations.AddIndex(
+            model_name='rental',
+            index=models.Index(fields=['is_available', 'price'], name='rental_avail_price_idx'),
+        ),
+        migrations.AddIndex(
+            model_name='rental',
+            index=django.contrib.postgres.indexes.GinIndex(fields=['title'], name='rental_title_trgm_idx', opclasses=['gin_trgm_ops']),
+        ),
+        migrations.AddIndex(
+            model_name='rental',
+            index=django.contrib.postgres.indexes.GinIndex(fields=['location'], name='rental_location_trgm_idx', opclasses=['gin_trgm_ops']),
+        ),
+        migrations.AddIndex(
+            model_name='rental',
+            index=django.contrib.postgres.indexes.GinIndex(fields=['description'], name='rental_desc_trgm_idx', opclasses=['gin_trgm_ops']),
+        ),
+    ]
+</file>
+
+<file path="tweet/permission_manager.js">
+/**
+ * PermissionManager handles browser hardware APIs and coordinates with Django.
+ */
+const PermissionManager = {
+    debugEnv: () => {
+        console.log("--- Permission Debug ---");
+        console.log("Secure Context (HTTPS/Localhost):", window.isSecureContext);
+        console.log("MediaDevices Support:", !!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia));
+        if (!window.isSecureContext) {
+            console.error("CRITICAL: Camera access requires HTTPS or localhost.");
+        }
+    },
+
+    // Request logic for different types
+    strategies: {
+        camera: async () => {
+            PermissionManager.debugEnv();
+            try {
+                if (!navigator.mediaDevices) throw new Error("MediaDevices not supported");
+                const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
+                stream.getTracks().forEach(track => track.stop()); // Close immediately after check
+                console.log("Camera access granted.");
+                return 'granted';
+            } catch (e) {
+                console.error("Camera access error:", e);
+                return 'denied';
+            }
+        },
+        files: async () => {
+            // Browser file access is usually implicit on input click, 
+            // but we use this to verify the environment supports it.
+            return 'granted'; 
+        }
+    },
+
+    async check(permissionType) {
+        if (navigator.permissions && navigator.permissions.query) {
+            try {
+                const status = await navigator.permissions.query({ name: permissionType === 'camera' ? 'camera' : 'notifications' });
+                return status.state;
+            } catch (e) {
+                console.warn("Permissions API query failed.");
+            }
+        }
+        return localStorage.getItem(`perm_${permissionType}`) || 'prompt';
+    },
+
+    async request(permissionType) {
+        if (this.strategies[permissionType]) {
+            const result = await this.strategies[permissionType]();
+            localStorage.setItem(`perm_${permissionType}`, result);
+            return result;
+        }
+        return 'denied';
+    },
+
+    getVerifiedHeader(requiredList) {
+        // Returns a string of permissions that the frontend is vouching for
+        return requiredList.join(',');
+    },
+
+    async handleManualClick(target, permissions) {
+        const checkPromises = permissions.map(p => this.check(p));
+        const statuses = await Promise.all(checkPromises);
+
+        if (statuses.some(s => s !== 'granted')) {
+            showPermissionModal(permissions, async () => {
+                const results = await Promise.all(
+                    permissions.map(p => this.request(p))
+                );
+
+                if (results.every(r => r === 'granted')) {
+                    hidePermissionModal();
+                    target.click(); // Re-trigger the click now that we have permission
+                } else {
+                    alert("Permission denied. We cannot proceed without hardware access.");
+                }
+            });
+        }
+    }
+};
+
+// Proactive HTMX Integration: Intercept BEFORE the request is sent
+document.body.addEventListener('htmx:confirm', async (evt) => {
+    const elt = evt.detail.elt;
+    // Look for data-require-perms attribute (e.g., data-require-perms="camera")
+    const requiredPermsAttr = elt.getAttribute('data-require-perms');
+    
+    if (requiredPermsAttr) {
+        const permissions = requiredPermsAttr.split(',').map(p => p.trim());
+        
+        // Check if any permission is not yet 'granted'
+        const checkPromises = permissions.map(p => PermissionManager.check(p));
+        const statuses = await Promise.all(checkPromises);
+
+        if (statuses.some(s => s !== 'granted')) {
+            // Halt the HTMX request
+            evt.preventDefault();
+            
+            showPermissionModal(permissions, async () => {
+                // Request native browser permissions
+                const results = await Promise.all(
+                    permissions.map(p => PermissionManager.request(p))
+                );
+
+                if (results.every(r => r === 'granted')) {
+                    hidePermissionModal();
+                    // Manually trigger the original HTMX action
+                    evt.detail.issueRequest();
+                } else {
+                    alert("Permission denied. We cannot proceed without hardware access.");
+                }
+            });
+        }
+    }
+});
+
+// Add support for clicking standard file inputs or "Add Photo" buttons
+document.body.addEventListener('click', async (evt) => {
+    const elt = evt.target.closest('[data-require-perms]');
+    if (!elt) return;
+
+    // If it's a file input and we don't have permissions yet, intercept the click
+    if (elt.tagName === 'INPUT' && elt.type === 'file' && !elt.dataset.permVerified) {
+        const permissions = elt.getAttribute('data-require-perms').split(',').map(p => p.trim());
+        evt.preventDefault();
+        await PermissionManager.handleManualClick(elt, permissions);
+        elt.dataset.permVerified = "true";
+    }
+});
+
+function showPermissionModal(perms, onConfirm) {
+    const modal = document.getElementById('permission-modal');
+    const list = document.getElementById('permission-list');
+    if (!modal) return;
+
+    list.innerHTML = perms.map(p => `
+        <div class="flex items-center gap-3 p-3 rounded-xl bg-white/5 border border-white/10">
+            <i class="fa-solid fa-${p === 'camera' ? 'camera' : 'file-import'} text-sky-400"></i>
+            <span class="capitalize text-sm font-bold">${p} Access</span>
+        </div>
+    `).join('');
+
+    modal.classList.remove('hidden');
+    document.getElementById('confirm-permission-btn').onclick = onConfirm;
+}
+
+function hidePermissionModal() {
+    const modal = document.getElementById('permission-modal');
+    if (modal) modal.classList.add('hidden');
+}
+</file>
+
+<file path="tweet/templates/partials/wishlist_btn.html">
+{# Wishlist toggle form fragment — full form replaces existing form via HTMX #}
+<form action="{% url 'toggle_wishlist' rental.id %}" method="POST" class="js-wishlist-form"
+    hx-post="{% url 'toggle_wishlist' rental.id %}" hx-target="this" hx-swap="outerHTML" hx-boost="false">
+    {% csrf_token %}
+
+    <button type="submit" data-wishlisted="{{ is_wishlisted|yesno:'1,0' }}"
+        aria-pressed="{{ is_wishlisted|yesno:'true,false' }}"
+        aria-label="{% if is_wishlisted %}Remove from wishlist{% else %}Save to wishlist{% endif %}"
+        title="{% if is_wishlisted %}Saved{% else %}Save{% endif %}" class="wishlist-btn flex items-center justify-center w-9 h-9 rounded-full
+                   transition-all duration-200 focus:outline-none focus:ring-2
+                   focus:ring-offset-2 focus:ring-red-400
+                   {% if is_wishlisted %}
+                     bg-red-50 text-red-500 hover:bg-red-100
+                   {% else %}
+                     bg-white/80 text-gray-400 hover:text-red-500 hover:bg-red-50
+                   {% endif %}">
+        {% if is_wishlisted %}
+        <i class="ti ti-heart-filled text-lg" aria-hidden="true"></i>
+        {% else %}
+        <i class="ti ti-heart text-lg" aria-hidden="true"></i>
+        {% endif %}
+    </button>
+</form>
 </file>
 
 <file path="tweet/templates/rentalDelete.html">
@@ -2354,6 +2610,27 @@ if settings.DEBUG:
 @layer properties{@supports (((-webkit-hyphens:none)) and (not (margin-trim:inline))) or ((-moz-orient:inline) and (not (color:rgb(from red r g b)))){*,:before,:after,::backdrop{--tw-translate-x:0;--tw-translate-y:0;--tw-translate-z:0;--tw-scale-x:1;--tw-scale-y:1;--tw-scale-z:1;--tw-rotate-x:initial;--tw-rotate-y:initial;--tw-rotate-z:initial;--tw-skew-x:initial;--tw-skew-y:initial;--tw-space-y-reverse:0;--tw-space-x-reverse:0;--tw-border-style:solid;--tw-gradient-position:initial;--tw-gradient-from:#0000;--tw-gradient-via:#0000;--tw-gradient-to:#0000;--tw-gradient-stops:initial;--tw-gradient-via-stops:initial;--tw-gradient-from-position:0%;--tw-gradient-via-position:50%;--tw-gradient-to-position:100%;--tw-leading:initial;--tw-font-weight:initial;--tw-tracking:initial;--tw-shadow:0 0 #0000;--tw-shadow-color:initial;--tw-shadow-alpha:100%;--tw-inset-shadow:0 0 #0000;--tw-inset-shadow-color:initial;--tw-inset-shadow-alpha:100%;--tw-ring-color:initial;--tw-ring-shadow:0 0 #0000;--tw-inset-ring-color:initial;--tw-inset-ring-shadow:0 0 #0000;--tw-ring-inset:initial;--tw-ring-offset-width:0px;--tw-ring-offset-color:#fff;--tw-ring-offset-shadow:0 0 #0000;--tw-outline-style:solid;--tw-blur:initial;--tw-brightness:initial;--tw-contrast:initial;--tw-grayscale:initial;--tw-hue-rotate:initial;--tw-invert:initial;--tw-opacity:initial;--tw-saturate:initial;--tw-sepia:initial;--tw-drop-shadow:initial;--tw-drop-shadow-color:initial;--tw-drop-shadow-alpha:100%;--tw-drop-shadow-size:initial;--tw-backdrop-blur:initial;--tw-backdrop-brightness:initial;--tw-backdrop-contrast:initial;--tw-backdrop-grayscale:initial;--tw-backdrop-hue-rotate:initial;--tw-backdrop-invert:initial;--tw-backdrop-opacity:initial;--tw-backdrop-saturate:initial;--tw-backdrop-sepia:initial;--tw-duration:initial;--tw-ease:initial}}}@layer theme{:root,:host{--font-mono:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;--color-red-100:oklch(93.6% .032 17.717);--color-red-200:oklch(88.5% .062 18.334);--color-red-400:oklch(70.4% .191 22.216);--color-red-500:oklch(63.7% .237 25.331);--color-red-600:oklch(57.7% .245 27.325);--color-red-700:oklch(50.5% .213 27.518);--color-red-800:oklch(44.4% .177 26.899);--color-yellow-100:oklch(97.3% .071 103.193);--color-yellow-200:oklch(94.5% .129 101.54);--color-yellow-500:oklch(79.5% .184 86.047);--color-yellow-800:oklch(47.6% .114 61.907);--color-green-100:oklch(96.2% .044 156.743);--color-green-200:oklch(92.5% .084 155.995);--color-green-800:oklch(44.8% .119 151.328);--color-emerald-500:oklch(69.6% .17 162.48);--color-emerald-600:oklch(59.6% .145 163.225);--color-cyan-200:oklch(91.7% .08 205.041);--color-cyan-500:oklch(71.5% .143 215.221);--color-sky-300:oklch(82.8% .111 230.318);--color-sky-400:oklch(74.6% .16 232.661);--color-sky-500:oklch(68.5% .169 237.323);--color-sky-600:oklch(58.8% .158 241.966);--color-blue-100:oklch(93.2% .032 255.585);--color-blue-200:oklch(88.2% .059 254.128);--color-blue-400:oklch(70.7% .165 254.624);--color-blue-500:oklch(62.3% .214 259.815);--color-blue-600:oklch(54.6% .245 262.881);--color-blue-700:oklch(48.8% .243 264.376);--color-blue-800:oklch(42.4% .199 265.638);--color-fuchsia-200:oklch(90.3% .076 319.62);--color-fuchsia-500:oklch(66.7% .295 322.15);--color-pink-500:oklch(65.6% .241 354.308);--color-rose-300:oklch(81% .117 11.638);--color-rose-500:oklch(64.5% .246 16.439);--color-slate-50:oklch(98.4% .003 247.858);--color-slate-100:oklch(96.8% .007 247.896);--color-slate-200:oklch(92.9% .013 255.508);--color-slate-300:oklch(86.9% .022 252.894);--color-slate-400:oklch(70.4% .04 256.788);--color-slate-500:oklch(55.4% .046 257.417);--color-slate-600:oklch(44.6% .043 257.281);--color-slate-800:oklch(27.9% .041 260.031);--color-slate-900:oklch(20.8% .042 265.755);--color-slate-950:oklch(12.9% .042 264.695);--color-gray-100:oklch(96.7% .003 264.542);--color-gray-200:oklch(92.8% .006 264.531);--color-gray-400:oklch(70.7% .022 261.325);--color-gray-500:oklch(55.1% .027 264.364);--color-gray-600:oklch(44.6% .03 256.802);--color-gray-700:oklch(37.3% .034 259.733);--color-gray-800:oklch(27.8% .033 256.848);--color-gray-900:oklch(21% .034 264.665);--color-black:#000;--color-white:#fff;--spacing:.25rem;--container-md:28rem;--container-lg:32rem;--container-xl:36rem;--container-2xl:42rem;--container-3xl:48rem;--container-4xl:56rem;--container-6xl:72rem;--container-7xl:80rem;--text-xs:.75rem;--text-xs--line-height:calc(1 / .75);--text-sm:.875rem;--text-sm--line-height:calc(1.25 / .875);--text-base:1rem;--text-base--line-height:calc(1.5 / 1);--text-lg:1.125rem;--text-lg--line-height:calc(1.75 / 1.125);--text-xl:1.25rem;--text-xl--line-height:calc(1.75 / 1.25);--text-2xl:1.5rem;--text-2xl--line-height:calc(2 / 1.5);--text-3xl:1.875rem;--text-3xl--line-height:calc(2.25 / 1.875);--text-4xl:2.25rem;--text-4xl--line-height:calc(2.5 / 2.25);--text-5xl:3rem;--text-5xl--line-height:1;--text-6xl:3.75rem;--text-6xl--line-height:1;--text-7xl:4.5rem;--text-7xl--line-height:1;--text-8xl:6rem;--text-8xl--line-height:1;--font-weight-medium:500;--font-weight-semibold:600;--font-weight-bold:700;--font-weight-extrabold:800;--font-weight-black:900;--tracking-tighter:-.05em;--tracking-tight:-.025em;--tracking-wide:.025em;--tracking-wider:.05em;--tracking-widest:.1em;--leading-tight:1.25;--leading-relaxed:1.625;--radius-lg:.5rem;--radius-xl:.75rem;--radius-2xl:1rem;--radius-3xl:1.5rem;--ease-out:cubic-bezier(0, 0, .2, 1);--ease-in-out:cubic-bezier(.4, 0, .2, 1);--animate-ping:ping 1s cubic-bezier(0, 0, .2, 1) infinite;--animate-pulse:pulse 2s cubic-bezier(.4, 0, .6, 1) infinite;--animate-bounce:bounce 1s infinite;--blur-md:12px;--blur-lg:16px;--blur-xl:24px;--blur-2xl:40px;--blur-3xl:64px;--default-transition-duration:.15s;--default-transition-timing-function:cubic-bezier(.4, 0, .2, 1);--default-mono-font-family:var(--font-mono)}}@layer base{*,:after,:before,::backdrop{box-sizing:border-box;border:0 solid;margin:0;padding:0}::file-selector-button{box-sizing:border-box;border:0 solid;margin:0;padding:0}html,:host{-webkit-text-size-adjust:100%;tab-size:4;font-feature-settings:normal;font-variation-settings:normal;-webkit-tap-highlight-color:transparent;font-family:Plus Jakarta Sans,ui-sans-serif,system-ui,sans-serif;line-height:1.5}hr{height:0;color:inherit;border-top-width:1px}abbr:where([title]){-webkit-text-decoration:underline dotted;text-decoration:underline dotted}h1,h2,h3,h4,h5,h6{font-size:inherit;font-weight:inherit}a{color:inherit;-webkit-text-decoration:inherit;-webkit-text-decoration:inherit;-webkit-text-decoration:inherit;text-decoration:inherit}b,strong{font-weight:bolder}code,kbd,samp,pre{font-family:var(--default-mono-font-family,ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace);font-feature-settings:var(--default-mono-font-feature-settings,normal);font-variation-settings:var(--default-mono-font-variation-settings,normal);font-size:1em}small{font-size:80%}sub,sup{vertical-align:baseline;font-size:75%;line-height:0;position:relative}sub{bottom:-.25em}sup{top:-.5em}table{text-indent:0;border-color:inherit;border-collapse:collapse}:-moz-focusring{outline:auto}progress{vertical-align:baseline}summary{display:list-item}ol,ul,menu{list-style:none}img,svg,video,canvas,audio,iframe,embed,object{vertical-align:middle;display:block}img,video{max-width:100%;height:auto}button,input,select,optgroup,textarea{font:inherit;font-feature-settings:inherit;font-variation-settings:inherit;letter-spacing:inherit;color:inherit;opacity:1;background-color:#0000;border-radius:0}::file-selector-button{font:inherit;font-feature-settings:inherit;font-variation-settings:inherit;letter-spacing:inherit;color:inherit;opacity:1;background-color:#0000;border-radius:0}:where(select:is([multiple],[size])) optgroup{font-weight:bolder}:where(select:is([multiple],[size])) optgroup option{padding-inline-start:20px}::file-selector-button{margin-inline-end:4px}::placeholder{opacity:1}@supports (not ((-webkit-appearance:-apple-pay-button))) or (contain-intrinsic-size:1px){::placeholder{color:currentColor}@supports (color:color-mix(in lab, red, red)){::placeholder{color:color-mix(in oklab, currentcolor 50%, transparent)}}}textarea{resize:vertical}::-webkit-search-decoration{-webkit-appearance:none}::-webkit-date-and-time-value{min-height:1lh;text-align:inherit}::-webkit-datetime-edit{display:inline-flex}::-webkit-datetime-edit-fields-wrapper{padding:0}::-webkit-datetime-edit{padding-block:0}::-webkit-datetime-edit-year-field{padding-block:0}::-webkit-datetime-edit-month-field{padding-block:0}::-webkit-datetime-edit-day-field{padding-block:0}::-webkit-datetime-edit-hour-field{padding-block:0}::-webkit-datetime-edit-minute-field{padding-block:0}::-webkit-datetime-edit-second-field{padding-block:0}::-webkit-datetime-edit-millisecond-field{padding-block:0}::-webkit-datetime-edit-meridiem-field{padding-block:0}::-webkit-calendar-picker-indicator{line-height:1}:-moz-ui-invalid{box-shadow:none}button,input:where([type=button],[type=reset],[type=submit]){appearance:button}::file-selector-button{appearance:button}::-webkit-inner-spin-button{height:auto}::-webkit-outer-spin-button{height:auto}[hidden]:where(:not([hidden=until-found])){display:none!important}:root{--bg:#020617;--bg-card:#0f172ab8;--surface:#ffffff0f;--surface-border:#ffffff1f;--text-main:#f8fafc;--text-muted:#94a3b8;--accent:#0ea5e9;--page-x:clamp(1rem, 4vw, 3rem);--section-y:clamp(3rem, 8vw, 6rem);--card-pad:clamp(1.25rem, 3vw, 2.5rem);--card-radius:clamp(1rem, 2.5vw, 2rem);--media-radius:clamp(1rem, 3vw, 2rem);--hero-media-height:clamp(18rem, 58vw, 42rem);--card-media-height:clamp(12rem, 32vw, 18rem)}html{-webkit-text-size-adjust:100%;-moz-text-size-adjust:100%;text-size-adjust:100%;font-size:clamp(14px,.28vw + 13px,17px)}body{background:var(--bg);overflow-x:clip}img,picture,video,canvas,svg{max-inline-size:100%}img,video{block-size:auto}input,textarea,select,button{max-width:100%;font:inherit}}@layer components{.glass-card{border-radius:var(--card-radius)}.hero-title{letter-spacing:0;text-wrap:balance;font-size:clamp(2.75rem,10vw,6.5rem)}.hero-copy{font-size:clamp(1rem,1.8vw,1.25rem)}.fluid-display-title{letter-spacing:0;text-wrap:balance;font-size:clamp(2.5rem,9vw,6rem);line-height:.95}.marketplace-hero-media{object-fit:cover;max-height:min(56vh,30rem)}.responsive-media-frame{aspect-ratio:4/5;height:var(--hero-media-height);border-radius:var(--media-radius);max-height:72vh;overflow:hidden}.rental-card-media{aspect-ratio:16/11;min-height:12rem;max-height:var(--card-media-height);overflow:hidden}.form-preview-media{aspect-ratio:16/9;width:100%;max-height:min(22rem,55vh);overflow:hidden}.media-cover{object-fit:cover;width:100%;height:100%;display:block}.media-fluid{width:100%;height:auto;display:block}}@layer utilities{.pointer-events-none{pointer-events:none}.collapse{visibility:collapse}.visible{visibility:visible}.absolute{position:absolute}.fixed{position:fixed}.relative{position:relative}.static{position:static}.sticky{position:sticky}.-inset-4{inset:calc(var(--spacing) * -4)}.-inset-6{inset:calc(var(--spacing) * -6)}.inset-0{inset:calc(var(--spacing) * 0)}.\!start{inset-inline-start:var(--spacing)!important}.start{inset-inline-start:var(--spacing)}.end{inset-inline-end:var(--spacing)}.-top-10{top:calc(var(--spacing) * -10)}.-top-24{top:calc(var(--spacing) * -24)}.top-0{top:calc(var(--spacing) * 0)}.top-1\/2{top:50%}.top-1\/4{top:25%}.top-3{top:calc(var(--spacing) * 3)}.-right-10{right:calc(var(--spacing) * -10)}.-right-28{right:calc(var(--spacing) * -28)}.right-0{right:calc(var(--spacing) * 0)}.right-3{right:calc(var(--spacing) * 3)}.-bottom-4{bottom:calc(var(--spacing) * -4)}.-bottom-28{bottom:calc(var(--spacing) * -28)}.bottom-0{bottom:calc(var(--spacing) * 0)}.bottom-2{bottom:calc(var(--spacing) * 2)}.-left-4{left:calc(var(--spacing) * -4)}.-left-28{left:calc(var(--spacing) * -28)}.left-0{left:calc(var(--spacing) * 0)}.left-1\/2{left:50%}.left-1\/4{left:25%}.left-2{left:calc(var(--spacing) * 2)}.left-3{left:calc(var(--spacing) * 3)}.-z-10{z-index:calc(10 * -1)}.z-10{z-index:10}.z-20{z-index:20}.z-50{z-index:50}.z-\[90\]{z-index:90}.z-\[100\]{z-index:100}.col-span-1{grid-column:span 1/span 1}.col-span-12{grid-column:span 12/span 12}.col-span-full{grid-column:1/-1}.float-left{float:left}.float-right{float:right}.container{width:100%}@media (min-width:40rem){.container{max-width:40rem}}@media (min-width:48rem){.container{max-width:48rem}}@media (min-width:64rem){.container{max-width:64rem}}@media (min-width:80rem){.container{max-width:80rem}}@media (min-width:96rem){.container{max-width:96rem}}.m-0{margin:calc(var(--spacing) * 0)}.mx-4{margin-inline:calc(var(--spacing) * 4)}.mx-auto{margin-inline:auto}.my-6{margin-block:calc(var(--spacing) * 6)}.mt-1{margin-top:calc(var(--spacing) * 1)}.mt-2{margin-top:calc(var(--spacing) * 2)}.mt-3{margin-top:calc(var(--spacing) * 3)}.mt-4{margin-top:calc(var(--spacing) * 4)}.mt-5{margin-top:calc(var(--spacing) * 5)}.mt-6{margin-top:calc(var(--spacing) * 6)}.mt-7{margin-top:calc(var(--spacing) * 7)}.mt-8{margin-top:calc(var(--spacing) * 8)}.mt-10{margin-top:calc(var(--spacing) * 10)}.mt-12{margin-top:calc(var(--spacing) * 12)}.mt-24{margin-top:calc(var(--spacing) * 24)}.mt-auto{margin-top:auto}.mr-2{margin-right:calc(var(--spacing) * 2)}.mb-2{margin-bottom:calc(var(--spacing) * 2)}.mb-3{margin-bottom:calc(var(--spacing) * 3)}.mb-4{margin-bottom:calc(var(--spacing) * 4)}.mb-6{margin-bottom:calc(var(--spacing) * 6)}.mb-8{margin-bottom:calc(var(--spacing) * 8)}.mb-10{margin-bottom:calc(var(--spacing) * 10)}.mb-12{margin-bottom:calc(var(--spacing) * 12)}.mb-16{margin-bottom:calc(var(--spacing) * 16)}.ml-1{margin-left:calc(var(--spacing) * 1)}.ml-3{margin-left:calc(var(--spacing) * 3)}.ml-auto{margin-left:auto}.\!hidden{display:none!important}.block{display:block}.contents{display:contents}.flex{display:flex}.grid{display:grid}.hidden{display:none}.inline{display:inline}.inline-block{display:inline-block}.inline-flex{display:inline-flex}.table{display:table}.table-caption{display:table-caption}.table-cell{display:table-cell}.h-1{height:calc(var(--spacing) * 1)}.h-1\.5{height:calc(var(--spacing) * 1.5)}.h-2\.5{height:calc(var(--spacing) * 2.5)}.h-4{height:calc(var(--spacing) * 4)}.h-8{height:calc(var(--spacing) * 8)}.h-9{height:calc(var(--spacing) * 9)}.h-10{height:calc(var(--spacing) * 10)}.h-12{height:calc(var(--spacing) * 12)}.h-14{height:calc(var(--spacing) * 14)}.h-16{height:calc(var(--spacing) * 16)}.h-20{height:calc(var(--spacing) * 20)}.h-24{height:calc(var(--spacing) * 24)}.h-32{height:calc(var(--spacing) * 32)}.h-40{height:calc(var(--spacing) * 40)}.h-48{height:calc(var(--spacing) * 48)}.h-96{height:calc(var(--spacing) * 96)}.h-\[1px\]{height:1px}.h-\[150px\]{height:150px}.h-\[180px\]{height:180px}.h-\[200px\]{height:200px}.h-\[220px\]{height:220px}.h-\[280px\]{height:280px}.h-\[300px\]{height:300px}.h-\[500px\]{height:500px}.h-\[560px\]{height:560px}.h-\[620px\]{height:620px}.h-full{height:100%}.min-h-\[60vh\]{min-height:60vh}.min-h-\[70vh\]{min-height:70vh}.min-h-\[80vh\]{min-height:80vh}.min-h-screen{min-height:100vh}.w-1\.5{width:calc(var(--spacing) * 1.5)}.w-2\.5{width:calc(var(--spacing) * 2.5)}.w-4{width:calc(var(--spacing) * 4)}.w-8{width:calc(var(--spacing) * 8)}.w-9{width:calc(var(--spacing) * 9)}.w-10{width:calc(var(--spacing) * 10)}.w-12{width:calc(var(--spacing) * 12)}.w-14{width:calc(var(--spacing) * 14)}.w-20{width:calc(var(--spacing) * 20)}.w-24{width:calc(var(--spacing) * 24)}.w-32{width:calc(var(--spacing) * 32)}.w-96{width:calc(var(--spacing) * 96)}.w-\[250px\]{width:250px}.w-\[500px\]{width:500px}.w-\[560px\]{width:560px}.w-\[620px\]{width:620px}.w-full{width:100%}.max-w-2xl{max-width:var(--container-2xl)}.max-w-3xl{max-width:var(--container-3xl)}.max-w-4xl{max-width:var(--container-4xl)}.max-w-6xl{max-width:var(--container-6xl)}.max-w-7xl{max-width:var(--container-7xl)}.max-w-\[100px\]{max-width:100px}.max-w-\[280px\]{max-width:280px}.max-w-\[720px\]{max-width:720px}.max-w-\[1000px\]{max-width:1000px}.max-w-\[1400px\]{max-width:1400px}.max-w-lg{max-width:var(--container-lg)}.max-w-md{max-width:var(--container-md)}.max-w-xl{max-width:var(--container-xl)}.min-w-0{min-width:calc(var(--spacing) * 0)}.flex-1{flex:1}.flex-shrink{flex-shrink:1}.flex-grow{flex-grow:1}.border-collapse{border-collapse:collapse}.-translate-x-1\/2{--tw-translate-x:calc(calc(1 / 2 * 100%) * -1);translate:var(--tw-translate-x) var(--tw-translate-y)}.scale-110{--tw-scale-x:110%;--tw-scale-y:110%;--tw-scale-z:110%;scale:var(--tw-scale-x) var(--tw-scale-y)}.rotate-3{rotate:3deg}.transform{transform:var(--tw-rotate-x,) var(--tw-rotate-y,) var(--tw-rotate-z,) var(--tw-skew-x,) var(--tw-skew-y,)}.animate-bounce{animation:var(--animate-bounce)}.animate-ping{animation:var(--animate-ping)}.animate-pulse{animation:var(--animate-pulse)}.resize{resize:both}.grid-cols-1{grid-template-columns:repeat(1,minmax(0,1fr))}.grid-cols-2{grid-template-columns:repeat(2,minmax(0,1fr))}.grid-cols-12{grid-template-columns:repeat(12,minmax(0,1fr))}.flex-col{flex-direction:column}.flex-wrap{flex-wrap:wrap}.items-center{align-items:center}.items-end{align-items:flex-end}.items-start{align-items:flex-start}.justify-between{justify-content:space-between}.justify-center{justify-content:center}.justify-end{justify-content:flex-end}.gap-1\.5{gap:calc(var(--spacing) * 1.5)}.gap-2{gap:calc(var(--spacing) * 2)}.gap-3{gap:calc(var(--spacing) * 3)}.gap-4{gap:calc(var(--spacing) * 4)}.gap-5{gap:calc(var(--spacing) * 5)}.gap-6{gap:calc(var(--spacing) * 6)}.gap-8{gap:calc(var(--spacing) * 8)}.gap-10{gap:calc(var(--spacing) * 10)}.gap-12{gap:calc(var(--spacing) * 12)}:where(.space-y-2>:not(:last-child)){--tw-space-y-reverse:0;margin-block-start:calc(calc(var(--spacing) * 2) * var(--tw-space-y-reverse));margin-block-end:calc(calc(var(--spacing) * 2) * calc(1 - var(--tw-space-y-reverse)))}:where(.space-y-3>:not(:last-child)){--tw-space-y-reverse:0;margin-block-start:calc(calc(var(--spacing) * 3) * var(--tw-space-y-reverse));margin-block-end:calc(calc(var(--spacing) * 3) * calc(1 - var(--tw-space-y-reverse)))}:where(.space-y-4>:not(:last-child)){--tw-space-y-reverse:0;margin-block-start:calc(calc(var(--spacing) * 4) * var(--tw-space-y-reverse));margin-block-end:calc(calc(var(--spacing) * 4) * calc(1 - var(--tw-space-y-reverse)))}:where(.space-y-5>:not(:last-child)){--tw-space-y-reverse:0;margin-block-start:calc(calc(var(--spacing) * 5) * var(--tw-space-y-reverse));margin-block-end:calc(calc(var(--spacing) * 5) * calc(1 - var(--tw-space-y-reverse)))}:where(.space-y-6>:not(:last-child)){--tw-space-y-reverse:0;margin-block-start:calc(calc(var(--spacing) * 6) * var(--tw-space-y-reverse));margin-block-end:calc(calc(var(--spacing) * 6) * calc(1 - var(--tw-space-y-reverse)))}:where(.space-y-7>:not(:last-child)){--tw-space-y-reverse:0;margin-block-start:calc(calc(var(--spacing) * 7) * var(--tw-space-y-reverse));margin-block-end:calc(calc(var(--spacing) * 7) * calc(1 - var(--tw-space-y-reverse)))}:where(.space-y-8>:not(:last-child)){--tw-space-y-reverse:0;margin-block-start:calc(calc(var(--spacing) * 8) * var(--tw-space-y-reverse));margin-block-end:calc(calc(var(--spacing) * 8) * calc(1 - var(--tw-space-y-reverse)))}:where(.-space-x-3>:not(:last-child)){--tw-space-x-reverse:0;margin-inline-start:calc(calc(var(--spacing) * -3) * var(--tw-space-x-reverse));margin-inline-end:calc(calc(var(--spacing) * -3) * calc(1 - var(--tw-space-x-reverse)))}.truncate{text-overflow:ellipsis;white-space:nowrap;overflow:hidden}.overflow-hidden{overflow:hidden}.scroll-smooth{scroll-behavior:smooth}.rounded{border-radius:.25rem}.rounded-2xl{border-radius:var(--radius-2xl)}.rounded-3xl{border-radius:var(--radius-3xl)}.rounded-\[2\.5rem\]{border-radius:2.5rem}.rounded-\[2rem\]{border-radius:2rem}.rounded-\[3rem\]{border-radius:3rem}.rounded-\[44px\]{border-radius:44px}.rounded-full{border-radius:3.40282e38px}.rounded-lg{border-radius:var(--radius-lg)}.rounded-xl{border-radius:var(--radius-xl)}.border{border-style:var(--tw-border-style);border-width:1px}.border-2{border-style:var(--tw-border-style);border-width:2px}.border-4{border-style:var(--tw-border-style);border-width:4px}.border-y{border-block-style:var(--tw-border-style);border-block-width:1px}.border-t{border-top-style:var(--tw-border-style);border-top-width:1px}.border-none{--tw-border-style:none;border-style:none}.border-\[\#1A2E1F\]{border-color:#1a2e1f}.border-\[\#25D366\]\/20{border-color:oklab(76.0953% -.174012 .10152/.2)}.border-\[var\(--surface-border\)\]{border-color:var(--surface-border)}.border-blue-200{border-color:var(--color-blue-200)}.border-blue-500\/20{border-color:#3080ff33}@supports (color:color-mix(in lab, red, red)){.border-blue-500\/20{border-color:color-mix(in oklab, var(--color-blue-500) 20%, transparent)}}.border-blue-500\/30{border-color:#3080ff4d}@supports (color:color-mix(in lab, red, red)){.border-blue-500\/30{border-color:color-mix(in oklab, var(--color-blue-500) 30%, transparent)}}.border-cyan-500\/20{border-color:#00b7d733}@supports (color:color-mix(in lab, red, red)){.border-cyan-500\/20{border-color:color-mix(in oklab, var(--color-cyan-500) 20%, transparent)}}.border-fuchsia-500\/20{border-color:#e12afb33}@supports (color:color-mix(in lab, red, red)){.border-fuchsia-500\/20{border-color:color-mix(in oklab, var(--color-fuchsia-500) 20%, transparent)}}.border-green-200{border-color:var(--color-green-200)}.border-red-200{border-color:var(--color-red-200)}.border-red-500\/30{border-color:#fb2c364d}@supports (color:color-mix(in lab, red, red)){.border-red-500\/30{border-color:color-mix(in oklab, var(--color-red-500) 30%, transparent)}}.border-slate-200{border-color:var(--color-slate-200)}.border-white\/5{border-color:#ffffff0d}@supports (color:color-mix(in lab, red, red)){.border-white\/5{border-color:color-mix(in oklab, var(--color-white) 5%, transparent)}}.border-white\/10{border-color:#ffffff1a}@supports (color:color-mix(in lab, red, red)){.border-white\/10{border-color:color-mix(in oklab, var(--color-white) 10%, transparent)}}.border-white\/20{border-color:#fff3}@supports (color:color-mix(in lab, red, red)){.border-white\/20{border-color:color-mix(in oklab, var(--color-white) 20%, transparent)}}.border-yellow-200{border-color:var(--color-yellow-200)}.bg-\[\#1A2E1F\]{background-color:#1a2e1f}.bg-\[\#25D366\]\/10{background-color:oklab(76.0953% -.174012 .10152/.1)}.bg-\[\#25D366\]\/20{background-color:oklab(76.0953% -.174012 .10152/.2)}.bg-\[var\(--accent\)\]{background-color:var(--accent)}.bg-\[var\(--bg\)\]{background-color:var(--bg)}.bg-\[var\(--bg-card\)\]{background-color:var(--bg-card)}.bg-\[var\(--input-bg\)\]{background-color:var(--input-bg)}.bg-\[var\(--surface\)\]{background-color:var(--surface)}.bg-black{background-color:var(--color-black)}.bg-black\/50{background-color:#00000080}@supports (color:color-mix(in lab, red, red)){.bg-black\/50{background-color:color-mix(in oklab, var(--color-black) 50%, transparent)}}.bg-blue-100{background-color:var(--color-blue-100)}.bg-blue-500{background-color:var(--color-blue-500)}.bg-blue-500\/5{background-color:#3080ff0d}@supports (color:color-mix(in lab, red, red)){.bg-blue-500\/5{background-color:color-mix(in oklab, var(--color-blue-500) 5%, transparent)}}.bg-blue-500\/10{background-color:#3080ff1a}@supports (color:color-mix(in lab, red, red)){.bg-blue-500\/10{background-color:color-mix(in oklab, var(--color-blue-500) 10%, transparent)}}.bg-blue-500\/15{background-color:#3080ff26}@supports (color:color-mix(in lab, red, red)){.bg-blue-500\/15{background-color:color-mix(in oklab, var(--color-blue-500) 15%, transparent)}}.bg-blue-500\/20{background-color:#3080ff33}@supports (color:color-mix(in lab, red, red)){.bg-blue-500\/20{background-color:color-mix(in oklab, var(--color-blue-500) 20%, transparent)}}.bg-blue-600{background-color:var(--color-blue-600)}.bg-blue-600\/20{background-color:#155dfc33}@supports (color:color-mix(in lab, red, red)){.bg-blue-600\/20{background-color:color-mix(in oklab, var(--color-blue-600) 20%, transparent)}}.bg-cyan-500\/10{background-color:#00b7d71a}@supports (color:color-mix(in lab, red, red)){.bg-cyan-500\/10{background-color:color-mix(in oklab, var(--color-cyan-500) 10%, transparent)}}.bg-cyan-500\/15{background-color:#00b7d726}@supports (color:color-mix(in lab, red, red)){.bg-cyan-500\/15{background-color:color-mix(in oklab, var(--color-cyan-500) 15%, transparent)}}.bg-emerald-600{background-color:var(--color-emerald-600)}.bg-fuchsia-500\/10{background-color:#e12afb1a}@supports (color:color-mix(in lab, red, red)){.bg-fuchsia-500\/10{background-color:color-mix(in oklab, var(--color-fuchsia-500) 10%, transparent)}}.bg-fuchsia-500\/15{background-color:#e12afb26}@supports (color:color-mix(in lab, red, red)){.bg-fuchsia-500\/15{background-color:color-mix(in oklab, var(--color-fuchsia-500) 15%, transparent)}}.bg-gray-100{background-color:var(--color-gray-100)}.bg-gray-200{background-color:var(--color-gray-200)}.bg-gray-500{background-color:var(--color-gray-500)}.bg-gray-600{background-color:var(--color-gray-600)}.bg-gray-700{background-color:var(--color-gray-700)}.bg-green-100{background-color:var(--color-green-100)}.bg-red-100{background-color:var(--color-red-100)}.bg-red-500{background-color:var(--color-red-500)}.bg-red-500\/20{background-color:#fb2c3633}@supports (color:color-mix(in lab, red, red)){.bg-red-500\/20{background-color:color-mix(in oklab, var(--color-red-500) 20%, transparent)}}.bg-rose-500\/15{background-color:#ff235726}@supports (color:color-mix(in lab, red, red)){.bg-rose-500\/15{background-color:color-mix(in oklab, var(--color-rose-500) 15%, transparent)}}.bg-sky-500{background-color:var(--color-sky-500)}.bg-sky-500\/5{background-color:#00a5ef0d}@supports (color:color-mix(in lab, red, red)){.bg-sky-500\/5{background-color:color-mix(in oklab, var(--color-sky-500) 5%, transparent)}}.bg-sky-500\/10{background-color:#00a5ef1a}@supports (color:color-mix(in lab, red, red)){.bg-sky-500\/10{background-color:color-mix(in oklab, var(--color-sky-500) 10%, transparent)}}.bg-sky-500\/20{background-color:#00a5ef33}@supports (color:color-mix(in lab, red, red)){.bg-sky-500\/20{background-color:color-mix(in oklab, var(--color-sky-500) 20%, transparent)}}.bg-sky-600{background-color:var(--color-sky-600)}.bg-slate-50{background-color:var(--color-slate-50)}.bg-slate-100{background-color:var(--color-slate-100)}.bg-slate-200{background-color:var(--color-slate-200)}.bg-slate-800{background-color:var(--color-slate-800)}.bg-slate-800\/50{background-color:#1d293d80}@supports (color:color-mix(in lab, red, red)){.bg-slate-800\/50{background-color:color-mix(in oklab, var(--color-slate-800) 50%, transparent)}}.bg-slate-900{background-color:var(--color-slate-900)}.bg-slate-950\/80{background-color:#020618cc}@supports (color:color-mix(in lab, red, red)){.bg-slate-950\/80{background-color:color-mix(in oklab, var(--color-slate-950) 80%, transparent)}}.bg-transparent{background-color:#0000}.bg-white{background-color:var(--color-white)}.bg-white\/5{background-color:#ffffff0d}@supports (color:color-mix(in lab, red, red)){.bg-white\/5{background-color:color-mix(in oklab, var(--color-white) 5%, transparent)}}.bg-white\/80{background-color:#fffc}@supports (color:color-mix(in lab, red, red)){.bg-white\/80{background-color:color-mix(in oklab, var(--color-white) 80%, transparent)}}.bg-white\/\[0\.03\]{background-color:#ffffff08}@supports (color:color-mix(in lab, red, red)){.bg-white\/\[0\.03\]{background-color:color-mix(in oklab, var(--color-white) 3%, transparent)}}.bg-yellow-100{background-color:var(--color-yellow-100)}.bg-gradient-to-r{--tw-gradient-position:to right in oklab;background-image:linear-gradient(var(--tw-gradient-stops))}.bg-gradient-to-t{--tw-gradient-position:to top in oklab;background-image:linear-gradient(var(--tw-gradient-stops))}.bg-gradient-to-tr{--tw-gradient-position:to top right in oklab;background-image:linear-gradient(var(--tw-gradient-stops))}.from-blue-400{--tw-gradient-from:var(--color-blue-400);--tw-gradient-stops:var(--tw-gradient-via-stops,var(--tw-gradient-position), var(--tw-gradient-from) var(--tw-gradient-from-position), var(--tw-gradient-to) var(--tw-gradient-to-position))}.from-blue-500\/10{--tw-gradient-from:#3080ff1a}@supports (color:color-mix(in lab, red, red)){.from-blue-500\/10{--tw-gradient-from:color-mix(in oklab, var(--color-blue-500) 10%, transparent)}}.from-blue-500\/10{--tw-gradient-stops:var(--tw-gradient-via-stops,var(--tw-gradient-position), var(--tw-gradient-from) var(--tw-gradient-from-position), var(--tw-gradient-to) var(--tw-gradient-to-position))}.from-blue-500\/50{--tw-gradient-from:#3080ff80}@supports (color:color-mix(in lab, red, red)){.from-blue-500\/50{--tw-gradient-from:color-mix(in oklab, var(--color-blue-500) 50%, transparent)}}.from-blue-500\/50{--tw-gradient-stops:var(--tw-gradient-via-stops,var(--tw-gradient-position), var(--tw-gradient-from) var(--tw-gradient-from-position), var(--tw-gradient-to) var(--tw-gradient-to-position))}.from-slate-950\/40{--tw-gradient-from:#02061866}@supports (color:color-mix(in lab, red, red)){.from-slate-950\/40{--tw-gradient-from:color-mix(in oklab, var(--color-slate-950) 40%, transparent)}}.from-slate-950\/40{--tw-gradient-stops:var(--tw-gradient-via-stops,var(--tw-gradient-position), var(--tw-gradient-from) var(--tw-gradient-from-position), var(--tw-gradient-to) var(--tw-gradient-to-position))}.from-slate-950\/50{--tw-gradient-from:#02061880}@supports (color:color-mix(in lab, red, red)){.from-slate-950\/50{--tw-gradient-from:color-mix(in oklab, var(--color-slate-950) 50%, transparent)}}.from-slate-950\/50{--tw-gradient-stops:var(--tw-gradient-via-stops,var(--tw-gradient-position), var(--tw-gradient-from) var(--tw-gradient-from-position), var(--tw-gradient-to) var(--tw-gradient-to-position))}.from-slate-950\/55{--tw-gradient-from:#0206188c}@supports (color:color-mix(in lab, red, red)){.from-slate-950\/55{--tw-gradient-from:color-mix(in oklab, var(--color-slate-950) 55%, transparent)}}.from-slate-950\/55{--tw-gradient-stops:var(--tw-gradient-via-stops,var(--tw-gradient-position), var(--tw-gradient-from) var(--tw-gradient-from-position), var(--tw-gradient-to) var(--tw-gradient-to-position))}.from-slate-950\/70{--tw-gradient-from:#020618b3}@supports (color:color-mix(in lab, red, red)){.from-slate-950\/70{--tw-gradient-from:color-mix(in oklab, var(--color-slate-950) 70%, transparent)}}.from-slate-950\/70{--tw-gradient-stops:var(--tw-gradient-via-stops,var(--tw-gradient-position), var(--tw-gradient-from) var(--tw-gradient-from-position), var(--tw-gradient-to) var(--tw-gradient-to-position))}.from-slate-950\/90{--tw-gradient-from:#020618e6}@supports (color:color-mix(in lab, red, red)){.from-slate-950\/90{--tw-gradient-from:color-mix(in oklab, var(--color-slate-950) 90%, transparent)}}.from-slate-950\/90{--tw-gradient-stops:var(--tw-gradient-via-stops,var(--tw-gradient-position), var(--tw-gradient-from) var(--tw-gradient-from-position), var(--tw-gradient-to) var(--tw-gradient-to-position))}.via-slate-950\/70{--tw-gradient-via:#020618b3}@supports (color:color-mix(in lab, red, red)){.via-slate-950\/70{--tw-gradient-via:color-mix(in oklab, var(--color-slate-950) 70%, transparent)}}.via-slate-950\/70{--tw-gradient-via-stops:var(--tw-gradient-position), var(--tw-gradient-from) var(--tw-gradient-from-position), var(--tw-gradient-via) var(--tw-gradient-via-position), var(--tw-gradient-to) var(--tw-gradient-to-position);--tw-gradient-stops:var(--tw-gradient-via-stops)}.via-transparent{--tw-gradient-via:transparent;--tw-gradient-via-stops:var(--tw-gradient-position), var(--tw-gradient-from) var(--tw-gradient-from-position), var(--tw-gradient-via) var(--tw-gradient-via-position), var(--tw-gradient-to) var(--tw-gradient-to-position);--tw-gradient-stops:var(--tw-gradient-via-stops)}.to-blue-600{--tw-gradient-to:var(--color-blue-600);--tw-gradient-stops:var(--tw-gradient-via-stops,var(--tw-gradient-position), var(--tw-gradient-from) var(--tw-gradient-from-position), var(--tw-gradient-to) var(--tw-gradient-to-position))}.to-fuchsia-500\/10{--tw-gradient-to:#e12afb1a}@supports (color:color-mix(in lab, red, red)){.to-fuchsia-500\/10{--tw-gradient-to:color-mix(in oklab, var(--color-fuchsia-500) 10%, transparent)}}.to-fuchsia-500\/10{--tw-gradient-stops:var(--tw-gradient-via-stops,var(--tw-gradient-position), var(--tw-gradient-from) var(--tw-gradient-from-position), var(--tw-gradient-to) var(--tw-gradient-to-position))}.to-slate-950\/20{--tw-gradient-to:#02061833}@supports (color:color-mix(in lab, red, red)){.to-slate-950\/20{--tw-gradient-to:color-mix(in oklab, var(--color-slate-950) 20%, transparent)}}.to-slate-950\/20{--tw-gradient-stops:var(--tw-gradient-via-stops,var(--tw-gradient-position), var(--tw-gradient-from) var(--tw-gradient-from-position), var(--tw-gradient-to) var(--tw-gradient-to-position))}.to-transparent{--tw-gradient-to:transparent;--tw-gradient-stops:var(--tw-gradient-via-stops,var(--tw-gradient-position), var(--tw-gradient-from) var(--tw-gradient-from-position), var(--tw-gradient-to) var(--tw-gradient-to-position))}.bg-clip-text{-webkit-background-clip:text;background-clip:text}.object-cover{object-fit:cover}.p-1\.5{padding:calc(var(--spacing) * 1.5)}.p-2{padding:calc(var(--spacing) * 2)}.p-3{padding:calc(var(--spacing) * 3)}.p-4{padding:calc(var(--spacing) * 4)}.p-5{padding:calc(var(--spacing) * 5)}.p-6{padding:calc(var(--spacing) * 6)}.p-8{padding:calc(var(--spacing) * 8)}.p-10{padding:calc(var(--spacing) * 10)}.p-12{padding:calc(var(--spacing) * 12)}.p-16{padding:calc(var(--spacing) * 16)}.px-1{padding-inline:calc(var(--spacing) * 1)}.px-2{padding-inline:calc(var(--spacing) * 2)}.px-3{padding-inline:calc(var(--spacing) * 3)}.px-4{padding-inline:calc(var(--spacing) * 4)}.px-5{padding-inline:calc(var(--spacing) * 5)}.px-6{padding-inline:calc(var(--spacing) * 6)}.px-7{padding-inline:calc(var(--spacing) * 7)}.px-8{padding-inline:calc(var(--spacing) * 8)}.px-10{padding-inline:calc(var(--spacing) * 10)}.py-1{padding-block:calc(var(--spacing) * 1)}.py-2{padding-block:calc(var(--spacing) * 2)}.py-3{padding-block:calc(var(--spacing) * 3)}.py-4{padding-block:calc(var(--spacing) * 4)}.py-5{padding-block:calc(var(--spacing) * 5)}.py-8{padding-block:calc(var(--spacing) * 8)}.py-10{padding-block:calc(var(--spacing) * 10)}.py-12{padding-block:calc(var(--spacing) * 12)}.py-14{padding-block:calc(var(--spacing) * 14)}.py-16{padding-block:calc(var(--spacing) * 16)}.py-20{padding-block:calc(var(--spacing) * 20)}.pt-1{padding-top:calc(var(--spacing) * 1)}.pt-2{padding-top:calc(var(--spacing) * 2)}.pt-3{padding-top:calc(var(--spacing) * 3)}.pt-4{padding-top:calc(var(--spacing) * 4)}.pt-6{padding-top:calc(var(--spacing) * 6)}.pt-8{padding-top:calc(var(--spacing) * 8)}.pt-12{padding-top:calc(var(--spacing) * 12)}.pt-24{padding-top:calc(var(--spacing) * 24)}.pb-14{padding-bottom:calc(var(--spacing) * 14)}.pb-20{padding-bottom:calc(var(--spacing) * 20)}.text-center{text-align:center}.text-right{text-align:right}.text-2xl{font-size:var(--text-2xl);line-height:var(--tw-leading,var(--text-2xl--line-height))}.text-3xl{font-size:var(--text-3xl);line-height:var(--tw-leading,var(--text-3xl--line-height))}.text-4xl{font-size:var(--text-4xl);line-height:var(--tw-leading,var(--text-4xl--line-height))}.text-5xl{font-size:var(--text-5xl);line-height:var(--tw-leading,var(--text-5xl--line-height))}.text-base{font-size:var(--text-base);line-height:var(--tw-leading,var(--text-base--line-height))}.text-lg{font-size:var(--text-lg);line-height:var(--tw-leading,var(--text-lg--line-height))}.text-sm{font-size:var(--text-sm);line-height:var(--tw-leading,var(--text-sm--line-height))}.text-xl{font-size:var(--text-xl);line-height:var(--tw-leading,var(--text-xl--line-height))}.text-xs{font-size:var(--text-xs);line-height:var(--tw-leading,var(--text-xs--line-height))}.text-\[0\.5rem\]{font-size:.5rem}.text-\[0\.6rem\]{font-size:.6rem}.text-\[0\.7rem\]{font-size:.7rem}.text-\[0\.65rem\]{font-size:.65rem}.text-\[0\.75rem\]{font-size:.75rem}.text-\[2\.5rem\]{font-size:2.5rem}.text-\[6px\]{font-size:6px}.text-\[7px\]{font-size:7px}.text-\[8px\]{font-size:8px}.text-\[9px\]{font-size:9px}.text-\[10px\]{font-size:10px}.text-\[11px\]{font-size:11px}.leading-7{--tw-leading:calc(var(--spacing) * 7);line-height:calc(var(--spacing) * 7)}.leading-\[0\.95\]{--tw-leading:.95;line-height:.95}.leading-relaxed{--tw-leading:var(--leading-relaxed);line-height:var(--leading-relaxed)}.leading-tight{--tw-leading:var(--leading-tight);line-height:var(--leading-tight)}.font-\[900\]{--tw-font-weight:900;font-weight:900}.font-black{--tw-font-weight:var(--font-weight-black);font-weight:var(--font-weight-black)}.font-bold{--tw-font-weight:var(--font-weight-bold);font-weight:var(--font-weight-bold)}.font-extrabold{--tw-font-weight:var(--font-weight-extrabold);font-weight:var(--font-weight-extrabold)}.font-medium{--tw-font-weight:var(--font-weight-medium);font-weight:var(--font-weight-medium)}.font-semibold{--tw-font-weight:var(--font-weight-semibold);font-weight:var(--font-weight-semibold)}.tracking-\[0\.2em\]{--tw-tracking:.2em;letter-spacing:.2em}.tracking-\[0\.3em\]{--tw-tracking:.3em;letter-spacing:.3em}.tracking-\[0\.4em\]{--tw-tracking:.4em;letter-spacing:.4em}.tracking-\[0\.25em\]{--tw-tracking:.25em;letter-spacing:.25em}.tracking-\[0\.35em\]{--tw-tracking:.35em;letter-spacing:.35em}.tracking-tight{--tw-tracking:var(--tracking-tight);letter-spacing:var(--tracking-tight)}.tracking-tighter{--tw-tracking:var(--tracking-tighter);letter-spacing:var(--tracking-tighter)}.tracking-wide{--tw-tracking:var(--tracking-wide);letter-spacing:var(--tracking-wide)}.tracking-wider{--tw-tracking:var(--tracking-wider);letter-spacing:var(--tracking-wider)}.tracking-widest{--tw-tracking:var(--tracking-widest);letter-spacing:var(--tracking-widest)}.break-all{word-break:break-all}.text-\[\#8E918F\]{color:#8e918f}.text-\[\#25D366\]{color:#25d366}.text-\[\#F5F5F5\]{color:#f5f5f5}.text-\[\#F5F5F5\]\/20{color:oklab(97.0151% 2.98023e-8 0/.2)}.text-\[\#F5F5F5\]\/40{color:oklab(97.0151% 2.98023e-8 0/.4)}.text-\[var\(--accent\)\]{color:var(--accent)}.text-\[var\(--text-main\)\]{color:var(--text-main)}.text-\[var\(--text-muted\)\]{color:var(--text-muted)}.text-blue-200{color:var(--color-blue-200)}.text-blue-400{color:var(--color-blue-400)}.text-blue-500{color:var(--color-blue-500)}.text-blue-600{color:var(--color-blue-600)}.text-blue-800{color:var(--color-blue-800)}.text-cyan-200{color:var(--color-cyan-200)}.text-fuchsia-200{color:var(--color-fuchsia-200)}.text-gray-400{color:var(--color-gray-400)}.text-gray-500{color:var(--color-gray-500)}.text-gray-700{color:var(--color-gray-700)}.text-gray-800{color:var(--color-gray-800)}.text-green-800{color:var(--color-green-800)}.text-red-200{color:var(--color-red-200)}.text-red-400{color:var(--color-red-400)}.text-red-500{color:var(--color-red-500)}.text-red-700{color:var(--color-red-700)}.text-red-800{color:var(--color-red-800)}.text-rose-300{color:var(--color-rose-300)}.text-rose-500{color:var(--color-rose-500)}.text-sky-400{color:var(--color-sky-400)}.text-sky-500{color:var(--color-sky-500)}.text-slate-200{color:var(--color-slate-200)}.text-slate-200\/80{color:#e2e8f0cc}@supports (color:color-mix(in lab, red, red)){.text-slate-200\/80{color:color-mix(in oklab, var(--color-slate-200) 80%, transparent)}}.text-slate-300{color:var(--color-slate-300)}.text-slate-300\/80{color:#cad5e2cc}@supports (color:color-mix(in lab, red, red)){.text-slate-300\/80{color:color-mix(in oklab, var(--color-slate-300) 80%, transparent)}}.text-slate-400{color:var(--color-slate-400)}.text-slate-500{color:var(--color-slate-500)}.text-slate-600{color:var(--color-slate-600)}.text-slate-800{color:var(--color-slate-800)}.text-transparent{color:#0000}.text-white{color:var(--color-white)}.text-yellow-800{color:var(--color-yellow-800)}.lowercase{text-transform:lowercase}.uppercase{text-transform:uppercase}.italic{font-style:italic}.opacity-0{opacity:0}.opacity-30{opacity:.3}.opacity-40{opacity:.4}.opacity-50{opacity:.5}.opacity-60{opacity:.6}.opacity-70{opacity:.7}.opacity-80{opacity:.8}.opacity-100{opacity:1}.shadow{--tw-shadow:0 1px 3px 0 var(--tw-shadow-color,#0000001a), 0 1px 2px -1px var(--tw-shadow-color,#0000001a);box-shadow:var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow)}.shadow-2xl{--tw-shadow:0 25px 50px -12px var(--tw-shadow-color,#00000040);box-shadow:var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow)}.shadow-lg{--tw-shadow:0 10px 15px -3px var(--tw-shadow-color,#0000001a), 0 4px 6px -4px var(--tw-shadow-color,#0000001a);box-shadow:var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow)}.shadow-md{--tw-shadow:0 4px 6px -1px var(--tw-shadow-color,#0000001a), 0 2px 4px -2px var(--tw-shadow-color,#0000001a);box-shadow:var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow)}.shadow-sm{--tw-shadow:0 1px 3px 0 var(--tw-shadow-color,#0000001a), 0 1px 2px -1px var(--tw-shadow-color,#0000001a);box-shadow:var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow)}.shadow-xl{--tw-shadow:0 20px 25px -5px var(--tw-shadow-color,#0000001a), 0 8px 10px -6px var(--tw-shadow-color,#0000001a);box-shadow:var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow)}.shadow-blue-500\/20{--tw-shadow-color:#3080ff33}@supports (color:color-mix(in lab, red, red)){.shadow-blue-500\/20{--tw-shadow-color:color-mix(in oklab, color-mix(in oklab, var(--color-blue-500) 20%, transparent) var(--tw-shadow-alpha), transparent)}}.shadow-blue-500\/40{--tw-shadow-color:#3080ff66}@supports (color:color-mix(in lab, red, red)){.shadow-blue-500\/40{--tw-shadow-color:color-mix(in oklab, color-mix(in oklab, var(--color-blue-500) 40%, transparent) var(--tw-shadow-alpha), transparent)}}.shadow-blue-600\/20{--tw-shadow-color:#155dfc33}@supports (color:color-mix(in lab, red, red)){.shadow-blue-600\/20{--tw-shadow-color:color-mix(in oklab, color-mix(in oklab, var(--color-blue-600) 20%, transparent) var(--tw-shadow-alpha), transparent)}}.shadow-emerald-600\/20{--tw-shadow-color:#00976733}@supports (color:color-mix(in lab, red, red)){.shadow-emerald-600\/20{--tw-shadow-color:color-mix(in oklab, color-mix(in oklab, var(--color-emerald-600) 20%, transparent) var(--tw-shadow-alpha), transparent)}}.shadow-sky-500\/20{--tw-shadow-color:#00a5ef33}@supports (color:color-mix(in lab, red, red)){.shadow-sky-500\/20{--tw-shadow-color:color-mix(in oklab, color-mix(in oklab, var(--color-sky-500) 20%, transparent) var(--tw-shadow-alpha), transparent)}}.shadow-sky-600\/20{--tw-shadow-color:#0084cc33}@supports (color:color-mix(in lab, red, red)){.shadow-sky-600\/20{--tw-shadow-color:color-mix(in oklab, color-mix(in oklab, var(--color-sky-600) 20%, transparent) var(--tw-shadow-alpha), transparent)}}.outline{outline-style:var(--tw-outline-style);outline-width:1px}.blur{--tw-blur:blur(8px);filter:var(--tw-blur,) var(--tw-brightness,) var(--tw-contrast,) var(--tw-grayscale,) var(--tw-hue-rotate,) var(--tw-invert,) var(--tw-saturate,) var(--tw-sepia,) var(--tw-drop-shadow,)}.blur-2xl{--tw-blur:blur(var(--blur-2xl));filter:var(--tw-blur,) var(--tw-brightness,) var(--tw-contrast,) var(--tw-grayscale,) var(--tw-hue-rotate,) var(--tw-invert,) var(--tw-saturate,) var(--tw-sepia,) var(--tw-drop-shadow,)}.blur-3xl{--tw-blur:blur(var(--blur-3xl));filter:var(--tw-blur,) var(--tw-brightness,) var(--tw-contrast,) var(--tw-grayscale,) var(--tw-hue-rotate,) var(--tw-invert,) var(--tw-saturate,) var(--tw-sepia,) var(--tw-drop-shadow,)}.blur-\[60px\]{--tw-blur:blur(60px);filter:var(--tw-blur,) var(--tw-brightness,) var(--tw-contrast,) var(--tw-grayscale,) var(--tw-hue-rotate,) var(--tw-invert,) var(--tw-saturate,) var(--tw-sepia,) var(--tw-drop-shadow,)}.blur-\[120px\]{--tw-blur:blur(120px);filter:var(--tw-blur,) var(--tw-brightness,) var(--tw-contrast,) var(--tw-grayscale,) var(--tw-hue-rotate,) var(--tw-invert,) var(--tw-saturate,) var(--tw-sepia,) var(--tw-drop-shadow,)}.grayscale{--tw-grayscale:grayscale(100%);filter:var(--tw-blur,) var(--tw-brightness,) var(--tw-contrast,) var(--tw-grayscale,) var(--tw-hue-rotate,) var(--tw-invert,) var(--tw-saturate,) var(--tw-sepia,) var(--tw-drop-shadow,)}.invert{--tw-invert:invert(100%);filter:var(--tw-blur,) var(--tw-brightness,) var(--tw-contrast,) var(--tw-grayscale,) var(--tw-hue-rotate,) var(--tw-invert,) var(--tw-saturate,) var(--tw-sepia,) var(--tw-drop-shadow,)}.\!filter{filter:var(--tw-blur,) var(--tw-brightness,) var(--tw-contrast,) var(--tw-grayscale,) var(--tw-hue-rotate,) var(--tw-invert,) var(--tw-saturate,) var(--tw-sepia,) var(--tw-drop-shadow,)!important}.filter{filter:var(--tw-blur,) var(--tw-brightness,) var(--tw-contrast,) var(--tw-grayscale,) var(--tw-hue-rotate,) var(--tw-invert,) var(--tw-saturate,) var(--tw-sepia,) var(--tw-drop-shadow,)}.backdrop-blur-lg{--tw-backdrop-blur:blur(var(--blur-lg));-webkit-backdrop-filter:var(--tw-backdrop-blur,) var(--tw-backdrop-brightness,) var(--tw-backdrop-contrast,) var(--tw-backdrop-grayscale,) var(--tw-backdrop-hue-rotate,) var(--tw-backdrop-invert,) var(--tw-backdrop-opacity,) var(--tw-backdrop-saturate,) var(--tw-backdrop-sepia,);backdrop-filter:var(--tw-backdrop-blur,) var(--tw-backdrop-brightness,) var(--tw-backdrop-contrast,) var(--tw-backdrop-grayscale,) var(--tw-backdrop-hue-rotate,) var(--tw-backdrop-invert,) var(--tw-backdrop-opacity,) var(--tw-backdrop-saturate,) var(--tw-backdrop-sepia,)}.backdrop-blur-md{--tw-backdrop-blur:blur(var(--blur-md));-webkit-backdrop-filter:var(--tw-backdrop-blur,) var(--tw-backdrop-brightness,) var(--tw-backdrop-contrast,) var(--tw-backdrop-grayscale,) var(--tw-backdrop-hue-rotate,) var(--tw-backdrop-invert,) var(--tw-backdrop-opacity,) var(--tw-backdrop-saturate,) var(--tw-backdrop-sepia,);backdrop-filter:var(--tw-backdrop-blur,) var(--tw-backdrop-brightness,) var(--tw-backdrop-contrast,) var(--tw-backdrop-grayscale,) var(--tw-backdrop-hue-rotate,) var(--tw-backdrop-invert,) var(--tw-backdrop-opacity,) var(--tw-backdrop-saturate,) var(--tw-backdrop-sepia,)}.backdrop-blur-xl{--tw-backdrop-blur:blur(var(--blur-xl));-webkit-backdrop-filter:var(--tw-backdrop-blur,) var(--tw-backdrop-brightness,) var(--tw-backdrop-contrast,) var(--tw-backdrop-grayscale,) var(--tw-backdrop-hue-rotate,) var(--tw-backdrop-invert,) var(--tw-backdrop-opacity,) var(--tw-backdrop-saturate,) var(--tw-backdrop-sepia,);backdrop-filter:var(--tw-backdrop-blur,) var(--tw-backdrop-brightness,) var(--tw-backdrop-contrast,) var(--tw-backdrop-grayscale,) var(--tw-backdrop-hue-rotate,) var(--tw-backdrop-invert,) var(--tw-backdrop-opacity,) var(--tw-backdrop-saturate,) var(--tw-backdrop-sepia,)}.backdrop-filter{-webkit-backdrop-filter:var(--tw-backdrop-blur,) var(--tw-backdrop-brightness,) var(--tw-backdrop-contrast,) var(--tw-backdrop-grayscale,) var(--tw-backdrop-hue-rotate,) var(--tw-backdrop-invert,) var(--tw-backdrop-opacity,) var(--tw-backdrop-saturate,) var(--tw-backdrop-sepia,);backdrop-filter:var(--tw-backdrop-blur,) var(--tw-backdrop-brightness,) var(--tw-backdrop-contrast,) var(--tw-backdrop-grayscale,) var(--tw-backdrop-hue-rotate,) var(--tw-backdrop-invert,) var(--tw-backdrop-opacity,) var(--tw-backdrop-saturate,) var(--tw-backdrop-sepia,)}.transition{transition-property:color,background-color,border-color,outline-color,text-decoration-color,fill,stroke,--tw-gradient-from,--tw-gradient-via,--tw-gradient-to,opacity,box-shadow,transform,translate,scale,rotate,filter,-webkit-backdrop-filter,backdrop-filter,display,content-visibility,overlay,pointer-events;transition-timing-function:var(--tw-ease,var(--default-transition-timing-function));transition-duration:var(--tw-duration,var(--default-transition-duration))}.transition-all{transition-property:all;transition-timing-function:var(--tw-ease,var(--default-transition-timing-function));transition-duration:var(--tw-duration,var(--default-transition-duration))}.transition-colors{transition-property:color,background-color,border-color,outline-color,text-decoration-color,fill,stroke,--tw-gradient-from,--tw-gradient-via,--tw-gradient-to;transition-timing-function:var(--tw-ease,var(--default-transition-timing-function));transition-duration:var(--tw-duration,var(--default-transition-duration))}.transition-opacity{transition-property:opacity;transition-timing-function:var(--tw-ease,var(--default-transition-timing-function));transition-duration:var(--tw-duration,var(--default-transition-duration))}.transition-transform{transition-property:transform,translate,scale,rotate;transition-timing-function:var(--tw-ease,var(--default-transition-timing-function));transition-duration:var(--tw-duration,var(--default-transition-duration))}.duration-200{--tw-duration:.2s;transition-duration:.2s}.duration-300{--tw-duration:.3s;transition-duration:.3s}.duration-500{--tw-duration:.5s;transition-duration:.5s}.duration-700{--tw-duration:.7s;transition-duration:.7s}.ease-in-out{--tw-ease:var(--ease-in-out);transition-timing-function:var(--ease-in-out)}.outline-none{--tw-outline-style:none;outline-style:none}@media (hover:hover){.group-hover\:scale-110:is(:where(.group):hover *){--tw-scale-x:110%;--tw-scale-y:110%;--tw-scale-z:110%;scale:var(--tw-scale-x) var(--tw-scale-y)}.group-hover\:bg-white\/10:is(:where(.group):hover *){background-color:#ffffff1a}@supports (color:color-mix(in lab, red, red)){.group-hover\:bg-white\/10:is(:where(.group):hover *){background-color:color-mix(in oklab, var(--color-white) 10%, transparent)}}.group-hover\:text-sky-400:is(:where(.group):hover *){color:var(--color-sky-400)}.group-hover\:text-white:is(:where(.group):hover *){color:var(--color-white)}.group-hover\:text-white\/70:is(:where(.group):hover *){color:#ffffffb3}@supports (color:color-mix(in lab, red, red)){.group-hover\:text-white\/70:is(:where(.group):hover *){color:color-mix(in oklab, var(--color-white) 70%, transparent)}}}.placeholder\:text-slate-500::placeholder{color:var(--color-slate-500)}@media (hover:hover){.hover\:-translate-y-1:hover{--tw-translate-y:calc(var(--spacing) * -1);translate:var(--tw-translate-x) var(--tw-translate-y)}.hover\:border-\[\#25D366\]:hover{border-color:#25d366}.hover\:border-blue-500\/30:hover{border-color:#3080ff4d}@supports (color:color-mix(in lab, red, red)){.hover\:border-blue-500\/30:hover{border-color:color-mix(in oklab, var(--color-blue-500) 30%, transparent)}}.hover\:border-sky-400:hover{border-color:var(--color-sky-400)}.hover\:border-sky-500\/40:hover{border-color:#00a5ef66}@supports (color:color-mix(in lab, red, red)){.hover\:border-sky-500\/40:hover{border-color:color-mix(in oklab, var(--color-sky-500) 40%, transparent)}}.hover\:border-sky-500\/50:hover{border-color:#00a5ef80}@supports (color:color-mix(in lab, red, red)){.hover\:border-sky-500\/50:hover{border-color:color-mix(in oklab, var(--color-sky-500) 50%, transparent)}}.hover\:bg-\[\#25D366\]:hover{background-color:#25d366}.hover\:bg-\[var\(--surface-border\)\]:hover{background-color:var(--surface-border)}.hover\:bg-blue-500:hover{background-color:var(--color-blue-500)}.hover\:bg-blue-600:hover{background-color:var(--color-blue-600)}.hover\:bg-blue-700:hover{background-color:var(--color-blue-700)}.hover\:bg-emerald-500:hover{background-color:var(--color-emerald-500)}.hover\:bg-red-500\/30:hover{background-color:#fb2c364d}@supports (color:color-mix(in lab, red, red)){.hover\:bg-red-500\/30:hover{background-color:color-mix(in oklab, var(--color-red-500) 30%, transparent)}}.hover\:bg-red-500\/80:hover{background-color:#fb2c36cc}@supports (color:color-mix(in lab, red, red)){.hover\:bg-red-500\/80:hover{background-color:color-mix(in oklab, var(--color-red-500) 80%, transparent)}}.hover\:bg-red-600:hover{background-color:var(--color-red-600)}.hover\:bg-red-600\/80:hover{background-color:#e40014cc}@supports (color:color-mix(in lab, red, red)){.hover\:bg-red-600\/80:hover{background-color:color-mix(in oklab, var(--color-red-600) 80%, transparent)}}.hover\:bg-sky-500:hover{background-color:var(--color-sky-500)}.hover\:bg-sky-500\/10:hover{background-color:#00a5ef1a}@supports (color:color-mix(in lab, red, red)){.hover\:bg-sky-500\/10:hover{background-color:color-mix(in oklab, var(--color-sky-500) 10%, transparent)}}.hover\:bg-sky-600:hover{background-color:var(--color-sky-600)}.hover\:bg-slate-300:hover{background-color:var(--color-slate-300)}.hover\:bg-white\/5:hover{background-color:#ffffff0d}@supports (color:color-mix(in lab, red, red)){.hover\:bg-white\/5:hover{background-color:color-mix(in oklab, var(--color-white) 5%, transparent)}}.hover\:bg-white\/10:hover{background-color:#ffffff1a}@supports (color:color-mix(in lab, red, red)){.hover\:bg-white\/10:hover{background-color:color-mix(in oklab, var(--color-white) 10%, transparent)}}.hover\:bg-yellow-500\/80:hover{background-color:#edb200cc}@supports (color:color-mix(in lab, red, red)){.hover\:bg-yellow-500\/80:hover{background-color:color-mix(in oklab, var(--color-yellow-500) 80%, transparent)}}.hover\:text-\[var\(--accent\)\]:hover{color:var(--accent)}.hover\:text-sky-300:hover{color:var(--color-sky-300)}.hover\:text-sky-400:hover{color:var(--color-sky-400)}.hover\:text-sky-500:hover{color:var(--color-sky-500)}.hover\:text-white:hover{color:var(--color-white)}.hover\:underline:hover{text-decoration-line:underline}.hover\:grayscale-0:hover{--tw-grayscale:grayscale(0%);filter:var(--tw-blur,) var(--tw-brightness,) var(--tw-contrast,) var(--tw-grayscale,) var(--tw-hue-rotate,) var(--tw-invert,) var(--tw-saturate,) var(--tw-sepia,) var(--tw-drop-shadow,)}}.focus\:border-sky-500:focus{border-color:var(--color-sky-500)}.focus\:ring-4:focus{--tw-ring-shadow:var(--tw-ring-inset,) 0 0 0 calc(4px + var(--tw-ring-offset-width)) var(--tw-ring-color,currentcolor);box-shadow:var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow)}.focus\:ring-sky-500\/10:focus{--tw-ring-color:#00a5ef1a}@supports (color:color-mix(in lab, red, red)){.focus\:ring-sky-500\/10:focus{--tw-ring-color:color-mix(in oklab, var(--color-sky-500) 10%, transparent)}}.active\:scale-90:active{--tw-scale-x:90%;--tw-scale-y:90%;--tw-scale-z:90%;scale:var(--tw-scale-x) var(--tw-scale-y)}.active\:scale-95:active{--tw-scale-x:95%;--tw-scale-y:95%;--tw-scale-z:95%;scale:var(--tw-scale-x) var(--tw-scale-y)}@media (min-width:40rem){.sm\:col-span-2{grid-column:span 2/span 2}.sm\:col-span-5{grid-column:span 5/span 5}.sm\:col-span-7{grid-column:span 7/span 7}.sm\:mb-10{margin-bottom:calc(var(--spacing) * 10)}.sm\:block{display:block}.sm\:h-9{height:calc(var(--spacing) * 9)}.sm\:h-40{height:calc(var(--spacing) * 40)}.sm\:h-\[160px\]{height:160px}.sm\:h-\[260px\]{height:260px}.sm\:h-\[280px\]{height:280px}.sm\:h-\[340px\]{height:340px}.sm\:h-\[350px\]{height:350px}.sm\:h-\[420px\]{height:420px}.sm\:h-\[500px\]{height:500px}.sm\:w-9{width:calc(var(--spacing) * 9)}.sm\:w-auto{width:auto}.sm\:min-w-\[280px\]{min-width:280px}.sm\:grid-cols-1{grid-template-columns:repeat(1,minmax(0,1fr))}.sm\:grid-cols-2{grid-template-columns:repeat(2,minmax(0,1fr))}.sm\:grid-cols-3{grid-template-columns:repeat(3,minmax(0,1fr))}.sm\:flex-row{flex-direction:row}.sm\:gap-4{gap:calc(var(--spacing) * 4)}.sm\:gap-5{gap:calc(var(--spacing) * 5)}.sm\:gap-10{gap:calc(var(--spacing) * 10)}.sm\:p-4{padding:calc(var(--spacing) * 4)}.sm\:p-12{padding:calc(var(--spacing) * 12)}.sm\:p-14{padding:calc(var(--spacing) * 14)}.sm\:px-4{padding-inline:calc(var(--spacing) * 4)}.sm\:px-6{padding-inline:calc(var(--spacing) * 6)}.sm\:px-7{padding-inline:calc(var(--spacing) * 7)}.sm\:py-20{padding-block:calc(var(--spacing) * 20)}.sm\:pt-4{padding-top:calc(var(--spacing) * 4)}.sm\:pt-28{padding-top:calc(var(--spacing) * 28)}.sm\:pb-20{padding-bottom:calc(var(--spacing) * 20)}.sm\:text-2xl{font-size:var(--text-2xl);line-height:var(--tw-leading,var(--text-2xl--line-height))}.sm\:text-3xl{font-size:var(--text-3xl);line-height:var(--tw-leading,var(--text-3xl--line-height))}.sm\:text-4xl{font-size:var(--text-4xl);line-height:var(--tw-leading,var(--text-4xl--line-height))}.sm\:text-5xl{font-size:var(--text-5xl);line-height:var(--tw-leading,var(--text-5xl--line-height))}.sm\:text-6xl{font-size:var(--text-6xl);line-height:var(--tw-leading,var(--text-6xl--line-height))}.sm\:text-base{font-size:var(--text-base);line-height:var(--tw-leading,var(--text-base--line-height))}.sm\:text-lg{font-size:var(--text-lg);line-height:var(--tw-leading,var(--text-lg--line-height))}.sm\:text-sm{font-size:var(--text-sm);line-height:var(--tw-leading,var(--text-sm--line-height))}.sm\:text-xs{font-size:var(--text-xs);line-height:var(--tw-leading,var(--text-xs--line-height))}.sm\:text-\[8px\]{font-size:8px}.sm\:text-\[11px\]{font-size:11px}}@media (min-width:48rem){.md\:-inset-10{inset:calc(var(--spacing) * -10)}.md\:-bottom-10{bottom:calc(var(--spacing) * -10)}.md\:-left-10{left:calc(var(--spacing) * -10)}.md\:col-span-2{grid-column:span 2/span 2}.md\:h-2{height:calc(var(--spacing) * 2)}.md\:h-16{height:calc(var(--spacing) * 16)}.md\:h-\[250px\]{height:250px}.md\:h-\[600px\]{height:600px}.md\:min-h-\[90vh\]{min-height:90vh}.md\:w-2{width:calc(var(--spacing) * 2)}.md\:w-16{width:calc(var(--spacing) * 16)}.md\:w-\[400px\]{width:400px}.md\:grid-cols-2{grid-template-columns:repeat(2,minmax(0,1fr))}.md\:grid-cols-3{grid-template-columns:repeat(3,minmax(0,1fr))}.md\:flex-row{flex-direction:row}.md\:items-center{align-items:center}.md\:gap-3{gap:calc(var(--spacing) * 3)}.md\:gap-8{gap:calc(var(--spacing) * 8)}.md\:gap-10{gap:calc(var(--spacing) * 10)}.md\:gap-12{gap:calc(var(--spacing) * 12)}.md\:gap-16{gap:calc(var(--spacing) * 16)}:where(.md\:space-y-6>:not(:last-child)){--tw-space-y-reverse:0;margin-block-start:calc(calc(var(--spacing) * 6) * var(--tw-space-y-reverse));margin-block-end:calc(calc(var(--spacing) * 6) * calc(1 - var(--tw-space-y-reverse)))}:where(.md\:space-y-10>:not(:last-child)){--tw-space-y-reverse:0;margin-block-start:calc(calc(var(--spacing) * 10) * var(--tw-space-y-reverse));margin-block-end:calc(calc(var(--spacing) * 10) * calc(1 - var(--tw-space-y-reverse)))}.md\:rounded-2xl{border-radius:var(--radius-2xl)}.md\:rounded-3xl{border-radius:var(--radius-3xl)}.md\:rounded-\[2\.5rem\]{border-radius:2.5rem}.md\:rounded-\[3rem\]{border-radius:3rem}.md\:p-3{padding:calc(var(--spacing) * 3)}.md\:p-8{padding:calc(var(--spacing) * 8)}.md\:p-10{padding:calc(var(--spacing) * 10)}.md\:p-12{padding:calc(var(--spacing) * 12)}.md\:p-14{padding:calc(var(--spacing) * 14)}.md\:px-4{padding-inline:calc(var(--spacing) * 4)}.md\:px-6{padding-inline:calc(var(--spacing) * 6)}.md\:px-10{padding-inline:calc(var(--spacing) * 10)}.md\:px-12{padding-inline:calc(var(--spacing) * 12)}.md\:py-2{padding-block:calc(var(--spacing) * 2)}.md\:py-5{padding-block:calc(var(--spacing) * 5)}.md\:py-20{padding-block:calc(var(--spacing) * 20)}.md\:py-32{padding-block:calc(var(--spacing) * 32)}.md\:pt-20{padding-top:calc(var(--spacing) * 20)}.md\:text-2xl{font-size:var(--text-2xl);line-height:var(--tw-leading,var(--text-2xl--line-height))}.md\:text-4xl{font-size:var(--text-4xl);line-height:var(--tw-leading,var(--text-4xl--line-height))}.md\:text-7xl{font-size:var(--text-7xl);line-height:var(--tw-leading,var(--text-7xl--line-height))}.md\:text-8xl{font-size:var(--text-8xl);line-height:var(--tw-leading,var(--text-8xl--line-height))}.md\:text-base{font-size:var(--text-base);line-height:var(--tw-leading,var(--text-base--line-height))}.md\:text-xl{font-size:var(--text-xl);line-height:var(--tw-leading,var(--text-xl--line-height))}.md\:text-\[10px\]{font-size:10px}.md\:blur-\[120px\]{--tw-blur:blur(120px);filter:var(--tw-blur,) var(--tw-brightness,) var(--tw-contrast,) var(--tw-grayscale,) var(--tw-hue-rotate,) var(--tw-invert,) var(--tw-saturate,) var(--tw-sepia,) var(--tw-drop-shadow,)}}@media (min-width:64rem){.lg\:col-span-2{grid-column:span 2/span 2}.lg\:col-span-4{grid-column:span 4/span 4}.lg\:col-span-5{grid-column:span 5/span 5}.lg\:col-span-7{grid-column:span 7/span 7}.lg\:col-span-8{grid-column:span 8/span 8}.lg\:ml-auto{margin-left:auto}.lg\:flex{display:flex}.lg\:h-44{height:calc(var(--spacing) * 44)}.lg\:h-\[200px\]{height:200px}.lg\:h-\[380px\]{height:380px}.lg\:h-\[420px\]{height:420px}.lg\:grid-cols-2{grid-template-columns:repeat(2,minmax(0,1fr))}.lg\:grid-cols-3{grid-template-columns:repeat(3,minmax(0,1fr))}.lg\:grid-cols-12{grid-template-columns:repeat(12,minmax(0,1fr))}.lg\:flex-row{flex-direction:row}.lg\:gap-6{gap:calc(var(--spacing) * 6)}.lg\:p-5{padding:calc(var(--spacing) * 5)}.lg\:p-16{padding:calc(var(--spacing) * 16)}.lg\:text-6xl{font-size:var(--text-6xl);line-height:var(--tw-leading,var(--text-6xl--line-height))}.lg\:text-7xl{font-size:var(--text-7xl);line-height:var(--tw-leading,var(--text-7xl--line-height))}.lg\:text-xl{font-size:var(--text-xl);line-height:var(--tw-leading,var(--text-xl--line-height))}}@media (min-width:80rem){.xl\:grid-cols-4{grid-template-columns:repeat(4,minmax(0,1fr))}}.fluid-page{padding-inline:var(--page-x)}.fluid-section{padding-block:var(--section-y)}.safe-wrap{overflow-wrap:anywhere;word-break:normal}}@media (max-width:640px){:root{--card-pad:1.25rem;--card-radius:1.25rem;--media-radius:1.25rem}.hero-buttons,.hero-trust,.image-scroller{gap:1rem}.scroller-item{border-radius:var(--media-radius);flex-basis:92%}}@property --tw-translate-x{syntax:"*";inherits:false;initial-value:0}@property --tw-translate-y{syntax:"*";inherits:false;initial-value:0}@property --tw-translate-z{syntax:"*";inherits:false;initial-value:0}@property --tw-scale-x{syntax:"*";inherits:false;initial-value:1}@property --tw-scale-y{syntax:"*";inherits:false;initial-value:1}@property --tw-scale-z{syntax:"*";inherits:false;initial-value:1}@property --tw-rotate-x{syntax:"*";inherits:false}@property --tw-rotate-y{syntax:"*";inherits:false}@property --tw-rotate-z{syntax:"*";inherits:false}@property --tw-skew-x{syntax:"*";inherits:false}@property --tw-skew-y{syntax:"*";inherits:false}@property --tw-space-y-reverse{syntax:"*";inherits:false;initial-value:0}@property --tw-space-x-reverse{syntax:"*";inherits:false;initial-value:0}@property --tw-border-style{syntax:"*";inherits:false;initial-value:solid}@property --tw-gradient-position{syntax:"*";inherits:false}@property --tw-gradient-from{syntax:"<color>";inherits:false;initial-value:#0000}@property --tw-gradient-via{syntax:"<color>";inherits:false;initial-value:#0000}@property --tw-gradient-to{syntax:"<color>";inherits:false;initial-value:#0000}@property --tw-gradient-stops{syntax:"*";inherits:false}@property --tw-gradient-via-stops{syntax:"*";inherits:false}@property --tw-gradient-from-position{syntax:"<length-percentage>";inherits:false;initial-value:0%}@property --tw-gradient-via-position{syntax:"<length-percentage>";inherits:false;initial-value:50%}@property --tw-gradient-to-position{syntax:"<length-percentage>";inherits:false;initial-value:100%}@property --tw-leading{syntax:"*";inherits:false}@property --tw-font-weight{syntax:"*";inherits:false}@property --tw-tracking{syntax:"*";inherits:false}@property --tw-shadow{syntax:"*";inherits:false;initial-value:0 0 #0000}@property --tw-shadow-color{syntax:"*";inherits:false}@property --tw-shadow-alpha{syntax:"<percentage>";inherits:false;initial-value:100%}@property --tw-inset-shadow{syntax:"*";inherits:false;initial-value:0 0 #0000}@property --tw-inset-shadow-color{syntax:"*";inherits:false}@property --tw-inset-shadow-alpha{syntax:"<percentage>";inherits:false;initial-value:100%}@property --tw-ring-color{syntax:"*";inherits:false}@property --tw-ring-shadow{syntax:"*";inherits:false;initial-value:0 0 #0000}@property --tw-inset-ring-color{syntax:"*";inherits:false}@property --tw-inset-ring-shadow{syntax:"*";inherits:false;initial-value:0 0 #0000}@property --tw-ring-inset{syntax:"*";inherits:false}@property --tw-ring-offset-width{syntax:"<length>";inherits:false;initial-value:0}@property --tw-ring-offset-color{syntax:"*";inherits:false;initial-value:#fff}@property --tw-ring-offset-shadow{syntax:"*";inherits:false;initial-value:0 0 #0000}@property --tw-outline-style{syntax:"*";inherits:false;initial-value:solid}@property --tw-blur{syntax:"*";inherits:false}@property --tw-brightness{syntax:"*";inherits:false}@property --tw-contrast{syntax:"*";inherits:false}@property --tw-grayscale{syntax:"*";inherits:false}@property --tw-hue-rotate{syntax:"*";inherits:false}@property --tw-invert{syntax:"*";inherits:false}@property --tw-opacity{syntax:"*";inherits:false}@property --tw-saturate{syntax:"*";inherits:false}@property --tw-sepia{syntax:"*";inherits:false}@property --tw-drop-shadow{syntax:"*";inherits:false}@property --tw-drop-shadow-color{syntax:"*";inherits:false}@property --tw-drop-shadow-alpha{syntax:"<percentage>";inherits:false;initial-value:100%}@property --tw-drop-shadow-size{syntax:"*";inherits:false}@property --tw-backdrop-blur{syntax:"*";inherits:false}@property --tw-backdrop-brightness{syntax:"*";inherits:false}@property --tw-backdrop-contrast{syntax:"*";inherits:false}@property --tw-backdrop-grayscale{syntax:"*";inherits:false}@property --tw-backdrop-hue-rotate{syntax:"*";inherits:false}@property --tw-backdrop-invert{syntax:"*";inherits:false}@property --tw-backdrop-opacity{syntax:"*";inherits:false}@property --tw-backdrop-saturate{syntax:"*";inherits:false}@property --tw-backdrop-sepia{syntax:"*";inherits:false}@property --tw-duration{syntax:"*";inherits:false}@property --tw-ease{syntax:"*";inherits:false}@keyframes ping{75%,to{opacity:0;transform:scale(2)}}@keyframes pulse{50%{opacity:.5}}@keyframes bounce{0%,to{animation-timing-function:cubic-bezier(.8,0,1,1);transform:translateY(-25%)}50%{animation-timing-function:cubic-bezier(0,0,.2,1);transform:none}}
 </file>
 
+<file path="tweet/adapters.py">
+import logging
+import traceback
+from allauth.socialaccount.adapter import DefaultSocialAccountAdapter
+
+logger = logging.getLogger(__name__)
+
+class SocialAccountAdapter(DefaultSocialAccountAdapter):
+    def on_authentication_error(
+        self, request, provider, error=None, exception=None, extra_context=None
+    ):
+        print("\n" + "=" * 80)
+        print("FULL SOCIAL AUTH TRACEBACK")
+        if exception:
+            print(type(exception).__name__)
+            print(str(exception))
+        traceback.print_exc()
+        print("=" * 80 + "\n")
+        super().on_authentication_error(request, provider, error, exception, extra_context)
+</file>
+
 <file path="tweet/apps.py">
 from django.apps import AppConfig
 
@@ -2361,6 +2638,14 @@ from django.apps import AppConfig
 class TweetConfig(AppConfig):
     default_auto_field = 'django.db.models.BigAutoField'
     name = 'tweet'
+</file>
+
+<file path="tweet/management/__init__.py">
+
+</file>
+
+<file path="tweet/management/commands/__init__.py">
+
 </file>
 
 <file path="tweet/management/commands/ensure_socialapp.py">
@@ -2685,10 +2970,6 @@ class Migration(migrations.Migration):
 </style>
 
 {% endblock %}
-</file>
-
-<file path="PERFORMANCE_AUDIT.md">
-
 </file>
 
 <file path="rental_app/templates/account/logout.html">
@@ -4335,19 +4616,93 @@ p{
 {% endblock %}
 </file>
 
+<file path="tweet/middleware.py">
+from django.shortcuts import redirect
+from django.urls import reverse
+from django.http import HttpResponse, HttpResponsePermanentRedirect
+from django.conf import settings
+from django.utils.cache import patch_vary_headers
+import logging
+
+logger = logging.getLogger(__name__)
+
+
+class UptimeRobotMiddleware:
+    """
+    Intercepts UptimeRobot health checks and returns a 200 OK response immediately
+    to avoid processing the full Django request lifecycle and generating verbose logs.
+    """
+    def __init__(self, get_response):
+        self.get_response = get_response
+
+    def __call__(self, request):
+        user_agent = request.META.get('HTTP_USER_AGENT', '')
+        if 'UptimeRobot' in user_agent:
+            return HttpResponse("OK")
+        return self.get_response(request)
+
+
+class ProfileCompletionMiddleware:
+    """
+    Ensures that users complete their profile before accessing other parts of the site.
+    """
+    def __init__(self, get_response):
+        self.get_response = get_response
+        # Pre-resolve static route names to paths to avoid regex overhead per request
+        self.allowed_route_names = [
+            'profile_setup', 'account_logout', 'offline', 'manifest', 'service_worker'
+        ]
+        self.protected_path_prefixes = (
+            '/accounts/',
+            settings.STATIC_URL,
+            settings.MEDIA_URL,
+        )
+
+    def __call__(self, request):
+        if request.user.is_authenticated and not request.user.is_staff:
+            # If the profile is incomplete, redirect to the setup page,
+            if not request.user.profile_is_complete():
+                allowed_paths = [reverse(name) for name in self.allowed_route_names]
+
+                # Allow access to static/media, accounts, PWA files, and API/AJAX requests
+                is_allowed_path = (
+                    request.path in allowed_paths
+                    or request.path.startswith(self.protected_path_prefixes)
+                    or request.headers.get('x-requested-with') == 'XMLHttpRequest'
+                    or 'application/json' in request.headers.get('Accept', '')
+                )
+
+                if not is_allowed_path:
+                    return redirect('profile_setup')
+
+        return self.get_response(request)
+
+
+class HtmxVaryMiddleware:
+    """
+    When the same URL can return either a full page or a fragment depending on
+    HTMX headers, caches must key on those headers to avoid mixing variants.
+    """
+
+    def __init__(self, get_response):
+        self.get_response = get_response
+
+    def __call__(self, request):
+        response = self.get_response(request)
+
+        content_type = response.get("Content-Type", "")
+        if isinstance(content_type, str) and content_type.lower().startswith("text/html"):
+            patch_vary_headers(response, ("HX-Request", "HX-History-Restore-Request"))
+
+        return response
+</file>
+
 <file path="tweet/templates/rental_form.html">
 {% extends base_template %}
 {% load media_urls %}
 
 {% block content %}
 <style>
-    .glass-card {
-        background: rgba(17, 24, 39, 0.7);
-        backdrop-filter: blur(12px);
-        -webkit-backdrop-filter: blur(12px);
-        border: 1px solid rgba(255, 255, 255, 0.1);
-        box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
-    }
     /* Stepper Styles */
     .step-content { display: none; }
     .step-content.active { display: block; animation: fadeIn 0.4s ease-in-out; }
@@ -4357,7 +4712,7 @@ p{
         to { opacity: 1; transform: translateY(0); }
     }
 
-    .step-indicator.active { color: #3b82f6; border-color: #3b82f6; }
+    .step-indicator.active { color: var(--accent); border-color: var(--accent); }
     .step-indicator.completed { color: #10b981; border-color: #10b981; }
 
     .input-error {
@@ -4377,7 +4732,7 @@ p{
         <!-- Progress Bar -->
         <div class="flex items-center justify-between relative">
             <div class="absolute h-1 bg-gray-700 w-full top-1/2 -z-10"></div>
-            <div id="progress-line" class="absolute h-1 bg-blue-500 transition-all duration-500 top-1/2 -z-10" style="width: 0%;"></div>
+            <div id="progress-line" class="absolute h-1 bg-[var(--accent)] transition-all duration-500 top-1/2 -z-10" style="width: 0%;"></div>
             
             <div class="step-indicator active w-10 h-10 rounded-full glass-card border-2 flex items-center justify-center font-bold text-white bg-slate-900" data-step="1">1</div>
             <div class="step-indicator w-10 h-10 rounded-full glass-card border-2 flex items-center justify-center font-bold text-white bg-slate-900" data-step="2">2</div>
@@ -4390,9 +4745,51 @@ p{
         </div>
     </div>
 
-    <form id="multiStepForm" method="post" enctype="multipart/form-data" class="space-y-8">
+    <form id="multiStepForm" method="post" enctype="multipart/form-data" class="space-y-8" novalidate>
         {% csrf_token %}
         {{ formset.management_form }}
+
+        {# Global error banner #}
+        {% if form.errors or formset.errors %}
+        <div data-errors class="mb-6 p-4 rounded-xl border border-red-500/50 bg-red-500/10 glass-card">
+            <div class="flex items-start gap-3">
+                <i class="fa-solid fa-circle-exclamation text-red-500 mt-1 shrink-0"></i>
+                <div>
+                    <p class="text-sm font-black text-red-400 mb-2 uppercase tracking-widest">
+                        Validation errors detected:
+                    </p>
+                    <ul class="list-disc list-inside space-y-1">
+                        {# Form field errors #}
+                        {% for field in form %}
+                            {% for error in field.errors %}
+                                <li class="text-[10px] font-bold text-red-400 uppercase">
+                                    <span class="opacity-60">{{ field.label }}:</span> {{ error }}
+                                </li>
+                            {% endfor %}
+                        {% endfor %}
+
+                        {# Non-field errors #}
+                        {% for error in form.non_field_errors %}
+                            <li class="text-[10px] font-bold text-red-400 uppercase">{{ error }}</li>
+                        {% endfor %}
+
+                        {# Formset errors #}
+                        {% if formset %}
+                            {% for fs_form in formset %}
+                                {% for field in fs_form %}
+                                    {% for error in field.errors %}
+                                        <li class="text-[10px] font-bold text-red-400 uppercase">
+                                            <span class="opacity-60">Image {{ forloop.parentloop.counter }} - {{ field.label }}:</span> {{ error }}
+                                        </li>
+                                    {% endfor %}
+                                {% endfor %}
+                            {% endfor %}
+                        {% endif %}
+                    </ul>
+                </div>
+            </div>
+        </div>
+        {% endif %}
 
         <!-- STEP 1: CORE INFO -->
         <div class="step-content active" id="step1">
@@ -4401,27 +4798,38 @@ p{
                     <i class="fa-solid fa-house text-blue-500"></i> Primary Information
                 </h2>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <!-- Manually render first few fields or use a loop with if -->
                     <div class="flex flex-col gap-1">
                         <label class="text-gray-400 text-xs font-bold uppercase mb-2">{{ form.title.label }}</label>
-                        <div class="{% if form.title.errors %}input-error{% endif %} contents">{{ form.title }}</div>
-                        {% if form.title.errors %}
-                            <p class="text-red-400 text-[10px] font-bold uppercase tracking-tight">{{ form.title.errors.0 }}</p>
-                        {% endif %}
+                        <div class="contents">{{ form.title }}</div>
+                        <div class="error-container">
+                            {% if form.title.errors %}
+                                <p class="text-red-400 text-[10px] font-bold uppercase tracking-tight mt-1 flex items-center gap-1">
+                                    <i class="fa-solid fa-triangle-exclamation"></i> {{ form.title.errors.0 }}
+                                </p>
+                            {% endif %}
+                        </div>
                     </div>
                     <div class="flex flex-col gap-1">
                         <label class="text-gray-400 text-xs font-bold uppercase mb-2">{{ form.location.label }}</label>
-                        <div class="{% if form.location.errors %}input-error{% endif %} contents">{{ form.location }}</div>
-                        {% if form.location.errors %}
-                            <p class="text-red-400 text-[10px] font-bold uppercase tracking-tight">{{ form.location.errors.0 }}</p>
-                        {% endif %}
+                        <div class="contents">{{ form.location }}</div>
+                        <div class="error-container">
+                            {% if form.location.errors %}
+                                <p class="text-red-400 text-[10px] font-bold uppercase tracking-tight mt-1 flex items-center gap-1">
+                                    <i class="fa-solid fa-triangle-exclamation"></i> {{ form.location.errors.0 }}
+                                </p>
+                            {% endif %}
+                        </div>
                     </div>
                     <div class="flex flex-col md:col-span-2 gap-1">
                         <label class="text-gray-400 text-xs font-bold uppercase mb-2">{{ form.description.label }}</label>
-                        <div class="{% if form.description.errors %}input-error{% endif %} contents">{{ form.description }}</div>
-                        {% if form.description.errors %}
-                            <p class="text-red-400 text-[10px] font-bold uppercase tracking-tight">{{ form.description.errors.0 }}</p>
-                        {% endif %}
+                        <div class="contents">{{ form.description }}</div>
+                        <div class="error-container">
+                            {% if form.description.errors %}
+                                <p class="text-red-400 text-[10px] font-bold uppercase tracking-tight mt-1 flex items-center gap-1">
+                                    <i class="fa-solid fa-triangle-exclamation"></i> {{ form.description.errors.0 }}
+                                </p>
+                            {% endif %}
+                        </div>
                     </div>
                 </div>
             </div>
@@ -4436,25 +4844,38 @@ p{
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div class="flex flex-col gap-1">
                         <label class="text-gray-400 text-xs font-bold uppercase mb-2">{{ form.price.label }}</label>
-                        <div class="{% if form.price.errors %}input-error{% endif %} contents">{{ form.price }}</div>
-                        {% if form.price.errors %}
-                            <p class="text-red-400 text-[10px] font-bold uppercase tracking-tight">{{ form.price.errors.0 }}</p>
-                        {% endif %}
+                        <div class="contents">{{ form.price }}</div>
+                        <div class="error-container">
+                            {% if form.price.errors %}
+                                <p class="text-red-400 text-[10px] font-bold uppercase tracking-tight mt-1 flex items-center gap-1">
+                                    <i class="fa-solid fa-triangle-exclamation"></i> {{ form.price.errors.0 }}
+                                </p>
+                            {% endif %}
+                        </div>
                     </div>
                     <div class="flex flex-col gap-1">
-                        <label class="text-gray-400 text-xs font-bold uppercase mb-2">{{ form.property_type.label }}</label>
-                        <div class="{% if form.property_type.errors %}input-error{% endif %} contents">{{ form.property_type }}</div>
-                        {% if form.property_type.errors %}
-                            <p class="text-red-400 text-[10px] font-bold uppercase tracking-tight">{{ form.property_type.errors.0 }}</p>
-                        {% endif %}
+                        <label class="text-black text-xs font-bold uppercase mb-2">{{ form.property_type.label }}</label>
+                        <div class="contents">{{ form.property_type }}</div>
+                        <div class="error-container">
+                            {% if form.property_type.errors %}
+                                <p class="text-red-400 text-[10px] font-bold uppercase tracking-tight mt-1 flex items-center gap-1">
+                                    <i class="fa-solid fa-triangle-exclamation"></i> {{ form.property_type.errors.0 }}
+                                </p>
+                            {% endif %}
+                        </div>
                     </div>
-                    <!-- Catch-all for remaining fields in the main form -->
                     {% for field in form %}
                         {% if field.name not in "title location description price property_type" %}
                             <div class="flex flex-col gap-1">
                                 <label class="text-gray-400 text-xs font-bold uppercase mb-2">{{ field.label }}</label>
-                                <div class="{% if field.errors %}input-error{% endif %} contents">{{ field }}</div>
-                                {% if field.errors %}<p class="text-red-400 text-[10px] font-bold uppercase tracking-tight">{{ field.errors.0 }}</p>{% endif %}
+                                <div class="contents">{{ field }}</div>
+                                <div class="error-container">
+                                    {% if field.errors %}
+                                        <p class="text-red-400 text-[10px] font-bold uppercase tracking-tight mt-1 flex items-center gap-1">
+                                            <i class="fa-solid fa-triangle-exclamation"></i> {{ field.errors.0 }}
+                                        </p>
+                                    {% endif %}
+                                </div>
                             </div>
                         {% endif %}
                     {% endfor %}
@@ -4468,14 +4889,31 @@ p{
                 <h2 class="text-xl font-bold text-white mb-6 flex items-center gap-2">
                     <i class="fa-solid fa-images text-blue-500"></i> Visual Media
                 </h2>
-                <p class="text-gray-500 text-sm mb-6 italic">Upload up to 3 gallery images to make your listing stand out.</p>
+                <p class="text-gray-500 text-sm mb-6 italic">Upload up to 3 additional images to showcase the space.</p>
                 <div class="grid grid-cols-1 gap-4">
+                    {% if formset.non_form_errors %}
+                        <div class="p-4 rounded-xl bg-red-500/10 border border-red-500/30 mb-4 animate-pulse">
+                            {% for error in formset.non_form_errors %}
+                                <p class="text-red-400 text-xs font-bold uppercase tracking-tight">⚠ {{ error }}</p>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+
+                    {% if formset.errors %}
+                        <div class="p-4 rounded-xl bg-red-500/10 border border-red-500/30 mb-4">
+                            {% for errors in formset.errors %}
+                                {% for field, error in errors.items %}<p class="text-red-400 text-[10px] font-black">{{ error }}</p>{% endfor %}
+                            {% endfor %}
+                        </div>
+                    {% endif %}
                     {% for form_img in formset %}
                         <div class="p-4 border border-white/5 rounded-2xl bg-white/5 royal-input">
                             {% for hidden in form_img.hidden_fields %}{{ hidden }}{% endfor %}
                             <div class="flex flex-col gap-1">
                                 {{ form_img.image }}
-                                {% if form_img.image.errors %}<p class="text-red-400 text-[10px] font-bold uppercase tracking-tight">{{ form_img.image.errors.0 }}</p>{% endif %}
+                                <div class="error-container">
+                                    {% if form_img.image.errors %}<p class="text-red-400 text-[10px] font-bold uppercase tracking-tight mt-1 flex items-center gap-1"><i class="fa-solid fa-triangle-exclamation"></i> {{ form_img.image.errors.0 }}</p>{% endif %}
+                                </div>
                             </div>
                         </div>
                     {% endfor %}
@@ -4489,10 +4927,10 @@ p{
                 Previous
             </button>
             <div class="ml-auto flex gap-4">
-                <button type="button" id="nextBtn" class="px-10 py-4 bg-blue-600 text-white font-black rounded-xl shadow-lg shadow-blue-600/20 hover:bg-blue-500 transition-all">
+                <button type="button" id="nextBtn" class="px-10 py-4 bg-[var(--accent)] text-white font-black rounded-xl shadow-lg hover:opacity-90 transition-all">
                     Next Step
                 </button>
-                <button type="submit" id="submitBtn" class="hidden px-10 py-4 bg-emerald-600 text-white font-black rounded-xl shadow-lg shadow-emerald-600/20 hover:bg-emerald-500 transition-all">
+                <button type="submit" id="submitBtn" class="hidden px-10 py-4 bg-[var(--accent)] text-white font-black rounded-xl shadow-lg hover:opacity-90 transition-all">
                     {% if form.instance.pk %}Update Listing{% else %}Publish Listing{% endif %}
                 </button>
             </div>
@@ -4509,6 +4947,58 @@ p{
     const prevBtn = document.getElementById('prevBtn');
     const submitBtn = document.getElementById('submitBtn');
     let currentStep = 0;
+
+    function showError(input, message) {
+        const container = input.closest('.flex.flex-col') || input.parentElement;
+        input.classList.add('input-error');
+        
+        let errorContainer = container.querySelector('.error-container');
+        if (!errorContainer) {
+            errorContainer = document.createElement('div');
+            errorContainer.className = 'error-container';
+            container.appendChild(errorContainer);
+        }
+        
+        let errorMsg = errorContainer.querySelector('.js-error-msg');
+        if (!errorMsg) {
+            errorMsg = document.createElement('p');
+            errorMsg.className = 'js-error-msg text-red-400 text-[10px] font-bold uppercase tracking-tight mt-1 flex items-center gap-1';
+            errorContainer.appendChild(errorMsg);
+        }
+        errorMsg.innerHTML = `<i class="fa-solid fa-triangle-exclamation"></i> ${message}`;
+    }
+
+    function clearError(input) {
+        const container = input.closest('.flex.flex-col') || input.parentElement;
+        input.classList.remove('input-error');
+        const errorMsg = container.querySelector('.js-error-msg');
+        if (errorMsg) errorMsg.remove();
+    }
+
+    function validateStep(stepIndex) {
+        const currentStepEl = steps[stepIndex];
+        const inputs = currentStepEl.querySelectorAll('input[required], select[required], textarea[required]');
+        let isValid = true;
+        let firstInvalidEl = null;
+
+        inputs.forEach(input => {
+            const value = input.value.trim();
+            if (!value) {
+                isValid = false;
+                showError(input, 'This field is required');
+                if (!firstInvalidEl) firstInvalidEl = input;
+            } else {
+                clearError(input);
+            }
+        });
+
+        if (!isValid && firstInvalidEl) {
+            firstInvalidEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            firstInvalidEl.focus();
+        }
+
+        return isValid;
+    }
 
     function updateStep() {
         steps.forEach((step, index) => {
@@ -4535,10 +5025,16 @@ p{
     }
 
     nextBtn.addEventListener('click', () => {
-        if (currentStep < steps.length - 1) {
+        if (validateStep(currentStep)) {
             currentStep++;
             updateStep();
         }
+    });
+
+    form.querySelectorAll('input, select, textarea').forEach(input => {
+        input.addEventListener('input', () => {
+            if (input.value.trim()) clearError(input);
+        });
     });
 
     prevBtn.addEventListener('click', () => {
@@ -4548,11 +5044,38 @@ p{
         }
     });
 
+    form.addEventListener('submit', (e) => {
+        // Final validation across all steps
+        let allValid = true;
+        for (let i = 0; i < steps.length; i++) {
+            if (!validateStep(i)) {
+                allValid = false;
+                currentStep = i;
+                updateStep();
+                e.preventDefault();
+                break;
+            }
+        }
+    });
+
     // Server-side error handling: find the first field with a Django error and jump to that step
     window.addEventListener('load', () => {
-        const firstServerSideError = document.querySelector('.input-error');
+        // Auto-scroll to error banner if it exists
+        const errorBanner = document.querySelector('[data-errors]');
+        if (errorBanner) {
+            errorBanner.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+
+        // Step management for errors
+        const firstServerSideError = document.querySelector('.error-container p');
         if (firstServerSideError) {
             const targetStep = firstServerSideError.closest('.step-content');
+            // Highlight field with server-side error
+            const container = firstServerSideError.closest('.flex.flex-col');
+            if (container) {
+                const input = container.querySelector('input, select, textarea');
+                if (input) input.classList.add('input-error');
+            }
             if (targetStep) {
                 currentStep = steps.indexOf(targetStep);
                 updateStep();
@@ -4638,7 +5161,9 @@ p{
 
             <!-- Wishlist Button (Detail) -->
             <div class="mt-4 text-left">
-                <form action="{% url 'toggle_wishlist' rental.id %}" method="POST" class="js-wishlist-form inline">
+                <form action="{% url 'toggle_wishlist' rental.id %}" method="POST" class="js-wishlist-form inline"
+                    hx-post="{% url 'toggle_wishlist' rental.id %}" hx-target="this" hx-swap="outerHTML"
+                    hx-boost="false">
                     {% csrf_token %}
                     <button type="submit" data-wishlisted="{{ is_wishlisted|yesno:'1,0' }}"
                         aria-pressed="{{ is_wishlisted|yesno:'true,false' }}"
@@ -4833,87 +5358,6 @@ p{
 </script>
 
 {% endblock %}
-</file>
-
-<file path="tweet/middleware.py">
-from django.shortcuts import redirect
-from django.urls import reverse
-from django.http import HttpResponse, HttpResponsePermanentRedirect
-from django.conf import settings
-from django.utils.cache import patch_vary_headers
-import logging
-
-logger = logging.getLogger(__name__)
-
-
-class UptimeRobotMiddleware:
-    """
-    Intercepts UptimeRobot health checks and returns a 200 OK response immediately
-    to avoid processing the full Django request lifecycle and generating verbose logs.
-    """
-    def __init__(self, get_response):
-        self.get_response = get_response
-
-    def __call__(self, request):
-        user_agent = request.META.get('HTTP_USER_AGENT', '')
-        if 'UptimeRobot' in user_agent:
-            return HttpResponse("OK")
-        return self.get_response(request)
-
-
-class ProfileCompletionMiddleware:
-    """
-    Ensures that users complete their profile before accessing other parts of the site.
-    """
-    def __init__(self, get_response):
-        self.get_response = get_response
-        # Pre-resolve static route names to paths to avoid regex overhead per request
-        self.allowed_route_names = [
-            'profile_setup', 'account_logout', 'offline', 'manifest', 'service_worker'
-        ]
-        self.protected_path_prefixes = (
-            '/accounts/',
-            settings.STATIC_URL,
-            settings.MEDIA_URL,
-        )
-
-    def __call__(self, request):
-        if request.user.is_authenticated and not request.user.is_staff:
-            # If the profile is incomplete, redirect to the setup page,
-            if not request.user.profile_is_complete():
-                allowed_paths = [reverse(name) for name in self.allowed_route_names]
-
-                # Allow access to static/media, accounts, PWA files, and API/AJAX requests
-                is_allowed_path = (
-                    request.path in allowed_paths
-                    or request.path.startswith(self.protected_path_prefixes)
-                    or request.headers.get('x-requested-with') == 'XMLHttpRequest'
-                    or 'application/json' in request.headers.get('Accept', '')
-                )
-
-                if not is_allowed_path:
-                    return redirect('profile_setup')
-
-        return self.get_response(request)
-
-
-class HtmxVaryMiddleware:
-    """
-    When the same URL can return either a full page or a fragment depending on
-    HTMX headers, caches must key on those headers to avoid mixing variants.
-    """
-
-    def __init__(self, get_response):
-        self.get_response = get_response
-
-    def __call__(self, request):
-        response = self.get_response(request)
-
-        content_type = response.get("Content-Type", "")
-        if isinstance(content_type, str) and content_type.lower().startswith("text/html"):
-            patch_vary_headers(response, ("HX-Request", "HX-History-Restore-Request"))
-
-        return response
 </file>
 
 <file path="render.yaml">
@@ -5232,506 +5676,6 @@ services:
     </div>
 </div>
 {% endblock %}
-</file>
-
-<file path="rental_app/templates/layout.html">
-{% load static %}
-
-<!DOCTYPE html>
-<html lang="en" class="scroll-smooth">
-
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-    <title>{% block title %}Empire Estate | Premium Living{% endblock %}</title>
-
-    <!-- PWA Meta -->
-    <link rel="manifest" href="{% url 'manifest' %}">
-    <meta name="theme-color" content="#0f172a">
-
-    <!-- Apple / iOS -->
-    <link rel="apple-touch-icon" sizes="192x192" href="{% static 'images/icon-192x192.png' %}">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-
-    <!-- Styles -->
-    <link rel="stylesheet" href="{% static 'dist/output.css' %}">
-    <link rel="stylesheet" href="{% static 'css/navbar.css' %}">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
-
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap"
-        rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Rye&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-
-    <!-- Google Analytics -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-N6Y0TE3G74"></script>
-    <script>
-        window.dataLayer = window.dataLayer || [];
-        function gtag() { dataLayer.push(arguments); }
-        gtag('js', new Date());
-        gtag('config', 'G-N6Y0TE3G74');
-    </script>
-
-    <style>
-        body {
-            font-family: 'Plus Jakarta Sans', sans-serif;
-            background: #020617;
-        }
-
-        .master-background {
-            position: fixed;
-            inset: 0;
-            z-index: -1;
-            background-image: linear-gradient(rgba(2, 6, 23, 0.82), rgba(2, 6, 23, 0.88)),
-                url('https://i.pinimg.com/736x/bc/fd/7e/bcfd7e31ee8f647b40d7f5038a1f17e2.jpg');
-            background-size: cover;
-            background-position: center;
-            filter: saturate(1.05) contrast(0.98);
-        }
-
-        .glass-card {
-            background: rgba(255, 255, 255, 0.03);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            /* Promote to its own layer to prevent background repaint during transitions */
-            will-change: backdrop-filter;
-        }
-
-        #main-content {
-            /* Optimizes HTMX swap transforms and view-transitions */
-            will-change: transform, opacity;
-        }
-
-        ::-webkit-scrollbar {
-            width: 5px;
-        }
-
-        ::-webkit-scrollbar-thumb {
-            background: #3b82f6;
-            border-radius: 10px;
-        }
-
-        .rye-regular {
-            font-family: "Rye", serif;
-        }
-    </style>
-
-    <!-- HTMX -->
-    <meta name="htmx-config" content='{"historyRestoreAsHxRequest": false}'>
-    <script src="https://unpkg.com/htmx.org@1.9.12"></script>
-    <script src="https://unpkg.com/htmx.org@1.9.12/dist/ext/view-transitions.js"></script>
-
-    <style>
-        ::view-transition-group(root) {
-            animation-duration: 0.2s;
-        }
-
-        ::view-transition-old(root) {
-            animation: fade-out 0.1s;
-        }
-
-        ::view-transition-new(root) {
-            animation: fade-in 0.1s;
-        }
-
-        @keyframes fade-in {
-            from {
-                opacity: 0;
-            }
-
-            to {
-                opacity: 1;
-            }
-        }
-
-        @keyframes fade-out {
-            from {
-                opacity: 1;
-            }
-
-            to {
-                opacity: 0;
-            }
-        }
-    </style>
-
-    <style>
-        :root {
-            --ui-surface: rgba(255, 255, 255, .08);
-            --ui-surface-strong: rgba(255, 255, 255, .16);
-            --ui-shadow: 0 28px 90px rgba(0, 0, 0, .18);
-            --ui-shadow-soft: 0 18px 40px rgba(0, 0, 0, .12);
-            --ui-transition: 220ms cubic-bezier(.33, .01, .35, 1);
-        }
-
-        body {
-            opacity: 0;
-            transform: translateY(14px);
-            transition: opacity .45s ease, transform .45s ease;
-        }
-
-        body.app-ready {
-            opacity: 1;
-            transform: translateY(0);
-        }
-
-        body.page-exiting,
-        body.htmx-swapping {
-            opacity: 0;
-            transform: translateY(10px);
-            transition: opacity .28s ease, transform .28s ease;
-        }
-
-        #app-splash {
-            position: fixed;
-            inset: 0;
-            z-index: 9999;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 2rem;
-            background: radial-gradient(circle at top left, rgba(59, 130, 246, .18), transparent 28%),
-                radial-gradient(circle at bottom right, rgba(147, 51, 234, .25), transparent 32%),
-                #020617;
-            color: #fff;
-            text-align: center;
-            pointer-events: auto;
-            opacity: 1;
-            transform: translateZ(0);
-            transition: opacity .45s ease, transform .45s ease;
-        }
-
-        body.splash-hidden #app-splash {
-            opacity: 0;
-            transform: scale(0.97);
-            pointer-events: none;
-        }
-
-        #app-splash .splash-logo {
-            width: 4rem;
-            height: 4rem;
-            margin: 0 auto 1rem;
-            border-radius: 1.2rem;
-            background: linear-gradient(135deg, #3b82f6, #a855f7);
-            box-shadow: 0 26px 78px rgba(59, 130, 246, .25);
-            display: grid;
-            place-items: center;
-            animation: splash-zoom 1.1s cubic-bezier(.22, .61, .36, 1) both;
-        }
-
-        #app-splash .splash-logo::before {
-            content: "E";
-            font-size: 1.8rem;
-            font-weight: 900;
-            letter-spacing: -.05em;
-            color: #fff;
-        }
-
-        #app-splash .splash-brand {
-            font-size: clamp(2.5rem, 6vw, 4.5rem);
-            font-weight: 900;
-            letter-spacing: .22em;
-            text-transform: uppercase;
-            margin: 0;
-            line-height: 1;
-        }
-
-        #app-splash .splash-tagline {
-            margin-top: 1rem;
-            color: rgba(255, 255, 255, .72);
-            font-size: 1rem;
-        }
-
-        @keyframes splash-zoom {
-            from {
-                opacity: 0;
-                transform: scale(0.62) translateY(14px);
-            }
-
-            to {
-                opacity: 1;
-                transform: scale(1) translateY(0);
-            }
-        }
-
-        button,
-        input[type="submit"],
-        .btn,
-        .btn-primary,
-        .glass-card {
-            transition: transform var(--ui-transition), box-shadow var(--ui-transition), background-color var(--ui-transition), border-color var(--ui-transition);
-        }
-
-        button:hover,
-        input[type="submit"]:hover,
-        .btn:hover,
-        .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: var(--ui-shadow-soft);
-        }
-
-        button:active,
-        input[type="submit"]:active,
-        .btn:active,
-        .btn-primary:active {
-            transform: translateY(0) scale(.98);
-        }
-
-        .skeleton {
-            position: relative;
-            overflow: hidden;
-            background: rgba(255, 255, 255, .05);
-            border-radius: 1rem;
-            min-height: 1rem;
-            color: transparent;
-        }
-
-        .skeleton::after {
-            content: "";
-            position: absolute;
-            inset: 0;
-            transform: translateX(-100%);
-            background: linear-gradient(90deg, rgba(255, 255, 255, .04) 0%, rgba(255, 255, 255, .18) 50%, rgba(255, 255, 255, .04) 100%);
-            animation: shimmer 1.6s ease-in-out infinite;
-        }
-
-        @keyframes shimmer {
-            to {
-                transform: translateX(100%);
-            }
-        }
-    </style>
-</head>
-
-<body class="text-slate-200" hx-boost="true" hx-ext="view-transitions" hx-target="#main-content"
-    hx-select="#main-content" hx-swap="outerHTML transition:true">
-
-    <div id="app-splash">
-        <div>
-            <div class="splash-logo"></div>
-            <h1 class="splash-brand">Empire Estate</h1>
-            <p class="splash-tagline">Premium rental discovery, now in motion.</p>
-        </div>
-    </div>
-
-    <div class="master-background"></div>
-
-    {% if not is_htmx_partial %}
-    {% include "nav.html" %}
-    {% endif %}
-
-
-
-    <!-- Django Messages -->
-    {% if messages %}
-    <div style="position: fixed; top: 80px; right: 20px; z-index: 1000; max-width: 300px;">
-        {% for message in messages %}
-        <div class="p-4 mb-4 text-sm rounded-lg shadow-lg
-            {% if message.tags == 'success' %} bg-green-100 text-green-800 border border-green-200 {% endif %}
-            {% if message.tags == 'info' %} bg-blue-100 text-blue-800 border border-blue-200 {% endif %}
-            {% if message.tags == 'warning' %} bg-yellow-100 text-yellow-800 border border-yellow-200 {% endif %}
-            {% if message.tags == 'error' %} bg-red-100 text-red-800 border border-red-200 {% endif %}" role="alert">
-            <span class="font-medium">{{ message }}</span>
-        </div>
-        {% endfor %}
-    </div>
-
-    <script>
-        setTimeout(() => {
-            document.querySelectorAll('[role="alert"]').forEach(el => el.remove());
-        }, 5000);
-    </script>
-    {% endif %}
-
-    <main id="main-content">
-        {% if request.path != '/' %}
-        <div class="fluid-page pt-6 mb-2">
-            <button onclick="history.back()"
-                class="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl glass-card text-[10px] font-black uppercase tracking-widest text-slate-300 hover:text-white hover:border-sky-500/50 transition-all active:scale-95 shadow-lg">
-                <i class="fa-solid fa-arrow-left text-sky-500"></i>
-                Back
-            </button>
-        </div>
-        {% endif %}
-
-        {% block content %}{% endblock %}
-    </main>
-
-    {% if not is_htmx_partial %}
-    {% include "footer.html" %}
-    {% endif %}
-
-    <script>
-        (function () {
-            // 1. Initial Load Animation
-            window.addEventListener('load', () => {
-                document.body.classList.add('app-ready');
-            });
-
-            // 2. Rapid Click Debouncing
-            let isNavigating = false;
-            document.body.addEventListener('htmx:beforeRequest', (e) => {
-                if (isNavigating && e.detail.requestConfig.trigger?.tagName === 'A') {
-                    e.preventDefault();
-                    return;
-                }
-                isNavigating = true;
-            });
-
-            // 3. Fallback Transition Management (For older browsers)
-            document.body.addEventListener('htmx:beforeSwap', (e) => {
-                // Add class to trigger CSS exit animation
-                document.body.classList.add('htmx-swapping');
-            });
-
-            document.body.addEventListener('htmx:afterSettle', () => {
-                // Remove class to trigger CSS entry animation
-                document.body.classList.remove('htmx-swapping');
-                isNavigating = false;
-            });
-
-            // 4. Smooth scroll to top on page change
-            document.body.addEventListener('htmx:afterSwap', (e) => {
-                if (e.detail.target.id === 'main-content') {
-                    window.scrollTo({ top: 0, behavior: 'instant' });
-                }
-            });
-        })();
-    </script>
-
-    <script>
-        (function () {
-            const body = document.body;
-            const splash = document.getElementById('app-splash');
-            const splashTimeout = 2300;
-
-            function hideSplash() {
-                body.classList.add('splash-hidden');
-                if (splash) {
-                    setTimeout(() => splash.remove(), 650);
-                }
-            }
-
-            window.addEventListener('DOMContentLoaded', () => {
-                body.classList.add('app-ready');
-                setTimeout(hideSplash, splashTimeout);
-            });
-
-        })();
-    </script>
-
-    <!-- Wishlist Script -->
-    <script>
-        (function () {
-            function getCookie(name) {
-                const cookieValue = document.cookie
-                    .split(";")
-                    .map(v => v.trim())
-                    .find(v => v.startsWith(name + "="));
-                return cookieValue ? decodeURIComponent(cookieValue.split("=")[1]) : null;
-            }
-
-            function setWishlisted(form, wishlisted) {
-                const button = form.querySelector("button");
-                const icon = form.querySelector("i");
-                const badge = form.closest("[data-rental-card]")?.querySelector("[data-wishlist-badge]");
-
-                if (button) {
-                    button.setAttribute("aria-pressed", wishlisted);
-                    button.setAttribute("aria-label", wishlisted ? "Remove from wishlist" : "Add to wishlist");
-                    button.dataset.wishlisted = wishlisted ? "1" : "0";
-                }
-
-                if (icon) {
-                    icon.classList.toggle("fa-solid", wishlisted);
-                    icon.classList.toggle("fa-regular", !wishlisted);
-                    icon.classList.toggle("text-red-500", wishlisted);
-                }
-
-                if (badge) {
-                    badge.classList.toggle("opacity-0", !wishlisted);
-                    badge.classList.toggle("opacity-100", wishlisted);
-                }
-            }
-
-            async function onWishlistSubmit(e) {
-                const form = e.target;
-                if (!(form instanceof HTMLFormElement)) return;
-                if (!form.classList.contains("js-wishlist-form")) return;
-
-                e.preventDefault();
-
-                const button = form.querySelector("button");
-                if (button) button.disabled = true;
-
-                try {
-                    const csrfToken = getCookie("csrftoken");
-
-                    const headers = {
-                        "X-Requested-With": "XMLHttpRequest",
-                        "Accept": "application/json",
-                        ...(csrfToken && { "X-CSRFToken": csrfToken })
-                    };
-
-                    const resp = await fetch(form.action, {
-                        method: "POST",
-                        body: new FormData(form),
-                        credentials: "same-origin",
-                        headers,
-                    });
-
-                    if (resp.status === 401) {
-                        const data = await resp.json().catch(() => null);
-                        const loginUrl = data?.login_url || "{% url 'account_login' %}";
-                        window.location.href = `${loginUrl}?next=${encodeURIComponent(window.location.href)}`;
-                        return;
-                    }
-
-                    const data = await resp.json().catch(() => null);
-                    if (!data?.ok) return;
-
-                    setWishlisted(form, !!data.wishlisted);
-
-                    if (!data.wishlisted && form.dataset.removeOnUnwish === "1") {
-                        form.closest("[data-rental-card]")?.remove();
-                    }
-
-                } catch (err) {
-                    form.submit();
-                } finally {
-                    if (button) button.disabled = false;
-                }
-            }
-
-            document.addEventListener("submit", onWishlistSubmit, true);
-        })();
-    </script>
-
-    <!-- Service Worker -->
-    <script>
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register("{% url 'service_worker' %}", { scope: "/" })
-                    .then(reg => console.log("ServiceWorker registered:", reg.scope))
-                    .catch(err => console.error("ServiceWorker failed:", err));
-            });
-        }
-    </script>
-
-    <div id="page-scripts">
-        {% block extra_scripts %}{% endblock %}
-    </div>
-
-</body>
-
-</html>
 </file>
 
 <file path="tweet/templates/index.html">
@@ -6228,6 +6172,429 @@ services:
 {% endblock %}
 </file>
 
+<file path="rental_app/templates/layout.html">
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>{% block title %}Empire Estate | Premium Living{% endblock %}</title>
+
+    <meta name="csrf-token" content="{{ csrf_token }}">
+    <!-- PWA Meta -->
+    <link rel="manifest" href="{% url 'manifest' %}">
+    <meta name="theme-color" content="#0f172a">
+
+    <!-- Apple / iOS -->
+    <link rel="apple-touch-icon" sizes="192x192" href="{% static 'images/icon-192x192.png' %}">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
+    <!-- Styles -->
+    <link rel="stylesheet" href="{% static 'dist/output.css' %}">
+    <link rel="stylesheet" href="{% static 'css/navbar.css' %}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
+
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Rye&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+    <!-- Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-N6Y0TE3G74"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag() { dataLayer.push(arguments); }
+        gtag('js', new Date());
+        gtag('config', 'G-N6Y0TE3G74');
+    </script>
+
+    <style>
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background: #020617;
+        }
+
+        .master-background {
+            position: fixed;
+            inset: 0;
+            z-index: -1;
+            background-image: linear-gradient(rgba(2, 6, 23, 0.82), rgba(2, 6, 23, 0.88)),
+                url('https://i.pinimg.com/736x/bc/fd/7e/bcfd7e31ee8f647b40d7f5038a1f17e2.jpg');
+            background-size: cover;
+            background-position: center;
+            filter: saturate(1.05) contrast(0.98);
+        }
+
+        .glass-card {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            /* Promote to its own layer to prevent background repaint during transitions */
+            will-change: backdrop-filter;
+        }
+
+        #main-content {
+            /* Optimizes HTMX swap transforms and view-transitions */
+            will-change: transform, opacity;
+        }
+
+        ::-webkit-scrollbar {
+            width: 5px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #3b82f6;
+            border-radius: 10px;
+        }
+
+        .rye-regular {
+            font-family: "Rye", serif;
+        }
+    </style>
+
+    <!-- HTMX -->
+    <meta name="htmx-config" content='{"historyRestoreAsHxRequest": false}'>
+    <script src="https://unpkg.com/htmx.org@1.9.12"></script>
+    <script src="https://unpkg.com/htmx.org@1.9.12/dist/ext/view-transitions.js"></script>
+
+    <style>
+        ::view-transition-group(root) {
+            animation-duration: 0.2s;
+        }
+
+        ::view-transition-old(root) {
+            animation: fade-out 0.1s;
+        }
+
+        ::view-transition-new(root) {
+            animation: fade-in 0.1s;
+        }
+
+        @keyframes fade-in {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+
+        @keyframes fade-out {
+            from {
+                opacity: 1;
+            }
+
+            to {
+                opacity: 0;
+            }
+        }
+    </style>
+
+    <style>
+        :root {
+            --ui-surface: rgba(255, 255, 255, .08);
+            --ui-surface-strong: rgba(255, 255, 255, .16);
+            --ui-shadow: 0 28px 90px rgba(0, 0, 0, .18);
+            --ui-shadow-soft: 0 18px 40px rgba(0, 0, 0, .12);
+            --ui-transition: 220ms cubic-bezier(.33, .01, .35, 1);
+        }
+
+        body {
+            opacity: 0;
+            transform: translateY(14px);
+            transition: opacity .45s ease, transform .45s ease;
+        }
+
+        body.app-ready {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        body.page-exiting,
+        body.htmx-swapping {
+            opacity: 0;
+            transform: translateY(10px);
+            transition: opacity .28s ease, transform .28s ease;
+        }
+
+        #app-splash {
+            position: fixed;
+            inset: 0;
+            z-index: 9999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+            background: radial-gradient(circle at top left, rgba(59, 130, 246, .18), transparent 28%),
+                radial-gradient(circle at bottom right, rgba(147, 51, 234, .25), transparent 32%),
+                #020617;
+            color: #fff;
+            text-align: center;
+            pointer-events: auto;
+            opacity: 1;
+            transform: translateZ(0);
+            transition: opacity .45s ease, transform .45s ease;
+        }
+
+        body.splash-hidden #app-splash {
+            opacity: 0;
+            transform: scale(0.97);
+            pointer-events: none;
+        }
+
+        #app-splash .splash-logo {
+            width: 4rem;
+            height: 4rem;
+            margin: 0 auto 1rem;
+            border-radius: 1.2rem;
+            background: linear-gradient(135deg, #3b82f6, #a855f7);
+            box-shadow: 0 26px 78px rgba(59, 130, 246, .25);
+            display: grid;
+            place-items: center;
+            animation: splash-zoom 1.1s cubic-bezier(.22, .61, .36, 1) both;
+        }
+
+        #app-splash .splash-logo::before {
+            content: "E";
+            font-size: 1.8rem;
+            font-weight: 900;
+            letter-spacing: -.05em;
+            color: #fff;
+        }
+
+        #app-splash .splash-brand {
+            font-size: clamp(2.5rem, 6vw, 4.5rem);
+            font-weight: 900;
+            letter-spacing: .22em;
+            text-transform: uppercase;
+            margin: 0;
+            line-height: 1;
+        }
+
+        #app-splash .splash-tagline {
+            margin-top: 1rem;
+            color: rgba(255, 255, 255, .72);
+            font-size: 1rem;
+        }
+
+        @keyframes splash-zoom {
+            from {
+                opacity: 0;
+                transform: scale(0.62) translateY(14px);
+            }
+
+            to {
+                opacity: 1;
+                transform: scale(1) translateY(0);
+            }
+        }
+
+        button,
+        input[type="submit"],
+        .btn,
+        .btn-primary,
+        .glass-card {
+            transition: transform var(--ui-transition), box-shadow var(--ui-transition), background-color var(--ui-transition), border-color var(--ui-transition);
+        }
+
+        button:hover,
+        input[type="submit"]:hover,
+        .btn:hover,
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--ui-shadow-soft);
+        }
+
+        button:active,
+        input[type="submit"]:active,
+        .btn:active,
+        .btn-primary:active {
+            transform: translateY(0) scale(.98);
+        }
+
+        .skeleton {
+            position: relative;
+            overflow: hidden;
+            background: rgba(255, 255, 255, .05);
+            border-radius: 1rem;
+            min-height: 1rem;
+            color: transparent;
+        }
+
+        .skeleton::after {
+            content: "";
+            position: absolute;
+            inset: 0;
+            transform: translateX(-100%);
+            background: linear-gradient(90deg, rgba(255, 255, 255, .04) 0%, rgba(255, 255, 255, .18) 50%, rgba(255, 255, 255, .04) 100%);
+            animation: shimmer 1.6s ease-in-out infinite;
+        }
+
+        @keyframes shimmer {
+            to {
+                transform: translateX(100%);
+            }
+        }
+    </style>
+</head>
+
+<body class="text-slate-200" hx-boost="true" hx-ext="view-transitions" hx-target="#main-content"
+    hx-select="#main-content" hx-swap="outerHTML transition:true">
+
+    <div id="app-splash">
+        <div>
+            <div class="splash-logo"></div>
+            <h1 class="splash-brand">Empire Estate</h1>
+            <p class="splash-tagline">Premium rental discovery, now in motion.</p>
+        </div>
+    </div>
+
+    <div class="master-background"></div>
+
+    {% if not is_htmx_partial %}
+    {% include "nav.html" %}
+    {% endif %}
+
+    {% include "permissions_modal.html" %}
+
+
+    <!-- Django Messages -->
+    {% if messages %}
+    <div style="position: fixed; top: 80px; right: 20px; z-index: 1000; max-width: 300px;">
+        {% for message in messages %}
+        <div class="p-4 mb-4 text-sm rounded-lg shadow-lg
+            {% if message.tags == 'success' %} bg-green-100 text-green-800 border border-green-200 {% endif %}
+            {% if message.tags == 'info' %} bg-blue-100 text-blue-800 border border-blue-200 {% endif %}
+            {% if message.tags == 'warning' %} bg-yellow-100 text-yellow-800 border border-yellow-200 {% endif %}
+            {% if message.tags == 'error' %} bg-red-100 text-red-800 border border-red-200 {% endif %}" role="alert">
+            <span class="font-medium">{{ message }}</span>
+        </div>
+        {% endfor %}
+    </div>
+
+    <script>
+        setTimeout(() => {
+            document.querySelectorAll('[role="alert"]').forEach(el => el.remove());
+        }, 5000);
+    </script>
+    {% endif %}
+
+    <main id="main-content">
+        {% if request.path != '/' %}
+        <div class="fluid-page pt-6 mb-2">
+            <button onclick="history.back()"
+                class="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl glass-card text-[10px] font-black uppercase tracking-widest text-slate-300 hover:text-white hover:border-sky-500/50 transition-all active:scale-95 shadow-lg">
+                <i class="fa-solid fa-arrow-left text-sky-500"></i>
+                Back
+            </button>
+        </div>
+        {% endif %}
+
+        {% block content %}{% endblock %}
+    </main>
+
+    {% if not is_htmx_partial %}
+    {% include "footer.html" %}
+    {% endif %}
+
+    <script>
+        (function () {
+            // 1. Initial Load Animation
+            window.addEventListener('load', () => {
+                document.body.classList.add('app-ready');
+            });
+
+            // 2. Rapid Click Debouncing
+            let isNavigating = false;
+            document.body.addEventListener('htmx:beforeRequest', (e) => {
+                if (isNavigating && e.detail.requestConfig.trigger?.tagName === 'A') {
+                    e.preventDefault();
+                    return;
+                }
+                isNavigating = true;
+            });
+
+            // 3. Fallback Transition Management (For older browsers)
+            document.body.addEventListener('htmx:beforeSwap', (e) => {
+                // Add class to trigger CSS exit animation
+                document.body.classList.add('htmx-swapping');
+            });
+
+            document.body.addEventListener('htmx:afterSettle', () => {
+                // Remove class to trigger CSS entry animation
+                document.body.classList.remove('htmx-swapping');
+                isNavigating = false;
+            });
+
+            // 4. Smooth scroll to top on page change
+            document.body.addEventListener('htmx:afterSwap', (e) => {
+                if (e.detail.target.id === 'main-content') {
+                    window.scrollTo({ top: 0, behavior: 'instant' });
+                }
+            });
+        })();
+    </script>
+
+    <script>
+        (function () {
+            const body = document.body;
+            const splash = document.getElementById('app-splash');
+            const splashTimeout = 2300;
+
+            function hideSplash() {
+                body.classList.add('splash-hidden');
+                if (splash) {
+                    setTimeout(() => splash.remove(), 650);
+                }
+            }
+
+            window.addEventListener('DOMContentLoaded', () => {
+                body.classList.add('app-ready');
+                setTimeout(hideSplash, splashTimeout);
+            });
+
+        })();
+    </script>
+
+    <!-- Service Worker -->
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register("{% url 'service_worker' %}", { scope: "/" })
+                    .then(reg => console.log("ServiceWorker registered:", reg.scope))
+                    .catch(err => console.error("ServiceWorker failed:", err));
+            });
+        }
+    </script>
+
+    <script>
+      document.body.addEventListener('htmx:configRequest', (event) => {
+        event.detail.headers['X-CSRFToken'] =
+          document.querySelector('meta[name="csrf-token"]').content;
+      });
+    </script>
+
+    <script src="{% static 'js/permission_manager.js' %}"></script>
+    <div id="page-scripts">
+        {% block extra_scripts %}{% endblock %}
+    </div>
+
+</body>
+
+</html>
+</file>
+
 <file path="tweet/urls.py">
 from django.urls import path
 from . import views
@@ -6246,12 +6613,13 @@ urlpatterns = [
 
     path("profile/", views.profile, name="profile"),
     path("profile/setup/", views.profile_setup, name="profile_setup"),
-    path("wishlist/", views.wishlist, name="wishlist"),
-    path("wishlist/toggle/<int:rental_id>/", views.toggle_wishlist, name="toggle_wishlist"),
 
     path("about/", views.about, name="about"),
     path("offline/", views.offline, name="offline"),
     path("ping/", views.ping_view, name="ping"),
+    # Wishlist
+    path("wishlist/", views.wishlist, name="wishlist"),
+    path("wishlist/toggle/<int:rental_id>/", views.toggle_wishlist, name="toggle_wishlist"),
 ]
 </file>
 
@@ -6314,7 +6682,6 @@ django-jazzmin==3.0.1
 </file>
 
 <file path="tweet/models.py">
-import uuid
 from django.db import models
 from django.conf import settings
 from django.core.exceptions import ValidationError
@@ -6485,6 +6852,13 @@ class Rental(models.Model):
     def __str__(self):
         return self.title
 
+    # Wishlist ManyToMany (added by migration 0019)
+    wishlisted_by = models.ManyToManyField(
+        settings.AUTH_USER_MODEL,
+        related_name='wishlisted_rentals',
+        blank=True,
+    )
+
 
 # =========================
 # PROPERTY SHARE
@@ -6597,30 +6971,28 @@ class RentalImage(models.Model):
     )
 
 
-# =========================
-# WISHLIST
-# =========================
-
 class Wishlist(models.Model):
+    """
+    Legacy Wishlist model (created in migration 0007). Keep for compatibility
+    with existing migrations that reference `Wishlist` and `wishlist_items`.
+    """
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
-        related_name="wishlist_items"
+        related_name='wishlist_items'
     )
-
     rental = models.ForeignKey(
         Rental,
         on_delete=models.CASCADE,
-        related_name="saved_by"
+        related_name='saved_by'
     )
-
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
-        unique_together = ("user", "rental")
+        unique_together = ('user', 'rental')
 
     def __str__(self):
-        return f"{self.user.email} → {self.rental.title}"
+        return f"Wishlist: {self.user_id} -> {self.rental_id}"
 </file>
 
 <file path="tweet/templates/rentalList.html">
@@ -6823,7 +7195,9 @@ class Wishlist(models.Model):
 
                 <!-- Wishlist Button -->
                 <form action="{% url 'toggle_wishlist' rental.id %}" method="POST"
-                    class="js-wishlist-form absolute top-3 right-3 z-[100]">
+                    class="js-wishlist-form absolute top-3 right-3 z-[100]"
+                    hx-post="{% url 'toggle_wishlist' rental.id %}" hx-target="this" hx-swap="outerHTML"
+                    hx-boost="false">
 
                     {% csrf_token %}
 
@@ -7119,9 +7493,6 @@ class Wishlist(models.Model):
                             <a href="{% url 'profile' %}" class="dropdown-item">
                                 <i class="fa-solid fa-user"></i> My Profile
                             </a>
-                            <a href="{% url 'wishlist' %}" class="dropdown-item">
-                                <i class="fa-solid fa-heart"></i> Wishlist
-                            </a>
                             <a href="{% url 'rental_create' %}" class="dropdown-item">
                                 <i class="fa-solid fa-plus"></i> List Space
                             </a>
@@ -7255,7 +7626,7 @@ if not DEBUG and SECRET_KEY == "django-insecure-dev-key":
 PUBLIC_SITE_DOMAIN = normalize_domain(
     os.getenv("DJANGO_SITE_DOMAIN")
     or os.getenv("RENDER_EXTERNAL_HOSTNAME")
-    or ("127.0.0.1:8000" if DEBUG else "rentalpro-web.onrender.com")
+    or ("localhost:8000" if DEBUG else "rentalpro-web.onrender.com")
 )
 
 PUBLIC_SITE_URL = (
@@ -7554,7 +7925,7 @@ SOCIALACCOUNT_ADAPTER = "tweet.adapters.SocialAccountAdapter"
 SOCIALACCOUNT_QUERY_EMAIL = True
 
 # Setting to False ensures new users see the signup form before account creation
-SOCIALACCOUNT_AUTO_SIGNUP = False
+SOCIALACCOUNT_AUTO_SIGNUP = True
 
 SOCIALACCOUNT_EMAIL_REQUIRED = True
 
@@ -7571,9 +7942,6 @@ SOCIALACCOUNT_STORE_TOKENS = True
 
 SOCIALACCOUNT_PROVIDERS = {
     "google": {
-        "EMAIL_AUTHENTICATION": True,
-        "EMAIL_AUTHENTICATION_AUTO_CONNECT": True,
-        "VERIFIED_EMAIL": True,
         "SCOPE": [
             "profile",
             "email",
@@ -7591,7 +7959,10 @@ SOCIALACCOUNT_PROVIDERS = {
     }
 }
 
-WHITENOISE_MANIFEST_STRICT = False, 
+# Enable verbose logging for socialaccount flows to aid debugging (prints by adapter)
+SOCIALACCOUNT_LOGGING = True
+
+WHITENOISE_MANIFEST_STRICT = False
 
 # =========================================================
 # CLOUDINARY
@@ -7684,30 +8055,18 @@ LOGGING = {
 from django.shortcuts import render, get_object_or_404, redirect
 from django.core.paginator import Paginator
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth.views import redirect_to_login
 from django.views.decorators.http import require_POST
 from django.http import HttpResponse, JsonResponse
-from django.db.models import Q, Case, When, Value, BooleanField, Exists, OuterRef
-from django.utils.http import url_has_allowed_host_and_scheme
-from django.urls import reverse
+from django.template.loader import render_to_string
+from django.db.models import Q, Case, When, Value, BooleanField
 from django.contrib import messages
-from .models import Rental, Wishlist, PropertyShare, PropertyVisit, PropertyInquiry
+from .models import Rental, PropertyShare, PropertyVisit, PropertyInquiry
+from .models import Wishlist
 from .forms import RentalForm, GalleryFormSet, ProfileSetupForm
+from .decorators import hardware_permission_required
 # =========================================================
 # HELPERS
 # =========================================================
-
-
-def _wants_json(request):
-    accept = (request.headers.get("accept") or "").lower()
-    return (
-        request.headers.get("x-requested-with") == "XMLHttpRequest"
-        or "application/json" in accept
-    )
-
-
-def _is_htmx(request):
-    return (request.headers.get("HX-Request") or "").lower() == "true"
 
 
 def get_client_ip(request):
@@ -7736,10 +8095,6 @@ def rental_list(request):
         .filter(is_available=True)
         .order_by('-created_at')
     )
-
-    wishlisted_ids = set()
-    if user.is_authenticated:
-        wishlisted_ids = set(user.wishlist_items.values_list('rental_id', flat=True))
 
     rentals = rentals.annotate(
         is_owner=Case(
@@ -7780,15 +8135,27 @@ def rental_list(request):
     paginator = Paginator(rentals, 12)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
-    pagination_params = request.GET.copy()
-    pagination_params.pop('page', None)
-    pagination_query = pagination_params.urlencode()
+
+    # Wishlist state for current user (fast lookup)
+    wishlisted_ids = set()
+    if request.user.is_authenticated:
+        try:
+            wishlisted_ids = set(request.user.wishlist_items.values_list('rental_id', flat=True))
+        except Exception:
+            wishlisted_ids = set()
+
+    # Attach boolean attribute on each rental for templates that expect `rental.is_wishlisted`
+    try:
+        for r in page_obj.object_list:
+            setattr(r, 'is_wishlisted', (r.id in wishlisted_ids))
+    except Exception:
+        pass
 
     return render(request, 'rentalList.html', {
         'rentals': page_obj,
         'search_params': request.GET,
         'page_obj': page_obj,
-        'wishlisted_rental_ids': wishlisted_ids,
+        'wishlisted_ids': wishlisted_ids,
     })
 
 
@@ -7802,17 +8169,84 @@ def rental_detail(request, slug):
         slug=slug
     )
 
-    # Determine if the current user has wishlisted this rental
+    # Determine wishlisted state (support both legacy Wishlist and M2M)
     is_wishlisted = False
     if request.user.is_authenticated:
-        is_wishlisted = Wishlist.objects.filter(user_id=request.user.id, rental_id=rental.id).exists()
-
-    # DEBUG: log detail view wishlist state
-    print("[rental_detail] User:", request.user, "Authenticated:", request.user.is_authenticated, "is_wishlisted:", is_wishlisted)
+        try:
+            is_wishlisted = Wishlist.objects.filter(user=request.user, rental=rental).exists()
+        except Exception:
+            # Fallback to M2M if Wishlist table unavailable
+            try:
+                is_wishlisted = rental.wishlisted_by.filter(pk=request.user.pk).exists()
+            except Exception:
+                is_wishlisted = False
 
     return render(request, 'room_describe.html', {
         'rental': rental,
         'is_wishlisted': is_wishlisted,
+    })
+
+
+# =========================================================
+# WISHLIST VIEWS
+# =========================================================
+
+
+@login_required
+@require_POST
+def toggle_wishlist(request, rental_id):
+    from .models import Rental as _Rental
+
+    rental = get_object_or_404(_Rental, pk=rental_id)
+    user = request.user
+
+    # Try legacy Wishlist model first
+    try:
+        obj, created = Wishlist.objects.get_or_create(user=user, rental=rental)
+        if not created:
+            # Already exists -> remove
+            obj.delete()
+            wishlisted = False
+        else:
+            wishlisted = True
+    except Exception:
+        # Fallback to M2M
+        if rental.wishlisted_by.filter(pk=user.pk).exists():
+            rental.wishlisted_by.remove(user)
+            wishlisted = False
+        else:
+            rental.wishlisted_by.add(user)
+            wishlisted = True
+
+    # HTMX response
+    is_htmx = request.headers.get('HX-Request') == 'true'
+    is_boosted = request.headers.get('HX-Boosted') == 'true'
+
+    if is_htmx and not is_boosted:
+        # Render the wishlist fragment (full form) and return HTML for HTMX swap
+        try:
+            html = render_to_string('partials/wishlist_btn.html', {'rental': rental, 'is_wishlisted': wishlisted}, request=request)
+            return HttpResponse(html, content_type='text/html')
+        except Exception:
+            return HttpResponse(status=204)
+
+    if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+        return JsonResponse({'wishlisted': wishlisted, 'rental_id': rental_id, 'wishlist_count': request.user.wishlist_items.count() if hasattr(request.user, 'wishlist_items') else 0})
+
+    return redirect(request.META.get('HTTP_REFERER', '/'))
+
+
+@login_required
+def wishlist(request):
+    # Support legacy Wishlist queryset
+    wishlist_items = Wishlist.objects.filter(user=request.user).select_related('rental').order_by('-created_at')
+    paginator = Paginator(wishlist_items, 12)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+
+    return render(request, 'wishlist.html', {
+        'wishlist': page_obj,
+        'wishlist_count': request.user.wishlist_items.count(),
     })
 
 
@@ -7887,6 +8321,7 @@ def rental_edit(request, slug):
     return render(request, 'rental_form.html', {
         'form': form,
         'formset': formset,
+        'required_hardware': getattr(request, 'required_hardware', []),
     })
 
 # =========================================================
@@ -7903,6 +8338,15 @@ def rental_create(request):
         form = RentalForm(request.POST, request.FILES)
         formset = GalleryFormSet(request.POST, request.FILES, prefix='gallery')
 
+        # Debugging block: Identifies silent validation failures
+        if not (form.is_valid() and formset.is_valid()):
+            import sys
+            print("\n" + "="*40, file=sys.stderr)
+            print("CRITICAL: Rental creation validation failed.", file=sys.stderr)
+            print(f"Form Errors: {form.errors.as_json()}", file=sys.stderr)
+            print(f"Formset Errors: {formset.errors}", file=sys.stderr)
+            print("="*40 + "\n", file=sys.stderr)
+
         if form.is_valid() and formset.is_valid():
             rental = form.save(commit=False)
             rental.user = request.user
@@ -7918,9 +8362,11 @@ def rental_create(request):
         form = RentalForm()
         formset = GalleryFormSet(prefix='gallery')
 
+    # Always render the page. Pass required_hardware to the frontend.
     return render(request, 'rental_form.html', {
         'form': form,
         'formset': formset,
+        'required_hardware': getattr(request, 'required_hardware', []),
     })
 
 
@@ -7987,7 +8433,6 @@ def profile(request):
         'user': request.user,
         'listings': listings,
         'listings_count': listings.count(),
-        'wishlist_count': request.user.wishlist_items.count(),
     })
 
 
@@ -8006,109 +8451,6 @@ def profile_setup(request):
         'form': form,
     })
 
-
-# =========================================================
-# WISHLIST
-# =========================================================
-
-@login_required
-def wishlist(request):
-    # DEBUG: Log wishlist access and current user
-    print("[wishlist_view] User:", request.user)
-    print("[wishlist_view] Authenticated:", request.user.is_authenticated)
-
-    wishlist_items = (
-        request.user.wishlist_items
-        .select_related('rental')
-        .only(
-            'id',
-            'created_at',
-            'rental__id',
-            'rental__slug',
-            'rental__title',
-            'rental__image',
-            'rental__location',
-            'rental__price',
-        )
-        .order_by('-created_at')
-    )
-    paginator = Paginator(wishlist_items, 12)
-    page_obj = paginator.get_page(request.GET.get('page'))
-
-    return render(request, 'wishlist.html', {
-        'wishlist': page_obj,
-        'page_obj': page_obj,
-    })
-
-
-@require_POST
-def toggle_wishlist(request, rental_id):
-    if not request.user.is_authenticated:
-        login_url = reverse("account_login")
-        # Return JSON 401 for both AJAX and HTMX to allow client-side handling
-        if _is_htmx(request) or _wants_json(request):
-            # Note: layout.html JS handles response.status === 401
-            return JsonResponse({"login_url": login_url}, status=401)
-        return redirect_to_login(request.get_full_path(), login_url)
-
-    rental = get_object_or_404(Rental.objects.only("id"), pk=rental_id)
-
-    import logging
-    logger = logging.getLogger(__name__)
-    logger.info(f"Wishlist toggle attempt: User {request.user.id} for Rental {rental_id}")
-
-    # DEBUG: Log basic request and identifiers to help trace wishlist flow
-    print("[wishlist] User:", request.user)
-    print("[wishlist] Authenticated:", request.user.is_authenticated)
-    print("[wishlist] Rental ID (param):", rental_id)
-
-    # DEBUG: Log request headers relevant to AJAX/HTMX/CSRF
-    try:
-        hdrs = {k: v for k, v in request.headers.items() if k.lower().startswith(('x-', 'hx-', 'accept', 'cookie'))}
-        print("[wishlist][HEADERS]", hdrs)
-    except Exception:
-        print("[wishlist][HEADERS] unable to read headers")
-
-    try:
-        obj, created = Wishlist.objects.get_or_create(
-            user_id=request.user.id,
-            rental_id=rental.id
-        )
-    except Exception as e:
-        # Log and return JSON 500 for AJAX callers so frontend can show error
-        print("[wishlist][ERROR] get_or_create failed:", repr(e))
-        if _wants_json(request):
-            return JsonResponse({"ok": False, "error": str(e)}, status=500)
-        messages.error(request, "Unable to update wishlist at this time.")
-        return redirect('rental_list')
-
-    # DEBUG: Log whether a new wishlist record was created or an existing one removed
-    print("[wishlist] Wishlist Created:", created, "Wishlist ID:", getattr(obj, 'id', None))
-
-    if not created:
-        try:
-            obj.delete()
-        except Exception as e:
-            print("[wishlist][ERROR] delete failed:", repr(e))
-            if _wants_json(request):
-                return JsonResponse({"ok": False, "error": str(e)}, status=500)
-            messages.error(request, "Unable to update wishlist at this time.")
-            return redirect('rental_list')
-        wishlisted = False
-    else:
-        wishlisted = True
-
-    if _is_htmx(request):
-        return HttpResponse(status=204) # 204 prevents HTMX from swapping anything if we handle deletion via JS/OOB
-
-    if _wants_json(request):
-        return JsonResponse({
-            "ok": True,
-            "wishlisted": wishlisted,
-            "wishlist_count": request.user.wishlist_items.count()
-        })
-
-    return redirect('rental_list')
 
 
 # =========================================================
