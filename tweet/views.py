@@ -1,30 +1,18 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.core.paginator import Paginator
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth.views import redirect_to_login
 from django.views.decorators.http import require_POST
 from django.http import HttpResponse, JsonResponse
-from django.db.models import Q, Case, When, Value, BooleanField, Exists, OuterRef
-from django.utils.http import url_has_allowed_host_and_scheme
-from django.urls import reverse
+from django.template.loader import render_to_string
+from django.db.models import Q, Case, When, Value, BooleanField
 from django.contrib import messages
-from .models import Rental, Wishlist, PropertyShare, PropertyVisit, PropertyInquiry
+from .models import Rental, PropertyShare, PropertyVisit, PropertyInquiry
+from .models import Wishlist
 from .forms import RentalForm, GalleryFormSet, ProfileSetupForm
+from .decorators import hardware_permission_required
 # =========================================================
 # HELPERS
 # =========================================================
-
-
-def _wants_json(request):
-    accept = (request.headers.get("accept") or "").lower()
-    return (
-        request.headers.get("x-requested-with") == "XMLHttpRequest"
-        or "application/json" in accept
-    )
-
-
-def _is_htmx(request):
-    return (request.headers.get("HX-Request") or "").lower() == "true"
 
 
 def get_client_ip(request):
@@ -53,10 +41,6 @@ def rental_list(request):
         .filter(is_available=True)
         .order_by('-created_at')
     )
-
-    wishlisted_ids = set()
-    if user.is_authenticated:
-        wishlisted_ids = set(user.wishlist_items.values_list('rental_id', flat=True))
 
     rentals = rentals.annotate(
         is_owner=Case(
@@ -97,15 +81,27 @@ def rental_list(request):
     paginator = Paginator(rentals, 12)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
-    pagination_params = request.GET.copy()
-    pagination_params.pop('page', None)
-    pagination_query = pagination_params.urlencode()
+
+    # Wishlist state for current user (fast lookup)
+    wishlisted_ids = set()
+    if request.user.is_authenticated:
+        try:
+            wishlisted_ids = set(request.user.wishlist_items.values_list('rental_id', flat=True))
+        except Exception:
+            wishlisted_ids = set()
+
+    # Attach boolean attribute on each rental for templates that expect `rental.is_wishlisted`
+    try:
+        for r in page_obj.object_list:
+            setattr(r, 'is_wishlisted', (r.id in wishlisted_ids))
+    except Exception:
+        pass
 
     return render(request, 'rentalList.html', {
         'rentals': page_obj,
         'search_params': request.GET,
         'page_obj': page_obj,
-        'wishlisted_rental_ids': wishlisted_ids,
+        'wishlisted_ids': wishlisted_ids,
     })
 
 
@@ -119,17 +115,84 @@ def rental_detail(request, slug):
         slug=slug
     )
 
-    # Determine if the current user has wishlisted this rental
+    # Determine wishlisted state (support both legacy Wishlist and M2M)
     is_wishlisted = False
     if request.user.is_authenticated:
-        is_wishlisted = Wishlist.objects.filter(user_id=request.user.id, rental_id=rental.id).exists()
-
-    # DEBUG: log detail view wishlist state
-    print("[rental_detail] User:", request.user, "Authenticated:", request.user.is_authenticated, "is_wishlisted:", is_wishlisted)
+        try:
+            is_wishlisted = Wishlist.objects.filter(user=request.user, rental=rental).exists()
+        except Exception:
+            # Fallback to M2M if Wishlist table unavailable
+            try:
+                is_wishlisted = rental.wishlisted_by.filter(pk=request.user.pk).exists()
+            except Exception:
+                is_wishlisted = False
 
     return render(request, 'room_describe.html', {
         'rental': rental,
         'is_wishlisted': is_wishlisted,
+    })
+
+
+# =========================================================
+# WISHLIST VIEWS
+# =========================================================
+
+
+@login_required
+@require_POST
+def toggle_wishlist(request, rental_id):
+    from .models import Rental as _Rental
+
+    rental = get_object_or_404(_Rental, pk=rental_id)
+    user = request.user
+
+    # Try legacy Wishlist model first
+    try:
+        obj, created = Wishlist.objects.get_or_create(user=user, rental=rental)
+        if not created:
+            # Already exists -> remove
+            obj.delete()
+            wishlisted = False
+        else:
+            wishlisted = True
+    except Exception:
+        # Fallback to M2M
+        if rental.wishlisted_by.filter(pk=user.pk).exists():
+            rental.wishlisted_by.remove(user)
+            wishlisted = False
+        else:
+            rental.wishlisted_by.add(user)
+            wishlisted = True
+
+    # HTMX response
+    is_htmx = request.headers.get('HX-Request') == 'true'
+    is_boosted = request.headers.get('HX-Boosted') == 'true'
+
+    if is_htmx and not is_boosted:
+        # Render the wishlist fragment (full form) and return HTML for HTMX swap
+        try:
+            html = render_to_string('partials/wishlist_btn.html', {'rental': rental, 'is_wishlisted': wishlisted}, request=request)
+            return HttpResponse(html, content_type='text/html')
+        except Exception:
+            return HttpResponse(status=204)
+
+    if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+        return JsonResponse({'wishlisted': wishlisted, 'rental_id': rental_id, 'wishlist_count': request.user.wishlist_items.count() if hasattr(request.user, 'wishlist_items') else 0})
+
+    return redirect(request.META.get('HTTP_REFERER', '/'))
+
+
+@login_required
+def wishlist(request):
+    # Support legacy Wishlist queryset
+    wishlist_items = Wishlist.objects.filter(user=request.user).select_related('rental').order_by('-created_at')
+    paginator = Paginator(wishlist_items, 12)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+
+    return render(request, 'wishlist.html', {
+        'wishlist': page_obj,
+        'wishlist_count': request.user.wishlist_items.count(),
     })
 
 
@@ -204,6 +267,7 @@ def rental_edit(request, slug):
     return render(request, 'rental_form.html', {
         'form': form,
         'formset': formset,
+        'required_hardware': getattr(request, 'required_hardware', []),
     })
 
 # =========================================================
@@ -220,6 +284,15 @@ def rental_create(request):
         form = RentalForm(request.POST, request.FILES)
         formset = GalleryFormSet(request.POST, request.FILES, prefix='gallery')
 
+        # Debugging block: Identifies silent validation failures
+        if not (form.is_valid() and formset.is_valid()):
+            import sys
+            print("\n" + "="*40, file=sys.stderr)
+            print("CRITICAL: Rental creation validation failed.", file=sys.stderr)
+            print(f"Form Errors: {form.errors.as_json()}", file=sys.stderr)
+            print(f"Formset Errors: {formset.errors}", file=sys.stderr)
+            print("="*40 + "\n", file=sys.stderr)
+
         if form.is_valid() and formset.is_valid():
             rental = form.save(commit=False)
             rental.user = request.user
@@ -235,9 +308,11 @@ def rental_create(request):
         form = RentalForm()
         formset = GalleryFormSet(prefix='gallery')
 
+    # Always render the page. Pass required_hardware to the frontend.
     return render(request, 'rental_form.html', {
         'form': form,
         'formset': formset,
+        'required_hardware': getattr(request, 'required_hardware', []),
     })
 
 
@@ -304,7 +379,6 @@ def profile(request):
         'user': request.user,
         'listings': listings,
         'listings_count': listings.count(),
-        'wishlist_count': request.user.wishlist_items.count(),
     })
 
 
@@ -323,109 +397,6 @@ def profile_setup(request):
         'form': form,
     })
 
-
-# =========================================================
-# WISHLIST
-# =========================================================
-
-@login_required
-def wishlist(request):
-    # DEBUG: Log wishlist access and current user
-    print("[wishlist_view] User:", request.user)
-    print("[wishlist_view] Authenticated:", request.user.is_authenticated)
-
-    wishlist_items = (
-        request.user.wishlist_items
-        .select_related('rental')
-        .only(
-            'id',
-            'created_at',
-            'rental__id',
-            'rental__slug',
-            'rental__title',
-            'rental__image',
-            'rental__location',
-            'rental__price',
-        )
-        .order_by('-created_at')
-    )
-    paginator = Paginator(wishlist_items, 12)
-    page_obj = paginator.get_page(request.GET.get('page'))
-
-    return render(request, 'wishlist.html', {
-        'wishlist': page_obj,
-        'page_obj': page_obj,
-    })
-
-
-@require_POST
-def toggle_wishlist(request, rental_id):
-    if not request.user.is_authenticated:
-        login_url = reverse("account_login")
-        # Return JSON 401 for both AJAX and HTMX to allow client-side handling
-        if _is_htmx(request) or _wants_json(request):
-            # Note: layout.html JS handles response.status === 401
-            return JsonResponse({"login_url": login_url}, status=401)
-        return redirect_to_login(request.get_full_path(), login_url)
-
-    rental = get_object_or_404(Rental.objects.only("id"), pk=rental_id)
-
-    import logging
-    logger = logging.getLogger(__name__)
-    logger.info(f"Wishlist toggle attempt: User {request.user.id} for Rental {rental_id}")
-
-    # DEBUG: Log basic request and identifiers to help trace wishlist flow
-    print("[wishlist] User:", request.user)
-    print("[wishlist] Authenticated:", request.user.is_authenticated)
-    print("[wishlist] Rental ID (param):", rental_id)
-
-    # DEBUG: Log request headers relevant to AJAX/HTMX/CSRF
-    try:
-        hdrs = {k: v for k, v in request.headers.items() if k.lower().startswith(('x-', 'hx-', 'accept', 'cookie'))}
-        print("[wishlist][HEADERS]", hdrs)
-    except Exception:
-        print("[wishlist][HEADERS] unable to read headers")
-
-    try:
-        obj, created = Wishlist.objects.get_or_create(
-            user_id=request.user.id,
-            rental_id=rental.id
-        )
-    except Exception as e:
-        # Log and return JSON 500 for AJAX callers so frontend can show error
-        print("[wishlist][ERROR] get_or_create failed:", repr(e))
-        if _wants_json(request):
-            return JsonResponse({"ok": False, "error": str(e)}, status=500)
-        messages.error(request, "Unable to update wishlist at this time.")
-        return redirect('rental_list')
-
-    # DEBUG: Log whether a new wishlist record was created or an existing one removed
-    print("[wishlist] Wishlist Created:", created, "Wishlist ID:", getattr(obj, 'id', None))
-
-    if not created:
-        try:
-            obj.delete()
-        except Exception as e:
-            print("[wishlist][ERROR] delete failed:", repr(e))
-            if _wants_json(request):
-                return JsonResponse({"ok": False, "error": str(e)}, status=500)
-            messages.error(request, "Unable to update wishlist at this time.")
-            return redirect('rental_list')
-        wishlisted = False
-    else:
-        wishlisted = True
-
-    if _is_htmx(request):
-        return HttpResponse(status=204) # 204 prevents HTMX from swapping anything if we handle deletion via JS/OOB
-
-    if _wants_json(request):
-        return JsonResponse({
-            "ok": True,
-            "wishlisted": wishlisted,
-            "wishlist_count": request.user.wishlist_items.count()
-        })
-
-    return redirect('rental_list')
 
 
 # =========================================================

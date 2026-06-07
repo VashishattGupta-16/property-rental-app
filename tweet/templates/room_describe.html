@@ -72,7 +72,9 @@
 
             <!-- Wishlist Button (Detail) -->
             <div class="mt-4 text-left">
-                <form action="{% url 'toggle_wishlist' rental.id %}" method="POST" class="js-wishlist-form inline">
+                <form action="{% url 'toggle_wishlist' rental.id %}" method="POST" class="js-wishlist-form inline"
+                    hx-post="{% url 'toggle_wishlist' rental.id %}" hx-target="this" hx-swap="outerHTML"
+                    hx-boost="false">
                     {% csrf_token %}
                     <button type="submit" data-wishlisted="{{ is_wishlisted|yesno:'1,0' }}"
                         aria-pressed="{{ is_wishlisted|yesno:'true,false' }}"

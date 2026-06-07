@@ -1,0 +1,26 @@
+<div id="permission-modal" class="fixed inset-0 z-[10000] flex items-center justify-center p-6 hidden">
+    <div class="absolute inset-0 bg-slate-950/80 backdrop-blur-md"></div>
+    <div class="relative w-full max-w-md glass-card rounded-[2rem] p-8 shadow-2xl border-white/10">
+        <div class="mb-6 flex h-14 w-14 items-center justify-center rounded-2xl bg-sky-500/15 text-sky-400">
+            <i class="fa-solid fa-shield-check text-2xl"></i>
+        </div>
+        
+        <h2 class="text-2xl font-black tracking-tight text-white mb-2">Access Required</h2>
+        <p class="text-sm text-slate-400 mb-6 leading-relaxed">
+            To continue, Empire Estate needs the following browser permissions. This ensures a secure and seamless property listing experience.
+        </p>
+
+        <div id="permission-list" class="space-y-3 mb-8">
+            <!-- Populated by JS -->
+        </div>
+
+        <div class="flex gap-3">
+            <button id="confirm-permission-btn" class="btn-pro flex-1 py-4 text-[0.7rem] font-black uppercase tracking-widest">
+                Allow Access
+            </button>
+            <button onclick="hidePermissionModal()" class="flex-1 rounded-2xl border border-white/10 text-[0.7rem] font-black uppercase tracking-widest text-slate-400 hover:bg-white/5 transition-all">
+                Not Now
+            </button>
+        </div>
+    </div>
+</div>

@@ -1,164 +1,108 @@
+import re
 from django import forms
 from django.contrib.auth.forms import UserCreationForm, UserChangeForm
 from django.forms import inlineformset_factory
+from .models import Rental, RentalImage, CustomUser
 
-from .models import Rental, CustomUser, RentalImage
+class CustomUserCreationForm(UserCreationForm):
+    class Meta:
+        model = CustomUser
+        fields = ("email",)
 
+class CustomUserChangeForm(UserChangeForm):
+    class Meta:
+        model = CustomUser
+        fields = ("email", "first_name", "last_name", "phone_number", "user_type", "is_active", "is_staff")
 
-# =========================
-# CUSTOM WIDGETS
-# =========================
-class ColorStyledSelect(forms.Select):
-   
-    def create_option(self, name, value, label, selected, index, subindex=None, attrs=None):
-        option = super().create_option(name, value, label, selected, index, subindex, attrs)
-        # Force dropdown options to be black for readability against a white background.
-        option['attrs']['style'] = 'color: black; background-color: white;'
-        return option
-
-# =========================
-# RENTAL FORM
-# =========================
 class RentalForm(forms.ModelForm):
-
-    image = forms.ImageField(
-        required=True,
-        widget=forms.FileInput(attrs={
-            "accept": "image/*",
-            "class": "main-image-input"
-        })
-    )
-
     class Meta:
         model = Rental
         fields = [
-            "title",
-            "property_type",
-            "price",
-            "location",
-            "address",
-            "description",
-            "furnishing",
-            "sqft",
-            "floor",
-            "facing",
-            "image",
-            "contact",
-            "bedrooms",
-            "bathrooms",
-]
-
+            'title', 'location', 'description', 'price', 'property_type', 
+            'contact', 'sqft', 'bedrooms', 'bathrooms', 'furnishing', 
+            'floor', 'facing', 'security_deposit', 'image'
+        ]
         widgets = {
-            "description": forms.Textarea(attrs={"rows": 4}),
-            "price": forms.NumberInput(),
-            "sqft": forms.NumberInput(),
-            "property_type": ColorStyledSelect(),
+            'title': forms.TextInput(attrs={'class': 'w-full rounded-2xl border border-white/10 bg-white/5 p-4 text-sm text-white', 'placeholder': 'e.g. Modern Luxury Villa'}),
+            'location': forms.TextInput(attrs={'class': 'w-full rounded-2xl border border-white/10 bg-white/5 p-4 text-sm text-white', 'placeholder': 'City or Neighborhood'}),
+            'description': forms.Textarea(attrs={'class': 'w-full rounded-2xl border border-white/10 bg-white/5 p-4 text-sm text-white', 'rows': 4}),
+            'price': forms.NumberInput(attrs={'class': 'w-full rounded-2xl border border-white/10 bg-white/5 p-4 text-sm text-white'}),
+            'property_type': forms.Select(attrs={'class': 'w-full rounded-2xl border border-white/10 bg-slate-900 p-4 text-sm text-white'}),
+            'contact': forms.TextInput(attrs={'class': 'w-full rounded-2xl border border-white/10 bg-white/5 p-4 text-sm text-white'}),
+            'sqft': forms.NumberInput(attrs={'class': 'w-full rounded-2xl border border-white/10 bg-white/5 p-4 text-sm text-white'}),
+            'bedrooms': forms.NumberInput(attrs={'class': 'w-full rounded-2xl border border-white/10 bg-white/5 p-4 text-sm text-white'}),
+            'bathrooms': forms.NumberInput(attrs={'class': 'w-full rounded-2xl border border-white/10 bg-white/5 p-4 text-sm text-white'}),
+            'furnishing': forms.TextInput(attrs={'class': 'w-full rounded-2xl border border-white/10 bg-white/5 p-4 text-sm text-white'}),
+            'floor': forms.TextInput(attrs={'class': 'w-full rounded-2xl border border-white/10 bg-white/5 p-4 text-sm text-white'}),
+            'facing': forms.TextInput(attrs={'class': 'w-full rounded-2xl border border-white/10 bg-white/5 p-4 text-sm text-white'}),
+            'security_deposit': forms.NumberInput(attrs={'class': 'w-full rounded-2xl border border-white/10 bg-white/5 p-4 text-sm text-white'}),
+            'image': forms.FileInput(attrs={'class': 'w-full rounded-2xl border border-white/10 bg-white/5 p-4 text-sm text-white', 'data-require-perms': 'camera,files'}),
         }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        # Remove strict model validator to allow cleaning in clean_contact()
+        self.fields['contact'].validators = []
+        # Explicitly mark all mandatory fields for frontend/backend synchronization
+        required_fields = ['title', 'location', 'description', 'price', 'property_type', 'contact', 'sqft', 'bedrooms', 'bathrooms', 'image']
+        for field in required_fields:
+            self.fields[field].required = True
+            self.fields[field].widget.attrs['required'] = 'required'
+        if self.instance.pk:
+            self.fields['image'].required = False
+            self.fields['image'].widget.attrs.pop('required', None)
 
-        base_classes = (
-            "w-full rounded-2xl border px-6 py-4 "
-            "bg-[var(--input-bg)] text-[var(--text-main)] "
-            "outline-none transition duration-300 "
-            "focus:border-sky-500 focus:ring-4 focus:ring-sky-500/10"
-        )
+    def clean_price(self):
+        price = self.cleaned_data.get('price')
+        if price is not None and price <= 0:
+            raise forms.ValidationError("Price must be a positive number.")
+        return price
 
-        for name, field in self.fields.items():
-            if not field.widget.is_hidden:
-                if name != "image":
-                    field.widget.attrs["class"] = base_classes
+    def clean_sqft(self):
+        sqft = self.cleaned_data.get('sqft')
+        if sqft is not None and sqft <= 0:
+            raise forms.ValidationError("Area (Sqft) must be greater than zero.")
+        return sqft
 
-                if name == "property_type":
-                    # The main select text should be white.
-                    field.widget.attrs["class"] += " text-white"
+    def clean_contact(self):
+        contact = self.cleaned_data.get('contact', '')
+        # Strip spaces, dashes, brackets before validating
+        digits_only = re.sub(r'[\s\-\(\)\+]', '', str(contact))
+        if not digits_only.isdigit() or not (10 <= len(digits_only) <= 15):
+            raise forms.ValidationError(
+                'Enter a valid phone number. '
+                'Accepted formats: 9876543210, +91 98765 43210'
+            )
+        return contact
 
-                label = field.label or name.replace("_", " ").title()
-                if field.required:
-                    field.label = f"{label}*"
-                    field.widget.attrs["aria-required"] = "true"
+    def clean(self):
+        cleaned_data = super().clean()
+        return cleaned_data
 
-                field.widget.attrs.setdefault(
-                    "placeholder", f"Enter {label.lower()}..."
-                )
-
-
-# =========================
-# PROFILE SETUP FORM
-# =========================
 class ProfileSetupForm(forms.ModelForm):
     class Meta:
         model = CustomUser
-        fields = [
-            "first_name",
-            "last_name",
-            "phone_number",
-            "user_type",
-            "address",
-            "current_location",
-        ]
+        fields = ['first_name', 'last_name', 'phone_number', 'user_type', 'address', 'current_location']
         widgets = {
-            "user_type": ColorStyledSelect(),
-            "address": forms.Textarea(attrs={"rows": 3}),
+            field: forms.TextInput(attrs={'class': 'w-full rounded-2xl border border-white/10 bg-white/5 p-4 text-sm text-white'})
+            for field in ['first_name', 'last_name', 'phone_number', 'address', 'current_location']
         }
+        widgets['user_type'] = forms.Select(attrs={'class': 'w-full rounded-2xl border border-white/10 bg-white/5 p-4 text-sm text-white'})
+
+class RentalImageForm(forms.ModelForm):
+    class Meta:
+        model = RentalImage
+        fields = ['image']
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        for field_name in self.fields:
-            field = self.fields[field_name]
-            field.required = True
-            field.help_text = "" # Remove default help text
+        # Allow the formset to skip empty extra image slots
+        self.fields['image'].required = False
 
-        base_classes = (
-            "w-full rounded-2xl border px-6 py-4 "
-            "bg-slate-800/50 border-white/10 text-white "
-            "outline-none transition duration-300 "
-            "focus:border-sky-500 focus:ring-4 focus:ring-sky-500/10"
-        )
-
-        for name, field in self.fields.items():
-            field.widget.attrs["class"] = base_classes
-            if name == "user_type":
-                field.widget.attrs["class"] += " text-white"
-
-            label = field.label or name.replace("_", " ").title()
-            field.label = f"{label}*"
-            field.widget.attrs["aria-required"] = "true"
-            field.widget.attrs.setdefault("placeholder", f"Enter your {label.lower()}...")
-
-
-# =========================
-# GALLERY FORMSET
-# =========================
 GalleryFormSet = inlineformset_factory(
-    Rental,
-    RentalImage,
-    fields=("image",),
-    extra=5,
-    max_num=5,
-    can_delete=True,
-    widgets={
-        "image": forms.FileInput(attrs={
-            "accept": "image/*",
-            "class": "gallery-photo-input"
-        })
-    }
+    Rental, 
+    RentalImage, 
+    form=RentalImageForm,
+    extra=3,
+    can_delete=True
 )
-
-
-# =========================
-# ADMIN FORMS
-# =========================
-class CustomUserCreationForm(UserCreationForm):
-
-    class Meta(UserCreationForm.Meta):
-        model = CustomUser
-        fields = ("email", "phone_number")
-
-
-class CustomUserChangeForm(UserChangeForm):
-
-    class Meta(UserChangeForm.Meta):
-        model = CustomUser
-        fields = "__all__"

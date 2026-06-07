@@ -3,13 +3,6 @@
 
 {% block content %}
 <style>
-    .glass-card {
-        background: rgba(17, 24, 39, 0.7);
-        backdrop-filter: blur(12px);
-        -webkit-backdrop-filter: blur(12px);
-        border: 1px solid rgba(255, 255, 255, 0.1);
-        box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
-    }
     /* Stepper Styles */
     .step-content { display: none; }
     .step-content.active { display: block; animation: fadeIn 0.4s ease-in-out; }
@@ -19,7 +12,7 @@
         to { opacity: 1; transform: translateY(0); }
     }
 
-    .step-indicator.active { color: #3b82f6; border-color: #3b82f6; }
+    .step-indicator.active { color: var(--accent); border-color: var(--accent); }
     .step-indicator.completed { color: #10b981; border-color: #10b981; }
 
     .input-error {
@@ -39,7 +32,7 @@
         <!-- Progress Bar -->
         <div class="flex items-center justify-between relative">
             <div class="absolute h-1 bg-gray-700 w-full top-1/2 -z-10"></div>
-            <div id="progress-line" class="absolute h-1 bg-blue-500 transition-all duration-500 top-1/2 -z-10" style="width: 0%;"></div>
+            <div id="progress-line" class="absolute h-1 bg-[var(--accent)] transition-all duration-500 top-1/2 -z-10" style="width: 0%;"></div>
             
             <div class="step-indicator active w-10 h-10 rounded-full glass-card border-2 flex items-center justify-center font-bold text-white bg-slate-900" data-step="1">1</div>
             <div class="step-indicator w-10 h-10 rounded-full glass-card border-2 flex items-center justify-center font-bold text-white bg-slate-900" data-step="2">2</div>
@@ -52,9 +45,51 @@
         </div>
     </div>
 
-    <form id="multiStepForm" method="post" enctype="multipart/form-data" class="space-y-8">
+    <form id="multiStepForm" method="post" enctype="multipart/form-data" class="space-y-8" novalidate>
         {% csrf_token %}
         {{ formset.management_form }}
+
+        {# Global error banner #}
+        {% if form.errors or formset.errors %}
+        <div data-errors class="mb-6 p-4 rounded-xl border border-red-500/50 bg-red-500/10 glass-card">
+            <div class="flex items-start gap-3">
+                <i class="fa-solid fa-circle-exclamation text-red-500 mt-1 shrink-0"></i>
+                <div>
+                    <p class="text-sm font-black text-red-400 mb-2 uppercase tracking-widest">
+                        Validation errors detected:
+                    </p>
+                    <ul class="list-disc list-inside space-y-1">
+                        {# Form field errors #}
+                        {% for field in form %}
+                            {% for error in field.errors %}
+                                <li class="text-[10px] font-bold text-red-400 uppercase">
+                                    <span class="opacity-60">{{ field.label }}:</span> {{ error }}
+                                </li>
+                            {% endfor %}
+                        {% endfor %}
+
+                        {# Non-field errors #}
+                        {% for error in form.non_field_errors %}
+                            <li class="text-[10px] font-bold text-red-400 uppercase">{{ error }}</li>
+                        {% endfor %}
+
+                        {# Formset errors #}
+                        {% if formset %}
+                            {% for fs_form in formset %}
+                                {% for field in fs_form %}
+                                    {% for error in field.errors %}
+                                        <li class="text-[10px] font-bold text-red-400 uppercase">
+                                            <span class="opacity-60">Image {{ forloop.parentloop.counter }} - {{ field.label }}:</span> {{ error }}
+                                        </li>
+                                    {% endfor %}
+                                {% endfor %}
+                            {% endfor %}
+                        {% endif %}
+                    </ul>
+                </div>
+            </div>
+        </div>
+        {% endif %}
 
         <!-- STEP 1: CORE INFO -->
         <div class="step-content active" id="step1">
@@ -63,27 +98,38 @@
                     <i class="fa-solid fa-house text-blue-500"></i> Primary Information
                 </h2>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <!-- Manually render first few fields or use a loop with if -->
                     <div class="flex flex-col gap-1">
                         <label class="text-gray-400 text-xs font-bold uppercase mb-2">{{ form.title.label }}</label>
-                        <div class="{% if form.title.errors %}input-error{% endif %} contents">{{ form.title }}</div>
-                        {% if form.title.errors %}
-                            <p class="text-red-400 text-[10px] font-bold uppercase tracking-tight">{{ form.title.errors.0 }}</p>
-                        {% endif %}
+                        <div class="contents">{{ form.title }}</div>
+                        <div class="error-container">
+                            {% if form.title.errors %}
+                                <p class="text-red-400 text-[10px] font-bold uppercase tracking-tight mt-1 flex items-center gap-1">
+                                    <i class="fa-solid fa-triangle-exclamation"></i> {{ form.title.errors.0 }}
+                                </p>
+                            {% endif %}
+                        </div>
                     </div>
                     <div class="flex flex-col gap-1">
                         <label class="text-gray-400 text-xs font-bold uppercase mb-2">{{ form.location.label }}</label>
-                        <div class="{% if form.location.errors %}input-error{% endif %} contents">{{ form.location }}</div>
-                        {% if form.location.errors %}
-                            <p class="text-red-400 text-[10px] font-bold uppercase tracking-tight">{{ form.location.errors.0 }}</p>
-                        {% endif %}
+                        <div class="contents">{{ form.location }}</div>
+                        <div class="error-container">
+                            {% if form.location.errors %}
+                                <p class="text-red-400 text-[10px] font-bold uppercase tracking-tight mt-1 flex items-center gap-1">
+                                    <i class="fa-solid fa-triangle-exclamation"></i> {{ form.location.errors.0 }}
+                                </p>
+                            {% endif %}
+                        </div>
                     </div>
                     <div class="flex flex-col md:col-span-2 gap-1">
                         <label class="text-gray-400 text-xs font-bold uppercase mb-2">{{ form.description.label }}</label>
-                        <div class="{% if form.description.errors %}input-error{% endif %} contents">{{ form.description }}</div>
-                        {% if form.description.errors %}
-                            <p class="text-red-400 text-[10px] font-bold uppercase tracking-tight">{{ form.description.errors.0 }}</p>
-                        {% endif %}
+                        <div class="contents">{{ form.description }}</div>
+                        <div class="error-container">
+                            {% if form.description.errors %}
+                                <p class="text-red-400 text-[10px] font-bold uppercase tracking-tight mt-1 flex items-center gap-1">
+                                    <i class="fa-solid fa-triangle-exclamation"></i> {{ form.description.errors.0 }}
+                                </p>
+                            {% endif %}
+                        </div>
                     </div>
                 </div>
             </div>
@@ -98,25 +144,38 @@
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div class="flex flex-col gap-1">
                         <label class="text-gray-400 text-xs font-bold uppercase mb-2">{{ form.price.label }}</label>
-                        <div class="{% if form.price.errors %}input-error{% endif %} contents">{{ form.price }}</div>
-                        {% if form.price.errors %}
-                            <p class="text-red-400 text-[10px] font-bold uppercase tracking-tight">{{ form.price.errors.0 }}</p>
-                        {% endif %}
+                        <div class="contents">{{ form.price }}</div>
+                        <div class="error-container">
+                            {% if form.price.errors %}
+                                <p class="text-red-400 text-[10px] font-bold uppercase tracking-tight mt-1 flex items-center gap-1">
+                                    <i class="fa-solid fa-triangle-exclamation"></i> {{ form.price.errors.0 }}
+                                </p>
+                            {% endif %}
+                        </div>
                     </div>
                     <div class="flex flex-col gap-1">
-                        <label class="text-gray-400 text-xs font-bold uppercase mb-2">{{ form.property_type.label }}</label>
-                        <div class="{% if form.property_type.errors %}input-error{% endif %} contents">{{ form.property_type }}</div>
-                        {% if form.property_type.errors %}
-                            <p class="text-red-400 text-[10px] font-bold uppercase tracking-tight">{{ form.property_type.errors.0 }}</p>
-                        {% endif %}
+                        <label class="text-black text-xs font-bold uppercase mb-2">{{ form.property_type.label }}</label>
+                        <div class="contents">{{ form.property_type }}</div>
+                        <div class="error-container">
+                            {% if form.property_type.errors %}
+                                <p class="text-red-400 text-[10px] font-bold uppercase tracking-tight mt-1 flex items-center gap-1">
+                                    <i class="fa-solid fa-triangle-exclamation"></i> {{ form.property_type.errors.0 }}
+                                </p>
+                            {% endif %}
+                        </div>
                     </div>
-                    <!-- Catch-all for remaining fields in the main form -->
                     {% for field in form %}
                         {% if field.name not in "title location description price property_type" %}
                             <div class="flex flex-col gap-1">
                                 <label class="text-gray-400 text-xs font-bold uppercase mb-2">{{ field.label }}</label>
-                                <div class="{% if field.errors %}input-error{% endif %} contents">{{ field }}</div>
-                                {% if field.errors %}<p class="text-red-400 text-[10px] font-bold uppercase tracking-tight">{{ field.errors.0 }}</p>{% endif %}
+                                <div class="contents">{{ field }}</div>
+                                <div class="error-container">
+                                    {% if field.errors %}
+                                        <p class="text-red-400 text-[10px] font-bold uppercase tracking-tight mt-1 flex items-center gap-1">
+                                            <i class="fa-solid fa-triangle-exclamation"></i> {{ field.errors.0 }}
+                                        </p>
+                                    {% endif %}
+                                </div>
                             </div>
                         {% endif %}
                     {% endfor %}
@@ -130,14 +189,31 @@
                 <h2 class="text-xl font-bold text-white mb-6 flex items-center gap-2">
                     <i class="fa-solid fa-images text-blue-500"></i> Visual Media
                 </h2>
-                <p class="text-gray-500 text-sm mb-6 italic">Upload up to 3 gallery images to make your listing stand out.</p>
+                <p class="text-gray-500 text-sm mb-6 italic">Upload up to 3 additional images to showcase the space.</p>
                 <div class="grid grid-cols-1 gap-4">
+                    {% if formset.non_form_errors %}
+                        <div class="p-4 rounded-xl bg-red-500/10 border border-red-500/30 mb-4 animate-pulse">
+                            {% for error in formset.non_form_errors %}
+                                <p class="text-red-400 text-xs font-bold uppercase tracking-tight">⚠ {{ error }}</p>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+
+                    {% if formset.errors %}
+                        <div class="p-4 rounded-xl bg-red-500/10 border border-red-500/30 mb-4">
+                            {% for errors in formset.errors %}
+                                {% for field, error in errors.items %}<p class="text-red-400 text-[10px] font-black">{{ error }}</p>{% endfor %}
+                            {% endfor %}
+                        </div>
+                    {% endif %}
                     {% for form_img in formset %}
                         <div class="p-4 border border-white/5 rounded-2xl bg-white/5 royal-input">
                             {% for hidden in form_img.hidden_fields %}{{ hidden }}{% endfor %}
                             <div class="flex flex-col gap-1">
                                 {{ form_img.image }}
-                                {% if form_img.image.errors %}<p class="text-red-400 text-[10px] font-bold uppercase tracking-tight">{{ form_img.image.errors.0 }}</p>{% endif %}
+                                <div class="error-container">
+                                    {% if form_img.image.errors %}<p class="text-red-400 text-[10px] font-bold uppercase tracking-tight mt-1 flex items-center gap-1"><i class="fa-solid fa-triangle-exclamation"></i> {{ form_img.image.errors.0 }}</p>{% endif %}
+                                </div>
                             </div>
                         </div>
                     {% endfor %}
@@ -151,10 +227,10 @@
                 Previous
             </button>
             <div class="ml-auto flex gap-4">
-                <button type="button" id="nextBtn" class="px-10 py-4 bg-blue-600 text-white font-black rounded-xl shadow-lg shadow-blue-600/20 hover:bg-blue-500 transition-all">
+                <button type="button" id="nextBtn" class="px-10 py-4 bg-[var(--accent)] text-white font-black rounded-xl shadow-lg hover:opacity-90 transition-all">
                     Next Step
                 </button>
-                <button type="submit" id="submitBtn" class="hidden px-10 py-4 bg-emerald-600 text-white font-black rounded-xl shadow-lg shadow-emerald-600/20 hover:bg-emerald-500 transition-all">
+                <button type="submit" id="submitBtn" class="hidden px-10 py-4 bg-[var(--accent)] text-white font-black rounded-xl shadow-lg hover:opacity-90 transition-all">
                     {% if form.instance.pk %}Update Listing{% else %}Publish Listing{% endif %}
                 </button>
             </div>
@@ -171,6 +247,58 @@
     const prevBtn = document.getElementById('prevBtn');
     const submitBtn = document.getElementById('submitBtn');
     let currentStep = 0;
+
+    function showError(input, message) {
+        const container = input.closest('.flex.flex-col') || input.parentElement;
+        input.classList.add('input-error');
+        
+        let errorContainer = container.querySelector('.error-container');
+        if (!errorContainer) {
+            errorContainer = document.createElement('div');
+            errorContainer.className = 'error-container';
+            container.appendChild(errorContainer);
+        }
+        
+        let errorMsg = errorContainer.querySelector('.js-error-msg');
+        if (!errorMsg) {
+            errorMsg = document.createElement('p');
+            errorMsg.className = 'js-error-msg text-red-400 text-[10px] font-bold uppercase tracking-tight mt-1 flex items-center gap-1';
+            errorContainer.appendChild(errorMsg);
+        }
+        errorMsg.innerHTML = `<i class="fa-solid fa-triangle-exclamation"></i> ${message}`;
+    }
+
+    function clearError(input) {
+        const container = input.closest('.flex.flex-col') || input.parentElement;
+        input.classList.remove('input-error');
+        const errorMsg = container.querySelector('.js-error-msg');
+        if (errorMsg) errorMsg.remove();
+    }
+
+    function validateStep(stepIndex) {
+        const currentStepEl = steps[stepIndex];
+        const inputs = currentStepEl.querySelectorAll('input[required], select[required], textarea[required]');
+        let isValid = true;
+        let firstInvalidEl = null;
+
+        inputs.forEach(input => {
+            const value = input.value.trim();
+            if (!value) {
+                isValid = false;
+                showError(input, 'This field is required');
+                if (!firstInvalidEl) firstInvalidEl = input;
+            } else {
+                clearError(input);
+            }
+        });
+
+        if (!isValid && firstInvalidEl) {
+            firstInvalidEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            firstInvalidEl.focus();
+        }
+
+        return isValid;
+    }
 
     function updateStep() {
         steps.forEach((step, index) => {
@@ -197,10 +325,16 @@
     }
 
     nextBtn.addEventListener('click', () => {
-        if (currentStep < steps.length - 1) {
+        if (validateStep(currentStep)) {
             currentStep++;
             updateStep();
         }
+    });
+
+    form.querySelectorAll('input, select, textarea').forEach(input => {
+        input.addEventListener('input', () => {
+            if (input.value.trim()) clearError(input);
+        });
     });
 
     prevBtn.addEventListener('click', () => {
@@ -210,11 +344,38 @@
         }
     });
 
+    form.addEventListener('submit', (e) => {
+        // Final validation across all steps
+        let allValid = true;
+        for (let i = 0; i < steps.length; i++) {
+            if (!validateStep(i)) {
+                allValid = false;
+                currentStep = i;
+                updateStep();
+                e.preventDefault();
+                break;
+            }
+        }
+    });
+
     // Server-side error handling: find the first field with a Django error and jump to that step
     window.addEventListener('load', () => {
-        const firstServerSideError = document.querySelector('.input-error');
+        // Auto-scroll to error banner if it exists
+        const errorBanner = document.querySelector('[data-errors]');
+        if (errorBanner) {
+            errorBanner.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+
+        // Step management for errors
+        const firstServerSideError = document.querySelector('.error-container p');
         if (firstServerSideError) {
             const targetStep = firstServerSideError.closest('.step-content');
+            // Highlight field with server-side error
+            const container = firstServerSideError.closest('.flex.flex-col');
+            if (container) {
+                const input = container.querySelector('input, select, textarea');
+                if (input) input.classList.add('input-error');
+            }
             if (targetStep) {
                 currentStep = steps.indexOf(targetStep);
                 updateStep();

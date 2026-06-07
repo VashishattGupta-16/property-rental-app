@@ -1,0 +1,24 @@
+1	tweet	customuser
+2	tweet	rental
+3	tweet	rentalimage
+4	admin	logentry
+5	auth	permission
+6	auth	group
+7	contenttypes	contenttype
+8	sessions	session
+9	sites	site
+10	account	emailaddress
+11	account	emailconfirmation
+12	socialaccount	socialaccount
+13	socialaccount	socialapp
+14	socialaccount	socialtoken
+15	jet	bookmark
+16	jet	pinnedapplication
+17	tweet	wishlist
+18	tweet	propertyshare
+19	tweet	propertylead
+20	tweet	propertyinquiry
+21	tweet	propertyvisit
+\.
+
+

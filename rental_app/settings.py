@@ -44,7 +44,7 @@ if not DEBUG and SECRET_KEY == "django-insecure-dev-key":
 PUBLIC_SITE_DOMAIN = normalize_domain(
     os.getenv("DJANGO_SITE_DOMAIN")
     or os.getenv("RENDER_EXTERNAL_HOSTNAME")
-    or ("127.0.0.1:8000" if DEBUG else "rentalpro-web.onrender.com")
+    or ("localhost:8000" if DEBUG else "rentalpro-web.onrender.com")
 )
 
 PUBLIC_SITE_URL = (
@@ -343,7 +343,7 @@ SOCIALACCOUNT_ADAPTER = "tweet.adapters.SocialAccountAdapter"
 SOCIALACCOUNT_QUERY_EMAIL = True
 
 # Setting to False ensures new users see the signup form before account creation
-SOCIALACCOUNT_AUTO_SIGNUP = False
+SOCIALACCOUNT_AUTO_SIGNUP = True
 
 SOCIALACCOUNT_EMAIL_REQUIRED = True
 
@@ -360,9 +360,6 @@ SOCIALACCOUNT_STORE_TOKENS = True
 
 SOCIALACCOUNT_PROVIDERS = {
     "google": {
-        "EMAIL_AUTHENTICATION": True,
-        "EMAIL_AUTHENTICATION_AUTO_CONNECT": True,
-        "VERIFIED_EMAIL": True,
         "SCOPE": [
             "profile",
             "email",
@@ -380,7 +377,10 @@ SOCIALACCOUNT_PROVIDERS = {
     }
 }
 
-WHITENOISE_MANIFEST_STRICT = False, 
+# Enable verbose logging for socialaccount flows to aid debugging (prints by adapter)
+SOCIALACCOUNT_LOGGING = True
+
+WHITENOISE_MANIFEST_STRICT = False
 
 # =========================================================
 # CLOUDINARY

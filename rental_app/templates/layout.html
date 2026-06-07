@@ -9,6 +9,7 @@
 
     <title>{% block title %}Empire Estate | Premium Living{% endblock %}</title>
 
+    <meta name="csrf-token" content="{{ csrf_token }}">
     <!-- PWA Meta -->
     <link rel="manifest" href="{% url 'manifest' %}">
     <meta name="theme-color" content="#0f172a">
@@ -290,6 +291,7 @@
     {% include "nav.html" %}
     {% endif %}
 
+    {% include "permissions_modal.html" %}
 
 
     <!-- Django Messages -->
@@ -390,93 +392,6 @@
         })();
     </script>
 
-    <!-- Wishlist Script -->
-    <script>
-        (function () {
-            function getCookie(name) {
-                const cookieValue = document.cookie
-                    .split(";")
-                    .map(v => v.trim())
-                    .find(v => v.startsWith(name + "="));
-                return cookieValue ? decodeURIComponent(cookieValue.split("=")[1]) : null;
-            }
-
-            function setWishlisted(form, wishlisted) {
-                const button = form.querySelector("button");
-                const icon = form.querySelector("i");
-                const badge = form.closest("[data-rental-card]")?.querySelector("[data-wishlist-badge]");
-
-                if (button) {
-                    button.setAttribute("aria-pressed", wishlisted);
-                    button.setAttribute("aria-label", wishlisted ? "Remove from wishlist" : "Add to wishlist");
-                    button.dataset.wishlisted = wishlisted ? "1" : "0";
-                }
-
-                if (icon) {
-                    icon.classList.toggle("fa-solid", wishlisted);
-                    icon.classList.toggle("fa-regular", !wishlisted);
-                    icon.classList.toggle("text-red-500", wishlisted);
-                }
-
-                if (badge) {
-                    badge.classList.toggle("opacity-0", !wishlisted);
-                    badge.classList.toggle("opacity-100", wishlisted);
-                }
-            }
-
-            async function onWishlistSubmit(e) {
-                const form = e.target;
-                if (!(form instanceof HTMLFormElement)) return;
-                if (!form.classList.contains("js-wishlist-form")) return;
-
-                e.preventDefault();
-
-                const button = form.querySelector("button");
-                if (button) button.disabled = true;
-
-                try {
-                    const csrfToken = getCookie("csrftoken");
-
-                    const headers = {
-                        "X-Requested-With": "XMLHttpRequest",
-                        "Accept": "application/json",
-                        ...(csrfToken && { "X-CSRFToken": csrfToken })
-                    };
-
-                    const resp = await fetch(form.action, {
-                        method: "POST",
-                        body: new FormData(form),
-                        credentials: "same-origin",
-                        headers,
-                    });
-
-                    if (resp.status === 401) {
-                        const data = await resp.json().catch(() => null);
-                        const loginUrl = data?.login_url || "{% url 'account_login' %}";
-                        window.location.href = `${loginUrl}?next=${encodeURIComponent(window.location.href)}`;
-                        return;
-                    }
-
-                    const data = await resp.json().catch(() => null);
-                    if (!data?.ok) return;
-
-                    setWishlisted(form, !!data.wishlisted);
-
-                    if (!data.wishlisted && form.dataset.removeOnUnwish === "1") {
-                        form.closest("[data-rental-card]")?.remove();
-                    }
-
-                } catch (err) {
-                    form.submit();
-                } finally {
-                    if (button) button.disabled = false;
-                }
-            }
-
-            document.addEventListener("submit", onWishlistSubmit, true);
-        })();
-    </script>
-
     <!-- Service Worker -->
     <script>
         if ('serviceWorker' in navigator) {
@@ -488,6 +403,14 @@
         }
     </script>
 
+    <script>
+      document.body.addEventListener('htmx:configRequest', (event) => {
+        event.detail.headers['X-CSRFToken'] =
+          document.querySelector('meta[name="csrf-token"]').content;
+      });
+    </script>
+
+    <script src="{% static 'js/permission_manager.js' %}"></script>
     <div id="page-scripts">
         {% block extra_scripts %}{% endblock %}
     </div>

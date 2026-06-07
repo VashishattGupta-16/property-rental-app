@@ -197,7 +197,9 @@
 
                 <!-- Wishlist Button -->
                 <form action="{% url 'toggle_wishlist' rental.id %}" method="POST"
-                    class="js-wishlist-form absolute top-3 right-3 z-[100]">
+                    class="js-wishlist-form absolute top-3 right-3 z-[100]"
+                    hx-post="{% url 'toggle_wishlist' rental.id %}" hx-target="this" hx-swap="outerHTML"
+                    hx-boost="false">
 
                     {% csrf_token %}
 

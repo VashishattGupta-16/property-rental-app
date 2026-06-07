@@ -15,10 +15,11 @@ urlpatterns = [
 
     path("profile/", views.profile, name="profile"),
     path("profile/setup/", views.profile_setup, name="profile_setup"),
-    path("wishlist/", views.wishlist, name="wishlist"),
-    path("wishlist/toggle/<int:rental_id>/", views.toggle_wishlist, name="toggle_wishlist"),
 
     path("about/", views.about, name="about"),
     path("offline/", views.offline, name="offline"),
     path("ping/", views.ping_view, name="ping"),
+    # Wishlist
+    path("wishlist/", views.wishlist, name="wishlist"),
+    path("wishlist/toggle/<int:rental_id>/", views.toggle_wishlist, name="toggle_wishlist"),
 ]

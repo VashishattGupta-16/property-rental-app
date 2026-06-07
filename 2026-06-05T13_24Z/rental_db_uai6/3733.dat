@@ -1,0 +1,87 @@
+1	Can add user	1	add_customuser
+2	Can change user	1	change_customuser
+3	Can delete user	1	delete_customuser
+4	Can view user	1	view_customuser
+5	Can add rental	2	add_rental
+6	Can change rental	2	change_rental
+7	Can delete rental	2	delete_rental
+8	Can view rental	2	view_rental
+9	Can add rental image	3	add_rentalimage
+10	Can change rental image	3	change_rentalimage
+11	Can delete rental image	3	delete_rentalimage
+12	Can view rental image	3	view_rentalimage
+13	Can add log entry	4	add_logentry
+14	Can change log entry	4	change_logentry
+15	Can delete log entry	4	delete_logentry
+16	Can view log entry	4	view_logentry
+17	Can add permission	5	add_permission
+18	Can change permission	5	change_permission
+19	Can delete permission	5	delete_permission
+20	Can view permission	5	view_permission
+21	Can add group	6	add_group
+22	Can change group	6	change_group
+23	Can delete group	6	delete_group
+24	Can view group	6	view_group
+25	Can add content type	7	add_contenttype
+26	Can change content type	7	change_contenttype
+27	Can delete content type	7	delete_contenttype
+28	Can view content type	7	view_contenttype
+29	Can add session	8	add_session
+30	Can change session	8	change_session
+31	Can delete session	8	delete_session
+32	Can view session	8	view_session
+33	Can add site	9	add_site
+34	Can change site	9	change_site
+35	Can delete site	9	delete_site
+36	Can view site	9	view_site
+37	Can add email address	10	add_emailaddress
+38	Can change email address	10	change_emailaddress
+39	Can delete email address	10	delete_emailaddress
+40	Can view email address	10	view_emailaddress
+41	Can add email confirmation	11	add_emailconfirmation
+42	Can change email confirmation	11	change_emailconfirmation
+43	Can delete email confirmation	11	delete_emailconfirmation
+44	Can view email confirmation	11	view_emailconfirmation
+45	Can add social account	12	add_socialaccount
+46	Can change social account	12	change_socialaccount
+47	Can delete social account	12	delete_socialaccount
+48	Can view social account	12	view_socialaccount
+49	Can add social application	13	add_socialapp
+50	Can change social application	13	change_socialapp
+51	Can delete social application	13	delete_socialapp
+52	Can view social application	13	view_socialapp
+53	Can add social application token	14	add_socialtoken
+54	Can change social application token	14	change_socialtoken
+55	Can delete social application token	14	delete_socialtoken
+56	Can view social application token	14	view_socialtoken
+57	Can add bookmark	15	add_bookmark
+58	Can change bookmark	15	change_bookmark
+59	Can delete bookmark	15	delete_bookmark
+60	Can view bookmark	15	view_bookmark
+61	Can add pinned application	16	add_pinnedapplication
+62	Can change pinned application	16	change_pinnedapplication
+63	Can delete pinned application	16	delete_pinnedapplication
+64	Can view pinned application	16	view_pinnedapplication
+65	Can add wishlist	17	add_wishlist
+66	Can change wishlist	17	change_wishlist
+67	Can delete wishlist	17	delete_wishlist
+68	Can view wishlist	17	view_wishlist
+69	Can add property share	18	add_propertyshare
+70	Can change property share	18	change_propertyshare
+71	Can delete property share	18	delete_propertyshare
+72	Can view property share	18	view_propertyshare
+73	Can add property lead	19	add_propertylead
+74	Can change property lead	19	change_propertylead
+75	Can delete property lead	19	delete_propertylead
+76	Can view property lead	19	view_propertylead
+77	Can add property inquiry	20	add_propertyinquiry
+78	Can change property inquiry	20	change_propertyinquiry
+79	Can delete property inquiry	20	delete_propertyinquiry
+80	Can view property inquiry	20	view_propertyinquiry
+81	Can add property visit	21	add_propertyvisit
+82	Can change property visit	21	change_propertyvisit
+83	Can delete property visit	21	delete_propertyvisit
+84	Can view property visit	21	view_propertyvisit
+\.
+
+

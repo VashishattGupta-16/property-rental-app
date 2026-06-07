@@ -1,4 +1,3 @@
-import uuid
 from django.db import models
 from django.conf import settings
 from django.core.exceptions import ValidationError
@@ -169,6 +168,13 @@ class Rental(models.Model):
     def __str__(self):
         return self.title
 
+    # Wishlist ManyToMany (added by migration 0019)
+    wishlisted_by = models.ManyToManyField(
+        settings.AUTH_USER_MODEL,
+        related_name='wishlisted_rentals',
+        blank=True,
+    )
+
 
 # =========================
 # PROPERTY SHARE
@@ -281,27 +287,25 @@ class RentalImage(models.Model):
     )
 
 
-# =========================
-# WISHLIST
-# =========================
-
 class Wishlist(models.Model):
+    """
+    Legacy Wishlist model (created in migration 0007). Keep for compatibility
+    with existing migrations that reference `Wishlist` and `wishlist_items`.
+    """
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
-        related_name="wishlist_items"
+        related_name='wishlist_items'
     )
-
     rental = models.ForeignKey(
         Rental,
         on_delete=models.CASCADE,
-        related_name="saved_by"
+        related_name='saved_by'
     )
-
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
-        unique_together = ("user", "rental")
+        unique_together = ('user', 'rental')
 
     def __str__(self):
-        return f"{self.user.email} → {self.rental.title}"
+        return f"Wishlist: {self.user_id} -> {self.rental_id}"
