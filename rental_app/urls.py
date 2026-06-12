@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.urls import path, include
 from django.views.generic import TemplateView
-from django.views.generic import RedirectView
+from django.conf import settings
 from django.conf.urls.static import static
 from django.views.decorators.cache import cache_page
 from django.conf import settings
@@ -16,12 +16,6 @@ service_worker_view = cache_page(60)(
 )
 
 urlpatterns = [
-    path('favicon.ico', RedirectView.as_view(url='/static/images/icon-192x192.png', permanent=True)),
-    path('.well-known/assetlinks.json', TemplateView.as_view(
-        template_name='assetlinks.json',
-        content_type='application/json'
-    ), name='assetlinks'),
-
     # PWA
     path(
         "manifest.json",

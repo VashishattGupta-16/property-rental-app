@@ -323,7 +323,7 @@ REST_FRAMEWORK = {
 
 ACCOUNT_AUTHENTICATION_METHOD = "email"
 
-ACCOUNT_DEFAULT_HTTP_PROTOCOL = "https"
+ACCOUNT_DEFAULT_HTTP_PROTOCOL = "http" if DEBUG else "https"
 
 ACCOUNT_EMAIL_REQUIRED = True
 
@@ -376,6 +376,8 @@ SOCIALACCOUNT_PROVIDERS = {
         "AUTH_PARAMS": {
             "access_type": "online",
         },
+        # PKCE is a security enhancement, but not strictly required for web server flows.
+        # Keeping it False is fine if your current setup expects it.
         "OAUTH_PKCE_ENABLED": False,
     }
 }
