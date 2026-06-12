@@ -128,7 +128,7 @@ INSTALLED_APPS = [
     "django.contrib.humanize",
     "django.contrib.sites",
     "django.contrib.postgres",
-    # "debug_toolbar",
+    # "debug_toolbar",  # Keep commented out for production
 
     # Third Party Apps
     "cloudinary",
@@ -159,7 +159,7 @@ JAZZMIN_SETTINGS = {
 # =========================================================
 
 MIDDLEWARE = [
-    # "debug_toolbar.middleware.DebugToolbarMiddleware",
+    # "debug_toolbar.middleware.DebugToolbarMiddleware", # Keep commented out for production
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "corsheaders.middleware.CorsMiddleware",
@@ -173,9 +173,9 @@ MIDDLEWARE = [
     "tweet.middleware.ProfileCompletionMiddleware",
 ]
 
-# INTERNAL_IPS = [
-#     "127.0.0.1",
-# ]
+INTERNAL_IPS = [
+    "127.0.0.1",
+]
 
 # =========================================================
 # URLS & WSGI
@@ -471,9 +471,9 @@ LOGGING = {
 # DEBUG TOOLBAR
 # =========================================================
 
-# DEBUG_TOOLBAR_CONFIG = {
-#     "SHOW_TOOLBAR_CALLBACK": lambda request: True,
-#     "DISABLE_PANELS": {
-#         "debug_toolbar.panels.profiling.ProfilingPanel",
-#     },
-# }
+DEBUG_TOOLBAR_CONFIG = {
+    "SHOW_TOOLBAR_CALLBACK": lambda request: True,
+    "DISABLE_PANELS": {
+        "debug_toolbar.panels.profiling.ProfilingPanel",
+    },
+}
