@@ -6,6 +6,7 @@ from django.views.decorators.http import require_POST
 from django.http import HttpResponse, JsonResponse
 from django.template.loader import render_to_string
 from django.db.models import Q, Case, When, Value, BooleanField
+from django.utils import timezone
 from django.contrib import messages
 from .models import Rental, PropertyShare, PropertyVisit, PropertyInquiry
 from .models import Wishlist
@@ -75,6 +76,28 @@ def rental_list(request):
             rentals = rentals.filter(price__lte=float(max_price))
         except ValueError:
             pass
+
+    # Bedroom filter
+    bedrooms = request.GET.get('bedrooms', '').strip()
+    if bedrooms:
+        try:
+            rentals = rentals.filter(bedrooms=int(bedrooms))
+        except ValueError:
+            pass
+
+    # Furnishing filter
+    furnishing = request.GET.get('furnishing', '').strip()
+    if furnishing:
+        rentals = rentals.filter(furnishing__icontains=furnishing)
+
+    # Sort filter
+    sort = request.GET.get('sort', '').strip()
+    if sort == 'price_asc':
+        rentals = rentals.order_by('price')
+    elif sort == 'price_desc':
+        rentals = rentals.order_by('-price')
+    elif sort == 'newest':
+        rentals = rentals.order_by('-created_at')
 
     if owner_query == 'me' and request.user.is_authenticated:
         rentals = rentals.filter(user=request.user)
@@ -190,6 +213,19 @@ def wishlist(request):
     return render(request, 'wishlist.html', {
         'wishlist': page_obj,
     })
+
+
+@login_required
+@require_POST
+def accept_terms(request):
+    """
+    API endpoint to record user's acceptance of the Terms & Conditions.
+    """
+    user = request.user
+    if not getattr(user, 'terms_accepted_at', None):
+        user.terms_accepted_at = timezone.now()
+        user.save(update_fields=['terms_accepted_at'])
+    return JsonResponse({'success': True})
 
 
 # =========================================================

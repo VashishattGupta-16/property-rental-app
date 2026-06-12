@@ -90,29 +90,75 @@
 
             <!-- SEARCH BAR -->
             <div class="relative max-w-2xl">
-
                 <form action="{% url 'rental_list' %}" method="GET"
                     class="flex items-center gap-2 p-2 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-xl shadow-2xl">
-
+            
                     <div class="flex items-center gap-3 flex-1 px-4">
-
                         <i class="fa-solid fa-location-dot text-blue-500"></i>
-
-                        <input type="text" name="q" placeholder="Search by city, locality, or property type..."
+                        <input type="text" name="q" value="{{ request.GET.q }}"
+                            placeholder="Search by city, locality, or property type..."
                             class="w-full bg-transparent outline-none border-none text-white placeholder:text-slate-500 text-sm sm:text-base">
-
                     </div>
-
+            
                     <button type="submit"
                         class="px-5 sm:px-7 py-3 rounded-xl bg-blue-600 hover:bg-blue-500 transition-all duration-300 text-white font-bold shadow-lg shadow-blue-500/20">
-
                         Search
-
                     </button>
-
+            
                 </form>
-
             </div>
+            
+            <!-- FILTERS ROW (separate from search) -->
+            <form action="{% url 'rental_list' %}" method="GET" class="flex flex-wrap items-center gap-3 mt-4">
+            
+                {% if request.GET.q %}
+                <input type="hidden" name="q" value="{{ request.GET.q }}">
+                {% endif %}
+            
+                {% if request.GET.type %}
+                <input type="hidden" name="type" value="{{ request.GET.type }}">
+                {% endif %}
+            
+                <div class="flex items-center gap-2 px-3 py-2 rounded-xl bg-white/5 border border-white/10">
+                    <i class="fa-solid fa-filter text-blue-500 text-xs"></i>
+                    <span class="text-white text-xs font-bold uppercase tracking-widest">Filters</span>
+                </div>
+            
+                <select name="bedrooms"
+                    onchange="this.form.submit()"
+                    class="bg-slate-900 border border-white/10 text-white text-xs rounded-xl px-3 py-2 outline-none cursor-pointer hover:border-blue-500/50 transition-all">
+                    <option value="">Any Bedrooms</option>
+                    <option value="1" {% if request.GET.bedrooms == '1' %}selected{% endif %}>1 Bedroom</option>
+                    <option value="2" {% if request.GET.bedrooms == '2' %}selected{% endif %}>2 Bedrooms</option>
+                    <option value="3" {% if request.GET.bedrooms == '3' %}selected{% endif %}>3 Bedrooms</option>
+                    <option value="4" {% if request.GET.bedrooms == '4' %}selected{% endif %}>4+ Bedrooms</option>
+                </select>
+            
+                <select name="furnishing"
+                    onchange="this.form.submit()"
+                    class="bg-slate-900 border border-white/10 text-white text-xs rounded-xl px-3 py-2 outline-none cursor-pointer hover:border-blue-500/50 transition-all">
+                    <option value="">Any Furnishing</option>
+                    <option value="furnished" {% if request.GET.furnishing == 'furnished' %}selected{% endif %}>Furnished</option>
+                    <option value="unfurnished" {% if request.GET.furnishing == 'unfurnished' %}selected{% endif %}>Unfurnished</option>
+                    <option value="semi" {% if request.GET.furnishing == 'semi' %}selected{% endif %}>Semi Furnished</option>
+                </select>
+            
+                <select name="sort"
+                    onchange="this.form.submit()"
+                    class="bg-slate-900 border border-white/10 text-white text-xs rounded-xl px-3 py-2 outline-none cursor-pointer hover:border-blue-500/50 transition-all">
+                    <option value="newest" {% if request.GET.sort == 'newest' or not request.GET.sort %}selected{% endif %}>Newest First</option>
+                    <option value="price_asc" {% if request.GET.sort == 'price_asc' %}selected{% endif %}>Price: Low to High</option>
+                    <option value="price_desc" {% if request.GET.sort == 'price_desc' %}selected{% endif %}>Price: High to Low</option>
+                </select>
+            
+                {% if request.GET.bedrooms or request.GET.furnishing or request.GET.sort %}
+                <a href="{% url 'rental_list' %}{% if request.GET.q %}?q={{ request.GET.q }}{% endif %}"
+                    class="px-3 py-2 rounded-xl bg-red-500/20 border border-red-500/30 text-red-300 text-xs font-bold hover:bg-red-500/40 transition-all">
+                    <i class="fa-solid fa-xmark mr-1"></i> Clear Filters
+                </a>
+                {% endif %}
+            
+            </form>
 
         </div>
 
@@ -293,6 +339,43 @@
         {% endfor %}
 
     </div>
+
+    <!-- PAGINATION -->
+    {% if page_obj.has_other_pages %}
+    <div class="flex items-center justify-center gap-2 mt-10 mb-4">
+
+        {% if page_obj.has_previous %}
+        <a href="?{% if request.GET.q %}q={{ request.GET.q }}&{% endif %}{% if request.GET.type %}type={{ request.GET.type }}&{% endif %}{% if request.GET.max_price %}max_price={{ request.GET.max_price }}&{% endif %}{% if request.GET.bedrooms %}bedrooms={{ request.GET.bedrooms }}&{% endif %}{% if request.GET.furnishing %}furnishing={{ request.GET.furnishing }}&{% endif %}{% if request.GET.sort %}sort={{ request.GET.sort }}&{% endif %}page={{ page_obj.previous_page_number }}"
+            class="px-4 py-2 rounded-xl bg-white/5 border border-white/10 text-white text-xs font-bold hover:bg-blue-600 transition-all">
+            ← Previous
+        </a>
+        {% endif %}
+
+        {% for num in page_obj.paginator.page_range %}
+            {% if page_obj.number == num %}
+            <span class="px-4 py-2 rounded-xl bg-blue-600 text-white text-xs font-bold">
+                {{ num }}
+            </span>
+            {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+            <a href="?{% if request.GET.q %}q={{ request.GET.q }}&{% endif %}{% if request.GET.type %}type={{ request.GET.type }}&{% endif %}{% if request.GET.max_price %}max_price={{ request.GET.max_price }}&{% endif %}{% if request.GET.bedrooms %}bedrooms={{ request.GET.bedrooms }}&{% endif %}{% if request.GET.furnishing %}furnishing={{ request.GET.furnishing }}&{% endif %}{% if request.GET.sort %}sort={{ request.GET.sort }}&{% endif %}page={{ num }}"
+                class="px-4 py-2 rounded-xl bg-white/5 border border-white/10 text-white text-xs font-bold hover:bg-blue-600 transition-all">
+                {{ num }}
+            </a>
+            {% endif %}
+        {% endfor %}
+
+        {% if page_obj.has_next %}
+        <a href="?{% if request.GET.q %}q={{ request.GET.q }}&{% endif %}{% if request.GET.type %}type={{ request.GET.type }}&{% endif %}{% if request.GET.max_price %}max_price={{ request.GET.max_price }}&{% endif %}{% if request.GET.bedrooms %}bedrooms={{ request.GET.bedrooms }}&{% endif %}{% if request.GET.furnishing %}furnishing={{ request.GET.furnishing }}&{% endif %}{% if request.GET.sort %}sort={{ request.GET.sort }}&{% endif %}page={{ page_obj.next_page_number }}"
+            class="px-4 py-2 rounded-xl bg-white/5 border border-white/10 text-white text-xs font-bold hover:bg-blue-600 transition-all">
+            Next →
+        </a>
+        {% endif %}
+
+    </div>
+    <p class="text-center text-slate-500 text-xs mb-8">
+        Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }} — {{ page_obj.paginator.count }} listings
+    </p>
+    {% endif %}
 
 </section>
 

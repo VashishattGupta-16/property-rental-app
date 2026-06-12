@@ -1,6 +1,5 @@
 from django.urls import path, include
-# from django.conf import settings
-# import debug_toolbar
+from django.conf import settings
 from . import views
 
 urlpatterns = [
@@ -20,7 +19,9 @@ urlpatterns = [
     path("ping/", views.ping_view, name="ping"),
     path("wishlist/", views.wishlist, name="wishlist"),
     path("wishlist/toggle/<int:rental_id>/", views.toggle_wishlist, name="toggle_wishlist"),
+    path("terms/accept/", views.accept_terms, name="accept_terms"),
 ]
 
 # if settings.DEBUG:
-#     urlpatterns += [path("__debug__/", include(debug_toolbar.urls))]
+#     # The debug_toolbar is conditionally included based on the DEBUG setting.
+#     urlpatterns += [path("__debug__/", include("debug_toolbar.urls"))]

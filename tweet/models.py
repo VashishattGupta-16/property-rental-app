@@ -75,6 +75,8 @@ class CustomUser(AbstractUser):
     address = models.TextField(blank=True, null=True)
     current_location = models.CharField(max_length=255, blank=True, null=True)
 
+    terms_accepted_at = models.DateTimeField(blank=True, null=True)
+
     objects = CustomUserManager()
 
     USERNAME_FIELD = "email"

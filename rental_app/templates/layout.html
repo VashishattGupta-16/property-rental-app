@@ -414,6 +414,10 @@
         {% block extra_scripts %}{% endblock %}
     </div>
 
+    {% if show_terms_modal %}
+        {% include "terms_modal.html" %}
+    {% endif %}
+
 </body>
 
 </html>

@@ -1,0 +1,148 @@
+<div id="terms-modal" class="fixed inset-0 z-[10000] flex items-center justify-center p-4 sm:p-6">
+
+    <!-- OVERLAY -->
+    <div class="absolute inset-0 bg-slate-950/80 backdrop-blur-md"></div>
+
+    <!-- MODAL PANEL -->
+    <div class="relative w-full max-w-3xl glass-card rounded-[2rem] border-white/10 shadow-2xl flex flex-col max-h-[90vh]">
+
+        <!-- HEADER -->
+        <div class="p-6 sm:p-8 border-b border-white/10">
+            <h2 class="text-xl sm:text-2xl font-black text-white">Terms & Conditions</h2>
+            <p class="text-sm text-slate-400 mt-1">Please review and accept our terms to continue.</p>
+        </div>
+
+        <!-- SCROLLABLE CONTENT -->
+        <div class="p-6 sm:p-8 flex-1 overflow-y-auto space-y-6 text-sm text-slate-300 leading-relaxed">
+            
+            <div class="space-y-2">
+                <h3 class="font-bold text-white">1. User Responsibilities</h3>
+                <p>You agree to provide accurate and current information when creating an account and listing properties. You are responsible for all activity that occurs under your account. Misrepresentation of property details, including photos and amenities, is strictly prohibited.</p>
+            </div>
+
+            <div class="space-y-2">
+                <h3 class="font-bold text-white">2. Property Listing Rules</h3>
+                <p>All listings must be for real, available properties. You must have the legal right to rent the property you are listing. Listings containing fraudulent, misleading, or illegal content will be removed, and your account may be suspended.</p>
+            </div>
+
+            <div class="space-y-2">
+                <h3 class="font-bold text-white">3. Privacy Policy</h3>
+                <p>We collect personal information such as your name, email, and phone number to facilitate communication between property listers and seekers. We do not sell your personal data to third parties. By using our service, you consent to the collection and use of your information as described.</p>
+            </div>
+
+            <div class="space-y-2">
+                <h3 class="font-bold text-white">4. Prohibited Conduct</h3>
+                <p>You may not use the platform to engage in any unlawful activity, harass other users, or post discriminatory content. We reserve the right to terminate accounts that violate these terms.</p>
+            </div>
+
+        </div>
+
+        <!-- FOOTER / ACTIONS -->
+        <div class="p-6 sm:p-8 border-t border-white/10 bg-slate-900/50 rounded-b-[2rem]">
+            
+            <div class="flex items-center mb-4">
+                <input id="terms-checkbox" type="checkbox" class="w-4 h-4 rounded border-gray-600 bg-gray-700 text-blue-600 focus:ring-blue-600">
+                <label for="terms-checkbox" class="ml-3 text-sm font-medium text-slate-300">I have read and agree to the Terms & Conditions.</label>
+            </div>
+
+            <div class="flex flex-col sm:flex-row gap-3">
+                <button id="accept-terms-btn" disabled
+                    class="flex-1 px-6 py-4 text-sm font-bold text-white rounded-xl transition-all disabled:opacity-40 disabled:cursor-not-allowed bg-blue-600 hover:bg-blue-500 disabled:bg-slate-700">
+                    Accept & Continue
+                </button>
+                <button id="decline-terms-btn"
+                    class="flex-1 px-6 py-4 text-sm font-bold text-slate-300 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10">
+                    Decline
+                </button>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<script>
+    (function() {
+        const modal = document.getElementById('terms-modal');
+        if (!modal) return;
+
+        const checkbox = document.getElementById('terms-checkbox');
+        const acceptBtn = document.getElementById('accept-terms-btn');
+        const declineBtn = document.getElementById('decline-terms-btn');
+        const csrfToken = document.querySelector('meta[name="csrf-token"]').content;
+
+        /**
+         * Toggles the disabled state of the 'Accept' button based on
+         * whether the checkbox is checked.
+         */
+        function toggleAcceptButtonState() {
+            acceptBtn.disabled = !checkbox.checked;
+        }
+
+        /**
+         * Handles the 'Accept' button click. Sends a POST request to the server
+         * to record the user's acceptance.
+         */
+        async function handleAccept() {
+            acceptBtn.disabled = true;
+            acceptBtn.textContent = 'Saving...';
+
+            try {
+                const response = await fetch("{% url 'accept_terms' %}", {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRFToken': csrfToken,
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({})
+                });
+
+                if (response.ok) {
+                    // Success: hide the modal.
+                    modal.style.display = 'none';
+                } else {
+                    // Server error: show an alert and re-enable the button.
+                    alert('Could not save your acceptance. Please try again.');
+                    acceptBtn.textContent = 'Accept & Continue';
+                    toggleAcceptButtonState();
+                }
+            } catch (error) {
+                // Network error
+                console.error('Terms acceptance request failed:', error);
+                alert('A network error occurred. Please check your connection and try again.');
+                acceptBtn.textContent = 'Accept & Continue';
+                toggleAcceptButtonState();
+            }
+        }
+
+        /**
+         * Handles the 'Decline' button click. Redirects the user to the homepage.
+         */
+        function handleDecline() {
+            window.location.href = "{% url 'index' %}";
+        }
+
+        // Initial state setup
+        toggleAcceptButtonState();
+
+        // Event Listeners
+        checkbox.addEventListener('change', toggleAcceptButtonState);
+        acceptBtn.addEventListener('click', handleAccept);
+        declineBtn.addEventListener('click', handleDecline);
+
+    })();
+</script>
+
+<style>
+    /* Ensure the modal is visible by default when included */
+    #terms-modal {
+        display: flex;
+    }
+    /* Simple fade-in animation for the modal */
+    @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+    }
+    #terms-modal > .relative {
+        animation: fadeIn 0.3s ease-out;
+    }
+</style>
