@@ -262,15 +262,10 @@ if os.getenv("REDIS_URL"):
         }
     }
 else:
-    # PERFORMANCE FIX: Use in-memory cache for sessions in dev.
-    # This eliminates the session SELECT + UPDATE queries on every request
-    # which were costing ~700ms combined (2 x ~350ms remote DB round trips).
-    CACHES = {
-        "default": {
-            "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
-            "LOCATION": "unique-snowflake",
-        }
-    }
+    # CRITICAL: LocMemCache is NOT suitable for production environments
+    # with multiple processes (like Render's web services).
+    # This will raise an error on startup if REDIS_URL is not set in production.
+    raise ValueError("REDIS_URL environment variable must be set in production for session caching.")
 
 # =========================================================
 # CORS
