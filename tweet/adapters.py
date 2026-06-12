@@ -74,6 +74,11 @@ class SocialAccountAdapter(DefaultSocialAccountAdapter):
             f"OAuth Code Present: {'code' in request.GET}",
             f"State Param: {request.GET.get('state', 'MISSING')}",
             "--------------------------------------------------------------------------------",
+            "SESSION & COOKIE DUMP",
+            f"Session Key: {request.session.session_key}",
+            f"Session Data: {dict(request.session)}",
+            f"Cookies: {dict(request.COOKIES)}",
+            "--------------------------------------------------------------------------------",
         ]
         
         if extra_context and 'sociallogin' in extra_context:

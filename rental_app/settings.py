@@ -79,9 +79,9 @@ CSRF_TRUSTED_ORIGINS = [
 # SESSION & COOKIE SETTINGS
 # =========================================================
 
-# Use cache-backed sessions — much faster than DB sessions
-# Falls back to DB if no cache is configured
-SESSION_ENGINE = "django.contrib.sessions.backends.cache"
+# CRITICAL FIX: Use cached_db to ensure session state persists across 
+# multiple Gunicorn workers. Pure cache with LocMemCache destroys OAuth state.
+SESSION_ENGINE = "django.contrib.sessions.backends.cached_db"
 SESSION_CACHE_ALIAS = "default"
 
 # Only save session when it actually changes — eliminates unnecessary DB writes

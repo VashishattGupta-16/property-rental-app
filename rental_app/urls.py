@@ -27,6 +27,9 @@ urlpatterns = [
         service_worker_view,
         name="service_worker",
     ),
+    path(".well-known/assetlinks.json", TemplateView.as_view(
+        template_name="assetlinks.json", content_type="application/json"
+    ), name="assetlinks"),
 
     path("admin/", admin.site.urls),
     path("accounts/", include("allauth.urls")),
