@@ -26,6 +26,7 @@ const BYPASS_PREFIXES = [
   "/terms/accept/", // Terms acceptance
   "/rentals/create/", // Property creation form
   "/rentals/edit/",   // Property edit form
+  "/profile/",      // User profile pages
 ];
 
 // ─── 3. FILE EXTENSIONS THAT SHOULD NEVER BE CACHED ──────────
