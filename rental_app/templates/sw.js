@@ -24,6 +24,8 @@ const BYPASS_PREFIXES = [
   "/api/",          // REST API endpoints
   "/wishlist/",     // Wishlist toggle actions
   "/terms/accept/", // Terms acceptance
+  "/rentals/create/", // Property creation form
+  "/rentals/edit/",   // Property edit form
 ];
 
 // ─── 3. FILE EXTENSIONS THAT SHOULD NEVER BE CACHED ──────────

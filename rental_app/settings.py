@@ -463,6 +463,18 @@ LOGGING = {
             "filters": ["ignore_uptimerobot"],
         },
     },
+    "loggers": {
+        "allauth": {
+            "handlers": ["console"],
+            "level": "DEBUG",
+            "propagate": False,
+        },
+        "django": {
+            "handlers": ["console"],
+            "level": os.getenv("DJANGO_LOG_LEVEL", "INFO"),
+            "propagate": False,
+        },
+    },
     "root": {
         "handlers": ["console"],
         "level": "INFO",
