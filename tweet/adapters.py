@@ -1,63 +1,45 @@
 import logging
 import traceback
 from allauth.socialaccount.adapter import DefaultSocialAccountAdapter
-from allauth.exceptions import ImmediateHttpResponse # Keep for potential future use
-from django.shortcuts import redirect # Keep for potential future use
-from django.urls import reverse # Keep for potential future use
+from allauth.exceptions import ImmediateHttpResponse
+from django.http import HttpResponseRedirect
+from django.conf import settings
 
 logger = logging.getLogger(__name__)
 
 class SocialAccountAdapter(DefaultSocialAccountAdapter):
     def pre_social_login(self, request, sociallogin):
-        """
-        Invoked just after a user successfully authenticates with a
-        social provider, but before the login is actually processed.
-        This is the ideal place to inspect data or interrupt the login.
-        """
         try:
             email = sociallogin.account.extra_data.get('email')
             logger.debug(f"[Adapter.pre_social_login] Processing sociallogin for email: {email}")
-            logger.debug(f"[Adapter.pre_social_login] Provider: {sociallogin.account.provider}, UID: {sociallogin.account.uid}")
-            logger.debug(f"[Adapter.pre_social_login] Extra data: {sociallogin.account.extra_data}")
-            # You could add logic here to prevent certain users from logging in.
-            # For example:
-            # if not email.endswith('@example.com'):
-            #     logger.warning(f"Blocking non-example.com email: {email}")
-            #     raise ImmediateHttpResponse(redirect(reverse('account_login')))
         except Exception as e:
             logger.error(f"[Adapter.pre_social_login] Unhandled error: {e}", exc_info=True)
-            # Re-raise to ensure allauth's error handling is triggered.
             raise
 
     def save_user(self, request, sociallogin, form=None):
-        """
-        Saves a user instance to the database. This is a critical point for debugging
-        OAuth issues, as it's where user data from the social provider is finalized.
-        """
-        # Add logging for existing user lookup
-        if sociallogin.is_existing:
-            logger.debug(f"[Adapter.save_user] Existing user found: {sociallogin.user.email} (PK: {sociallogin.user.pk})")
-        else:
-            logger.debug("[Adapter.save_user] New user creation path.")
-
         try:
-            logger.debug("[Adapter.save_user] Starting user save process...")
-            # The super() call handles the logic of creating or finding the user.
             user = super().save_user(request, sociallogin, form)
             logger.info(f"[Adapter.save_user] User {user.email} (PK: {user.pk}) processed successfully.")
             return user
         except Exception as e:
-            # This block catches any error during the user creation/update process.
-            # Re-raising the exception is better than returning None, as it gives a clear
-            # traceback in the logs and triggers the on_authentication_error handler.
             logger.error(f"[Adapter.save_user] CRITICAL ERROR during save_user: {e}", exc_info=True)
             raise
 
     def on_authentication_error(self, request, provider, error=None, exception=None, extra_context=None):
-        """
-        This method is called when an error occurs during the authentication process.
-        We add detailed logging here to capture the exact reason for the failure.
-        """
+        # ---------------------------------------------------------------------
+        # EXACT FIX: Android PWA Double-Callback Workaround
+        # ---------------------------------------------------------------------
+        # Android Chrome hits the OAuth callback TWICE when transitioning
+        # from a Custom Tab back to an installed WebAPK/PWA.
+        # Request 1: Succeeds, logs user in, returns 302.
+        # Request 2: Fails (OAuth code used), triggers this error handler.
+        # If the user is already authenticated, Request 1 succeeded. 
+        # We ignore the error and force redirect them to the success page!
+        if request.user.is_authenticated:
+            logger.info(f"[Adapter.on_authentication_error] User {request.user.email} is already authenticated! "
+                        f"Bypassing PWA double-callback error and redirecting to success.")
+            raise ImmediateHttpResponse(HttpResponseRedirect(settings.LOGIN_REDIRECT_URL))
+
         # Log the full traceback and actual exception class/message
         error_msg = f"Authentication error with provider '{provider.name}'. Error: {error}"
         if exception:
@@ -65,11 +47,4 @@ class SocialAccountAdapter(DefaultSocialAccountAdapter):
         
         logger.error(f"[Adapter.on_authentication_error] {error_msg}", exc_info=True)
         
-        # Log sociallogin details if available for deeper debugging
-        if extra_context and 'sociallogin' in extra_context:
-            sociallogin = extra_context['sociallogin']
-            logger.error(f"[Adapter.on_authentication_error] Sociallogin email: {getattr(sociallogin.user, 'email', 'N/A')}")
-            logger.error(f"[Adapter.on_authentication_error] Sociallogin UID: {getattr(sociallogin.account, 'uid', 'N/A')}")
-            logger.error(f"[Adapter.on_authentication_error] Sociallogin extra_data: {getattr(sociallogin.account, 'extra_data', 'N/A')}")
-
         super().on_authentication_error(request, provider, error, exception, extra_context)
