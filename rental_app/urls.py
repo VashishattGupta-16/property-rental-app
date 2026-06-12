@@ -6,6 +6,7 @@ from django.conf.urls.static import static
 from django.views.decorators.cache import cache_page
 
 
+
 manifest_view = cache_page(60 * 60)(
     TemplateView.as_view(template_name="manifest.json", content_type="application/json")
 )

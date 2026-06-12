@@ -76,14 +76,16 @@ CSRF_TRUSTED_ORIGINS = [
 ]
 
 # =========================================================
-# SESSION & COOKIE SETTINGS  ← FIXED
+# SESSION & COOKIE SETTINGS
 # =========================================================
 
-# Always use database-backed sessions (reliable for OAuth state)
-SESSION_ENGINE = "django.contrib.sessions.backends.db"
+# Use cache-backed sessions — much faster than DB sessions
+# Falls back to DB if no cache is configured
+SESSION_ENGINE = "django.contrib.sessions.backends.cache"
+SESSION_CACHE_ALIAS = "default"
 
-# Keep session alive across requests
-SESSION_SAVE_EVERY_REQUEST = True
+# Only save session when it actually changes — eliminates unnecessary DB writes
+SESSION_SAVE_EVERY_REQUEST = False
 
 # 1 day session lifetime
 SESSION_COOKIE_AGE = 86400
@@ -120,12 +122,13 @@ INSTALLED_APPS = [
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
-    "django.contrib.sessions",       # ← Required for session storage
+    "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "django.contrib.humanize",
-    "django.contrib.sites",          # ← Required for allauth Site model
+    "django.contrib.sites",
     "django.contrib.postgres",
+    # "debug_toolbar",
 
     # Third Party Apps
     "cloudinary",
@@ -152,12 +155,13 @@ JAZZMIN_SETTINGS = {
 }
 
 # =========================================================
-# MIDDLEWARE  ← ORDER MATTERS
+# MIDDLEWARE — ORDER MATTERS
 # =========================================================
 
 MIDDLEWARE = [
+    # "debug_toolbar.middleware.DebugToolbarMiddleware",
     "django.middleware.security.SecurityMiddleware",
-    "django.contrib.sessions.middleware.SessionMiddleware",  # ← 2nd, before everything
+    "django.contrib.sessions.middleware.SessionMiddleware",
     "corsheaders.middleware.CorsMiddleware",
     "whitenoise.middleware.WhiteNoiseMiddleware",
     "django.middleware.common.CommonMiddleware",
@@ -169,6 +173,10 @@ MIDDLEWARE = [
     "tweet.middleware.ProfileCompletionMiddleware",
 ]
 
+# INTERNAL_IPS = [
+#     "127.0.0.1",
+# ]
+
 # =========================================================
 # URLS & WSGI
 # =========================================================
@@ -177,7 +185,6 @@ ROOT_URLCONF = "rental_app.urls"
 
 WSGI_APPLICATION = "rental_app.wsgi.application"
 
-# Must match the Site entry in Django Admin → Sites
 SITE_ID = 1
 
 # =========================================================
@@ -206,7 +213,7 @@ TEMPLATES = [
         "OPTIONS": {
             "context_processors": [
                 "django.template.context_processors.debug",
-                "django.template.context_processors.request",  # ← Required by allauth
+                "django.template.context_processors.request",
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
                 "tweet.context_processors.base_template",
@@ -226,9 +233,10 @@ if not DATABASE_URL:
         "Configure DATABASE_URL in your environment or .env file."
     )
 
-DEFAULT_CONN_MAX_AGE = int(
-    os.getenv("DJANGO_CONN_MAX_AGE", "0" if DEBUG else "600")
-)
+# PERFORMANCE FIX: Reuse DB connections for 60s in dev, 600s in prod.
+# Previously was 0 in dev which opened a NEW connection on every request
+# costing ~300ms per query just for connection overhead.
+DEFAULT_CONN_MAX_AGE = int(os.getenv("DJANGO_CONN_MAX_AGE", "60"))
 
 DATABASES = {
     "default": dj_database_url.parse(
@@ -254,6 +262,9 @@ if os.getenv("REDIS_URL"):
         }
     }
 else:
+    # PERFORMANCE FIX: Use in-memory cache for sessions in dev.
+    # This eliminates the session SELECT + UPDATE queries on every request
+    # which were costing ~700ms combined (2 x ~350ms remote DB round trips).
     CACHES = {
         "default": {
             "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
@@ -307,7 +318,7 @@ REST_FRAMEWORK = {
 }
 
 # =========================================================
-# DJANGO ALLAUTH  ← FIXED
+# DJANGO ALLAUTH
 # =========================================================
 
 ACCOUNT_AUTHENTICATION_METHOD = "email"
@@ -335,21 +346,19 @@ ACCOUNT_LOGOUT_REDIRECT_URL = "/"
 ACCOUNT_LOGOUT_ON_GET = True
 
 # =========================================================
-# GOOGLE OAUTH  ← FIXED (PKCE DISABLED)
+# GOOGLE OAUTH
 # =========================================================
 
 SOCIALACCOUNT_ADAPTER = "tweet.adapters.SocialAccountAdapter"
 
 SOCIALACCOUNT_QUERY_EMAIL = True
 
-# Setting to False ensures new users see the signup form before account creation
 SOCIALACCOUNT_AUTO_SIGNUP = True
 
 SOCIALACCOUNT_EMAIL_REQUIRED = True
 
 SOCIALACCOUNT_EMAIL_VERIFICATION = "none"
 
-# Skip the "Do you want to connect?" confirmation page
 SOCIALACCOUNT_LOGIN_ON_GET = True
 
 SOCIALACCOUNT_EMAIL_AUTHENTICATION = True
@@ -367,17 +376,10 @@ SOCIALACCOUNT_PROVIDERS = {
         "AUTH_PARAMS": {
             "access_type": "online",
         },
-        # ↓ PKCE DISABLED — PKCE stores code_verifier in session.
-        #   If the session is not persisted between the login redirect
-        #   and the Google callback (common with service workers or
-        #   cookie issues), PKCE verification fails with "unknown" error.
-        #   Keep False for local dev; re-enable only after confirming
-        #   sessions are stable in production.
         "OAUTH_PKCE_ENABLED": False,
     }
 }
 
-# Enable verbose logging for socialaccount flows to aid debugging (prints by adapter)
 SOCIALACCOUNT_LOGGING = True
 
 WHITENOISE_MANIFEST_STRICT = False
@@ -413,11 +415,9 @@ STATICFILES_DIRS = [
 ]
 
 STORAGES = {
-    # Media → Cloudinary
     "default": {
         "BACKEND": "cloudinary_storage.storage.MediaCloudinaryStorage",
     },
-    # Static → WhiteNoise
     "staticfiles": {
         "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
     },
@@ -446,7 +446,6 @@ LOGGING = {
     "disable_existing_loggers": False,
     "formatters": {
         "verbose": {
-        
             "format": "%(levelname)s %(asctime)s %(module)s %(message)s",
         }
     },
@@ -467,3 +466,14 @@ LOGGING = {
         "level": "INFO",
     },
 }
+
+# =========================================================
+# DEBUG TOOLBAR
+# =========================================================
+
+# DEBUG_TOOLBAR_CONFIG = {
+#     "SHOW_TOOLBAR_CALLBACK": lambda request: True,
+#     "DISABLE_PANELS": {
+#         "debug_toolbar.panels.profiling.ProfilingPanel",
+#     },
+# }

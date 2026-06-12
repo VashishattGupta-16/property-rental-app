@@ -90,8 +90,7 @@
     <!-- HTMX -->
     <meta name="htmx-config" content='{"historyRestoreAsHxRequest": false}'>
     <script src="https://unpkg.com/htmx.org@1.9.12"></script>
-    <script src="https://unpkg.com/htmx.org@1.9.12/dist/ext/view-transitions.js"></script>
-
+    <script src="https://unpkg.com/htmx.org@1.9.2/dist/ext/view-transitions.js"></script>
     <style>
         ::view-transition-group(root) {
             animation-duration: 0.2s;
@@ -341,33 +340,28 @@
             });
 
             // 2. Rapid Click Debouncing
-            let isNavigating = false;
-            document.body.addEventListener('htmx:beforeRequest', (e) => {
-                if (isNavigating && e.detail.requestConfig.trigger?.tagName === 'A') {
-                    e.preventDefault();
-                    return;
-                }
-                isNavigating = true;
-            });
-
-            // 3. Fallback Transition Management (For older browsers)
-            document.body.addEventListener('htmx:beforeSwap', (e) => {
-                // Add class to trigger CSS exit animation
-                document.body.classList.add('htmx-swapping');
-            });
-
-            document.body.addEventListener('htmx:afterSettle', () => {
-                // Remove class to trigger CSS entry animation
-                document.body.classList.remove('htmx-swapping');
-                isNavigating = false;
-            });
-
-            // 4. Smooth scroll to top on page change
-            document.body.addEventListener('htmx:afterSwap', (e) => {
-                if (e.detail.target.id === 'main-content') {
-                    window.scrollTo({ top: 0, behavior: 'instant' });
-                }
-            });
+            // This section is commented out as it's not directly related to the wishlist fix
+            // and might interfere with other HTMX behaviors.
+            // let isNavigating = false;
+            // document.body.addEventListener('htmx:beforeRequest', (e) => {
+            //     if (isNavigating && e.detail.requestConfig.trigger?.tagName === 'A') {
+            //         e.preventDefault();
+            //         return;
+            //     }
+            //     isNavigating = true;
+            // });
+            // document.body.addEventListener('htmx:beforeSwap', (e) => {
+            //     document.body.classList.add('htmx-swapping');
+            // });
+            // document.body.addEventListener('htmx:afterSettle', () => {
+            //     document.body.classList.remove('htmx-swapping');
+            //     isNavigating = false;
+            // });
+            // document.body.addEventListener('htmx:afterSwap', (e) => {
+            //     if (e.detail.target.id === 'main-content') {
+            //         window.scrollTo({ top: 0, behavior: 'instant' });
+            //     }
+            // });
         })();
     </script>
 
@@ -384,11 +378,16 @@
                 }
             }
 
-            window.addEventListener('DOMContentLoaded', () => {
-                body.classList.add('app-ready');
-                setTimeout(hideSplash, splashTimeout);
-            });
+            // Ensure splash screen is hidden on DOMContentLoaded and pageshow (for BFCache)
+            function initSplashAndAppReady() {
+                document.body.classList.add('app-ready'); // Ensure body is visible
+                setTimeout(hideSplash, splashTimeout); // Hide splash after delay
+            }
 
+            window.addEventListener('DOMContentLoaded', initSplashAndAppReady);
+            window.addEventListener('pageshow', (event) => {
+                if (event.persisted) initSplashAndAppReady();
+            });
         })();
     </script>
 

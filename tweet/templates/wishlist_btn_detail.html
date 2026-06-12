@@ -1,0 +1,14 @@
+{% load static %}
+<form action="{% url 'toggle_wishlist' rental.id %}" method="POST"
+    class="js-wishlist-form inline"
+    hx-post="{% url 'toggle_wishlist' rental.id %}"
+    hx-target="this"
+    hx-swap="outerHTML"
+    hx-headers='{"HX-Request": "true"}'>
+    {% csrf_token %}
+    <button type="submit"
+        class="wishlist-btn inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-black/50 backdrop-blur-md border border-white/10 text-white hover:bg-red-500/80 transition-all duration-300 active:scale-95">
+        <i class="{{ is_wishlisted|yesno:'fa-solid fa-heart text-red-500,fa-regular fa-heart' }}"></i>
+        <span class="text-sm font-bold">{{ is_wishlisted|yesno:'Saved,Save' }}</span>
+    </button>
+</form>

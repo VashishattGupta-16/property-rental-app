@@ -1,4 +1,6 @@
-from django.urls import path
+from django.urls import path, include
+# from django.conf import settings
+# import debug_toolbar
 from . import views
 
 urlpatterns = [
@@ -9,17 +11,16 @@ urlpatterns = [
     path("rentals/<slug:slug>/edit/", views.rental_edit, name="rental_edit"),
     path("rentals/<slug:slug>/delete/", views.rental_delete, name="rental_delete"),
     path("rentals/<int:rental_id>/contact/", views.rental_contact, name="rental_contact"),
-    # Share and Visit Tracking URLs
     path("api/share/<slug:slug>/", views.create_share_link, name="create_share_link"),
     path("track/<int:share_id>/", views.track_visit, name="track_visit"),
-
     path("profile/", views.profile, name="profile"),
     path("profile/setup/", views.profile_setup, name="profile_setup"),
-
     path("about/", views.about, name="about"),
     path("offline/", views.offline, name="offline"),
     path("ping/", views.ping_view, name="ping"),
-    # Wishlist
     path("wishlist/", views.wishlist, name="wishlist"),
     path("wishlist/toggle/<int:rental_id>/", views.toggle_wishlist, name="toggle_wishlist"),
 ]
+
+# if settings.DEBUG:
+#     urlpatterns += [path("__debug__/", include(debug_toolbar.urls))]

@@ -187,34 +187,26 @@
 
                 </div>
 
-                <!-- Saved Badge -->
+                <!-- <!-- Saved Badge
                 <div class="absolute top-3 left-3 z-[90]">
                     <span data-wishlist-badge
                         class="px-2 py-1 rounded-full text-[9px] font-black tracking-wide bg-red-500/20 text-red-200 border border-red-500/30 backdrop-blur-md transition-opacity {% if rental.is_wishlisted %}opacity-100{% else %}opacity-0{% endif %}">
                         Saved
                     </span>
-                </div>
+                </div> -->
 
                 <!-- Wishlist Button -->
-                <!-- <form action="{% url 'toggle_wishlist' rental.id %}" method="POST"
+                <form action="{% url 'toggle_wishlist' rental.id %}" method="POST" 
                     class="js-wishlist-form absolute top-3 right-3 z-[100]"
-                    hx-post="{% url 'toggle_wishlist' rental.id %}" hx-target="this" hx-swap="outerHTML"
-                    hx-boost="false">
-
+                    hx-post="{% url 'toggle_wishlist' rental.id %}" 
+                    hx-target="this" 
+                    hx-swap="outerHTML" 
+                    hx-headers='{"HX-Request": "true"}'>
                     {% csrf_token %}
-
-                    <button type="submit" data-wishlisted="{{ rental.is_wishlisted|yesno:'1,0' }}"
-                        aria-pressed="{{ rental.is_wishlisted|yesno:'true,false' }}"
-                        class="wishlist-btn w-9 h-9 rounded-full bg-black/50 backdrop-blur-md border border-white/10 flex items-center justify-center text-white hover:bg-red-500/80 transition-all duration-300 active:scale-90 shadow-lg"
-                        aria-label="{{ rental.is_wishlisted|yesno:'Remove from wishlist,Add to wishlist' }}">
-
-                        <i
-                            class="{{ rental.is_wishlisted|yesno:'fa-solid fa-heart text-red-500,fa-regular fa-heart' }} text-lg"></i>
-
+                    <button type="submit" class="wishlist-btn w-9 h-9 rounded-full bg-black/50 backdrop-blur-md border border-white/10 flex items-center justify-center text-white hover:bg-red-500/80 transition-all duration-300 active:scale-90 shadow-lg">
+                        <i class="{{ rental.is_wishlisted|yesno:'fa-solid fa-heart text-red-500,fa-regular fa-heart' }} text-sm"></i>
                     </button>
-
-                </form> -->
-
+                </form>
             </div>
 
             <!-- CONTENT -->

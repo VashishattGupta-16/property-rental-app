@@ -72,19 +72,17 @@
 
             <!-- Wishlist Button (Detail) -->
             <div class="mt-4 text-left">
-                <form action="{% url 'toggle_wishlist' rental.id %}" method="POST" class="js-wishlist-form inline"
-                    hx-post="{% url 'toggle_wishlist' rental.id %}" hx-target="this" hx-swap="outerHTML"
-                    hx-boost="false">
-                    {% csrf_token %}
-                    <button type="submit" data-wishlisted="{{ is_wishlisted|yesno:'1,0' }}"
-                        aria-pressed="{{ is_wishlisted|yesno:'true,false' }}"
-                        class="wishlist-btn inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-black/50 backdrop-blur-md border border-white/10 text-white hover:bg-red-500/80 transition-all duration-300 active:scale-95">
-                        <i class="{{ is_wishlisted|yesno:'fa-solid fa-heart text-red-500,fa-regular fa-heart' }}"></i>
-                        <span class="text-sm font-bold">{{ is_wishlisted|yesno:'Saved,Save' }}</span>
-                    </button>
-                </form>
+                <button
+                    id="wishlist-btn"
+                    data-rental-id="{{ rental.id }}"
+                    data-wishlisted="{{ is_wishlisted|yesno:'1,0' }}"
+                    data-csrf="{{ csrf_token }}"
+                    onclick="toggleWishlist(this)"
+                    class="wishlist-btn inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-black/50 backdrop-blur-md border border-white/10 text-white hover:bg-red-500/80 transition-all duration-300 active:scale-95">
+                    <i id="wishlist-icon" class="{{ is_wishlisted|yesno:'fa-solid fa-heart text-red-500,fa-regular fa-heart' }}"></i>
+                    <span id="wishlist-label" class="text-sm font-bold">{{ is_wishlisted|yesno:'Saved,Save' }}</span>
+                </button>
             </div>
-
         </div>
     </div>
 
@@ -266,6 +264,41 @@
         document.execCommand("copy");
         alert("Link copied!");
     }
+</script>
+
+<script>
+function toggleWishlist(btn) {
+    const rentalId = btn.dataset.rentalId;
+    const csrf = btn.dataset.csrf;
+    const isWishlisted = btn.dataset.wishlisted === '1';
+
+    const icon = document.getElementById('wishlist-icon');
+    const label = document.getElementById('wishlist-label');
+
+    fetch(`/wishlist/toggle/${rentalId}/`, {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': csrf,
+            'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: `csrfmiddlewaretoken=${csrf}`
+    }).then(response => {
+        if (response.status === 401) {
+            return response.json().then(data => {
+                window.location.href = data.redirect;
+            });
+        }
+        if (isWishlisted) {
+            icon.className = 'fa-regular fa-heart';
+            label.textContent = 'Save';
+            btn.dataset.wishlisted = '0';
+        } else {
+            icon.className = 'fa-solid fa-heart text-red-500';
+            label.textContent = 'Saved';
+            btn.dataset.wishlisted = '1';
+        }
+    }).catch(() => {});
+}
 </script>
 
 {% endblock %}

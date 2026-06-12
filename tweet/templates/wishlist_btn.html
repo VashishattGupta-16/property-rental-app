@@ -1,0 +1,17 @@
+{% load static %}
+<form action="{% url 'toggle_wishlist' rental.id %}" method="POST"
+    class="js-wishlist-form absolute top-3 right-3 z-[100]"
+    hx-post="{% url 'toggle_wishlist' rental.id %}"
+    hx-target="this"
+    hx-swap="outerHTML"
+    hx-headers='{"HX-Request": "true"}'>
+    {% csrf_token %}
+    <button type="submit"
+        data-wishlisted="{{ is_wishlisted|yesno:'1,0' }}"
+        aria-pressed="{{ is_wishlisted|yesno:'true,false' }}"
+        class="wishlist-btn w-9 h-9 rounded-full bg-black/50 backdrop-blur-md border border-white/10 flex items-center justify-center text-white hover:bg-red-500/80 transition-all duration-300 active:scale-90 shadow-lg"
+        aria-label="{{ is_wishlisted|yesno:'Remove from wishlist,Add to wishlist' }}"&gt;
+        <i class="{{ is_wishlisted|yesno:'fa-solid fa-heart text-red-500,fa-regular fa-heart' }} text-lg"></i>
+    </button>
+    <span id="wishlist-count-badge" hx-swap-oob="true">{{ wishlist_count|default:"0" }}</span>
+</form>

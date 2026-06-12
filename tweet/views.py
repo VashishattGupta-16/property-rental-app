@@ -1,4 +1,5 @@
 from django.shortcuts import render, get_object_or_404, redirect
+from django.urls import reverse, reverse_lazy
 from django.core.paginator import Paginator
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.http import require_POST
@@ -138,61 +139,56 @@ def rental_detail(request, slug):
 # =========================================================
 
 
-@login_required
 @require_POST
 def toggle_wishlist(request, rental_id):
-    from .models import Rental as _Rental
+    if not request.user.is_authenticated:
+        login_url = '/accounts/login/'
+        if request.headers.get('HX-Request') == 'true':
+            response = HttpResponse()
+            response['HX-Redirect'] = login_url
+            return response
+        return JsonResponse({'redirect': login_url}, status=401)
 
-    rental = get_object_or_404(_Rental, pk=rental_id)
+    rental = get_object_or_404(Rental, pk=rental_id)
     user = request.user
 
-    # Try legacy Wishlist model first
-    try:
-        obj, created = Wishlist.objects.get_or_create(user=user, rental=rental)
-        if not created:
-            # Already exists -> remove
-            obj.delete()
-            wishlisted = False
-        else:
-            wishlisted = True
-    except Exception:
-        # Fallback to M2M
-        if rental.wishlisted_by.filter(pk=user.pk).exists():
-            rental.wishlisted_by.remove(user)
-            wishlisted = False
-        else:
-            rental.wishlisted_by.add(user)
-            wishlisted = True
+    deleted, _ = Wishlist.objects.filter(user=user, rental=rental).delete()
+    if deleted:
+        wishlisted = False
+    else:
+        Wishlist.objects.create(user=user, rental=rental)
+        wishlisted = True
 
-    # HTMX response
-    is_htmx = request.headers.get('HX-Request') == 'true'
-    is_boosted = request.headers.get('HX-Boosted') == 'true'
+    if request.headers.get('HX-Request') == 'true':
+        from django.middleware.csrf import get_token
+        heart = 'fa-solid fa-heart text-red-500' if wishlisted else 'fa-regular fa-heart'
+        toggle_url = f'/wishlist/toggle/{rental_id}/'
+        csrf = get_token(request)
+        html = f'''<form action="{toggle_url}" method="POST"
+            class="js-wishlist-form absolute top-3 right-3 z-[100]"
+            hx-post="{toggle_url}"
+            hx-target="this"
+            hx-swap="outerHTML"
+            hx-headers=\'{{"HX-Request": "true"}}\'>
+            <input type="hidden" name="csrfmiddlewaretoken" value="{csrf}">
+            <button type="submit"
+                class="wishlist-btn w-9 h-9 rounded-full bg-black/50 backdrop-blur-md border border-white/10 flex items-center justify-center text-white hover:bg-red-500/80 transition-all duration-300 active:scale-90 shadow-lg">
+                <i class="{heart} text-sm"></i>
+            </button>
+        </form>'''
+        return HttpResponse(html)
 
-    if is_htmx and not is_boosted:
-        # Render the wishlist fragment (full form) and return HTML for HTMX swap
-        try:
-            html = render_to_string('partials/wishlist_btn.html', {'rental': rental, 'is_wishlisted': wishlisted}, request=request)
-            return HttpResponse(html, content_type='text/html')
-        except Exception:
-            return HttpResponse(status=204)
-
-    if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-        return JsonResponse({'wishlisted': wishlisted, 'rental_id': rental_id, 'wishlist_count': request.user.wishlist_items.count() if hasattr(request.user, 'wishlist_items') else 0})
-
-    return redirect(request.META.get('HTTP_REFERER', '/'))
-
-
+    return JsonResponse({'wishlisted': wishlisted})
 @login_required
 def wishlist(request):
-    # Support legacy Wishlist queryset
     wishlist_items = Wishlist.objects.filter(user=request.user).select_related('rental').order_by('-created_at')
+
     paginator = Paginator(wishlist_items, 12)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
 
     return render(request, 'wishlist.html', {
         'wishlist': page_obj,
-        'wishlist_count': request.user.wishlist_items.count(),
     })
 
 
